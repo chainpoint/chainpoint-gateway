@@ -1,6 +1,6 @@
 FROM quay.io/chainpoint/node-base:master
 
-COPY package.json /home/node/app/
+COPY package.json package-lock.json /home/node/app/
 RUN /usr/local/bin/npm install --no-optional
 
 RUN mkdir /home/node/app/endpoints
