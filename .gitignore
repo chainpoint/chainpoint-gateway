@@ -1,3 +1,7 @@
+# Built executables
+dist/
+build/
+
 # Logs
 logs
 *.log

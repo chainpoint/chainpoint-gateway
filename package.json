@@ -1,0 +1,35 @@
+{
+  "name": "chainpoint-node",
+  "description": "",
+  "version": "1.0.0",
+  "main": "server.js",
+  "bin": {
+    "chainpoint": "./server.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "./node_modules/.bin/pkg . --targets node8-macos-x64,node8-linux-x64,node8-linux-x86,node8-alpine-x64 --out-path ./build/",
+    "build-debug": "./node_modules/.bin/pkg --debug . --targets node8-macos-x64,node8-linux-x64,node8-linux-x86,node8-alpine-x64 --out-path ./build/",
+    "build-clean": "rm -f ./build/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chainpoint/chainpoint-node.git"
+  },
+  "keywords": [
+    "chainpoint"
+  ],
+  "author": "Jason Bukowski <jason@tierion.com> (https://tierion.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/chainpoint/chainpoint-node/issues"
+  },
+  "homepage": "https://github.com/chainpoint/chainpoint-node#readme",
+  "dependencies": {
+    "restify": "^4.3.1",
+    "restify-cors-middleware": "^0.0.8"
+  },
+  "devDependencies": {
+    "pkg": "^4.1.1"
+  }
+}
