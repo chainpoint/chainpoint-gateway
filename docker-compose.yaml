@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+
+  chainpoint-node:
+    build: .
+    ports:
+      - "9090:8080"
