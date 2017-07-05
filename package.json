@@ -2,9 +2,9 @@
   "name": "chainpoint-node",
   "description": "",
   "version": "1.0.0",
-  "main": "chainpoint-node.js",
+  "main": "server.js",
   "bin": {
-    "chainpoint": "./chainpoint-node.js"
+    "chainpoint": "./server.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -27,14 +27,9 @@
   "homepage": "https://github.com/chainpoint/chainpoint-node#readme",
   "dependencies": {
     "envalid": "^3.1.1",
-    "lodash": "^4.17.4",
     "request": "^2.81.0",
     "restify": "^4.3.1",
-    "restify-cors-middleware": "^1.0.0",
-    "untildify": "^3.0.2",
-    "yargs": "^8.0.2"
+    "restify-cors-middleware": "^1.0.0"
   },
-  "devDependencies": {
-    "pkg": "^4.1.1"
-  }
+  "devDependencies": {}
 }
