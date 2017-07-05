@@ -1,8 +1,40 @@
 version: '2'
 
+networks:
+  chainpoint-node:
+    driver: bridge
+
 services:
 
+# Postgres
+  #
+  # See : https://hub.docker.com/_/postgres/
+  # Note: Connect locally on OS X:
+  #
+  # Installs local client 'psql'
+  #   brew install postgres
+  #
+  # Connect (uname/pass chainpoint/chainpoint):
+  #   psql -h 127.0.0.1 -U chainpoint
+  #
+  postgres:
+    restart: always
+    image: postgres:9.6.2-alpine
+    container_name: postgres
+    volumes:
+      - ./data/postgresql:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: chainpoint
+      POSTGRES_PASSWORD: chainpoint
+    ports:
+      - "5432:5432"
+    networks:
+      - chainpoint-node
+
   chainpoint-node:
+    container_name: chainpoint-node
     build: .
     ports:
       - "9090:8080"
+    networks:
+      - chainpoint-node

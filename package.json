@@ -27,9 +27,12 @@
   "homepage": "https://github.com/chainpoint/chainpoint-node#readme",
   "dependencies": {
     "envalid": "^3.1.1",
+    "pg": "^6.4.0",
+    "pg-hstore": "^2.3.2",
     "request": "^2.81.0",
     "restify": "^4.3.1",
-    "restify-cors-middleware": "^1.0.0"
+    "restify-cors-middleware": "^1.0.0",
+    "sequelize": "^4.2.1"
   },
   "devDependencies": {}
 }
