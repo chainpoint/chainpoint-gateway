@@ -1,79 +1,53 @@
-const restify = require('restify')
-const corsMiddleware = require('restify-cors-middleware')
-const apiRoot = require('./lib/endpoints/root.js')
-const apiHello = require('./lib/endpoints/hello.js')
+const { promisify } = require('util')
+const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 
 // pull in variables defined in shared CalendarBlock module
 let sequelize = calendarBlock.sequelize
 let CalendarBlock = calendarBlock.CalendarBlock
 
-// RESTIFY SETUP
-// 'version' : all routes will default to this version
-var server = restify.createServer({
-  name: 'chainpoint-node',
-  version: '1.0.0'
-})
-
-// Clean up sloppy paths like //todo//////1//
-server.pre(restify.pre.sanitizePath())
-
-// Checks whether the user agent is curl. If it is, it sets the
-// Connection header to "close" and removes the "Content-Length" header
-// See : http://restify.com/#server-api
-server.pre(restify.pre.userAgentConnection())
-
-var cors = corsMiddleware({
-  preflightMaxAge: 600,
-  origins: ['*']
-})
-server.pre(cors.preflight)
-server.use(cors.actual)
-
-server.use(restify.gzipResponse())
-server.use(restify.queryParser())
-server.use(restify.bodyParser())
-
-// API RESOURCES
-// get helloe message
-server.get({ path: '/hello', version: '1.0.0' }, apiHello.getV1)
-// teapot
-server.get({ path: '/', version: '1.0.0' }, apiRoot.getV1)
-
-// fire up restify
-function startListening () {
-  server.listen(8080, () => {
-    console.log('%s listening at %s', server.name, server.url)
-  })
+// await a specified number of milliseconds to elapse
+function timeout (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-/**
- * Opens a storage connection
- **/
-function openStorageConnection (callback) {
-  // Sync models to DB tables and trigger check
-  // if a new genesis block is needed.
-  sequelize.sync({ logging: false }).nodeify((err) => {
-    if (err) {
+// establish a connection with the database
+async function openStorageConnectionAsync () {
+  let storageConnected = false
+  while (!storageConnected) {
+    try {
+      await sequelize.sync({ logging: false }).then(() => {
+        storageConnected = true
+        console.log('CalendarBlock sequelize database synchronized')
+      })
+    } catch (error) {
       console.error('Cannot establish Postgres connection. Attempting in 5 seconds...')
-      setTimeout(openStorageConnection.bind(null, callback), 5 * 1000)
-    } else {
-      console.log('CalendarBlock sequelize database synchronized')
-      return callback(null, true)
+      await timeout(5000)
     }
-  })
+  }
 }
 
-function start () {
-  // Open storage connection and then amqp connection
-  openStorageConnection((err, result) => {
-    if (err) {
-      console.error(err)
-    } else {
-      // Init intervals and restify server
-      startListening()
-    }
+// instruct restify to begin listening for requests
+function startListening (callback) {
+  apiServer.listen(8080, (err) => {
+    if (err) return callback(err)
+    console.log(`${apiServer.name} listening at ${apiServer.url}`)
+    return callback(null)
   })
+}
+// make awaitable async version for startListening function
+let startListeningAsync = promisify(startListening)
+
+// process all steps need to start the application
+async function start () {
+  try {
+    await openStorageConnectionAsync()
+    await startListeningAsync()
+    console.log('startup completed successfully')
+  } catch (err) {
+    console.error(`An error has occurred on startup: ${err}`)
+    process.exit(1)
+  }
 }
 
 // get the whole show started
