@@ -7,34 +7,32 @@ const calendarBlock = require('./lib/models/CalendarBlock.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
 
+// the interval at which the service queries the calendar for new blocks
+const CALENDAR_UPDATE_SECONDS = 15
+
 // pull in variables defined in shared CalendarBlock module
 let sequelize = calendarBlock.sequelize
-let CalendarBlock = calendarBlock.CalendarBlock
-
-// state indicating if the local calendar is fully synched to the global calendar
-let calendarInSync = false
 
 // establish a connection with the database
 async function openStorageConnectionAsync () {
   let storageConnected = false
   while (!storageConnected) {
     try {
-      await sequelize.sync({ logging: false }).then(() => {
-        storageConnected = true
-        console.log('CalendarBlock sequelize database synchronized')
-      })
+      await sequelize.sync({ logging: false })
+      storageConnected = true
+      console.log('CalendarBlock sequelize database synchronized')
     } catch (error) {
       console.error('Cannot establish Postgres connection. Attempting in 5 seconds...')
-      await utils.sleep(5000)
+      await utils.sleepAsync(5000)
     }
   }
 }
 
 // instruct restify to begin listening for requests
 function startListening (callback) {
-  apiServer.listen(8080, (err) => {
+  apiServer.api.listen(8080, (err) => {
     if (err) return callback(err)
-    console.log(`${apiServer.name} listening at ${apiServer.url}`)
+    console.log(`${apiServer.api.name} listening at ${apiServer.api.url}`)
     return callback(null)
   })
 }
@@ -44,19 +42,27 @@ let startListeningAsync = promisify(startListening)
 // synchronize local calendar with global calendar, retreive all missing blocks
 async function syncCalendarAsync () {
   // get the stack config to determine caklendar block query max per request
-  let stackConfig = await utils.getStackConfig(env.CHAINPOINT_API_BASE_URI)
-  // pull down globall calendar until local calendar is in sync
-  await calendar.sync(stackConfig)
+  let stackConfig = await utils.getStackConfigAsync(env.CHAINPOINT_API_BASE_URI)
+  // pull down global calendar until local calendar is in sync, startup = true
+  await calendar.syncCalendarAsync(true, stackConfig)
   // mark the calendar as in sync, so the API and other functions know it is ready
-  calendarInSync = true
+  apiServer.setCalendarInSync(true)
+  // return the stackConfig for use in update process
+  return stackConfig
+}
+
+// start the interval process for keeping the calendar data up to date
+function startPeriodicUpdate (stackConfig) {
+  calendar.startPeriodicUpdateAsync(stackConfig, CALENDAR_UPDATE_SECONDS * 1000)
 }
 
 // process all steps need to start the application
-async function start () {
+async function startAsync () {
   try {
     await openStorageConnectionAsync()
     await startListeningAsync()
-    await syncCalendarAsync()
+    let stackConfig = await syncCalendarAsync()
+    startPeriodicUpdate(stackConfig)
     console.log('startup completed successfully')
   } catch (err) {
     console.error(`An error has occurred on startup: ${err}`)
@@ -65,4 +71,4 @@ async function start () {
 }
 
 // get the whole show started
-start()
+startAsync()
