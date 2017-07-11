@@ -10,6 +10,12 @@ const calendar = require('./lib/calendar.js')
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 15
 
+// the interval at which the service audits the entire local calendar
+const CALENDAR_RECENT_AUDIT_SECONDS = 30
+
+// the interval at which the service audits the entire local calendar
+const CALENDAR_FULL_AUDIT_SECONDS = 1800
+
 // pull in variables defined in shared CalendarBlock module
 let sequelize = calendarBlock.sequelize
 
@@ -51,9 +57,13 @@ async function syncCalendarAsync () {
   return stackConfig
 }
 
-// start the interval process for keeping the calendar data up to date
-function startPeriodicUpdate (stackConfig) {
+// start all functions meant to run on a periodic basis
+function startIntervals (stackConfig) {
+  // start the interval process for keeping the calendar data up to date
   calendar.startPeriodicUpdateAsync(stackConfig, CALENDAR_UPDATE_SECONDS * 1000)
+  // start the interval processes for auditing local calendar data
+  calendar.startAuditLocalRecentAsync(CALENDAR_RECENT_AUDIT_SECONDS * 1000)
+  calendar.startAuditLocalFullAsync(CALENDAR_FULL_AUDIT_SECONDS * 1000)
 }
 
 // process all steps need to start the application
@@ -62,7 +72,7 @@ async function startAsync () {
     await openStorageConnectionAsync()
     await startListeningAsync()
     let stackConfig = await syncCalendarAsync()
-    startPeriodicUpdate(stackConfig)
+    startIntervals(stackConfig)
     console.log('startup completed successfully')
   } catch (err) {
     console.error(`An error has occurred on startup: ${err}`)
