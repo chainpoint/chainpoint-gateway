@@ -38,3 +38,23 @@ services:
       - "9090:8080"
     networks:
       - chainpoint-node
+
+  # Redis
+  #
+  # LOCAL PORTS:
+  # redis : 6380 (+1 over default)
+  #
+  redis:
+    restart: always
+    image: redis:3.2.9-alpine
+    container_name: redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./data/redis:/data
+    networks:
+      - chainpoint-node
+    command:
+      - redis-server
+      - /usr/local/etc/redis/redis.conf
