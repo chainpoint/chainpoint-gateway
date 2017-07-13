@@ -6,6 +6,7 @@ const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
+const r = require('redis')
 
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 15
@@ -18,6 +19,27 @@ const CALENDAR_FULL_AUDIT_SECONDS = 1800
 
 // pull in variables defined in shared CalendarBlock module
 let sequelize = calendarBlock.sequelize
+
+// The redis connection used for all redis communication
+// This value is set once the connection has been established
+let redis = null
+
+// Opens a Redis connection
+function openRedisConnection (redisURI) {
+  redis = r.createClient(redisURI)
+  redis.on('ready', () => {
+    apiServer.setRedis(redis)
+    console.log('Redis connection established')
+  })
+  redis.on('error', async () => {
+    redis.quit()
+    redis = null
+    apiServer.setRedis(null)
+    console.error('Cannot establish Redis connection. Attempting in 5 seconds...')
+    await utils.sleep(5000)
+    openRedisConnection(redisURI)
+  })
+}
 
 // establish a connection with the database
 async function openStorageConnectionAsync () {
@@ -48,11 +70,11 @@ let startListeningAsync = promisify(startListening)
 // synchronize local calendar with global calendar, retreive all missing blocks
 async function syncCalendarAsync () {
   // get the stack config to determine caklendar block query max per request
-  let stackConfig = await utils.getStackConfigAsync(env.CHAINPOINT_API_BASE_URI)
+  let stackConfig = await utils.getStackConfigAsync(env.CHAINPOINT_CORE_API_BASE_URI)
   // pull down global calendar until local calendar is in sync, startup = true
   await calendar.syncCalendarAsync(true, stackConfig)
   // mark the calendar as in sync, so the API and other functions know it is ready
-  apiServer.setCalendarInSync(true)
+  // apiServer.setCalendarInSync(true)
   // return the stackConfig for use in update process
   return stackConfig
 }
@@ -69,6 +91,7 @@ function startIntervals (stackConfig) {
 // process all steps need to start the application
 async function startAsync () {
   try {
+    openRedisConnection(env.REDIS_CONNECT_URI)
     await openStorageConnectionAsync()
     await startListeningAsync()
     let stackConfig = await syncCalendarAsync()
