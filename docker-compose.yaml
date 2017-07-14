@@ -20,16 +20,18 @@ services:
   postgres:
     restart: always
     image: postgres:9.6.2-alpine
-    container_name: postgres
+    container_name: postgres-node
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: chainpoint
       POSTGRES_PASSWORD: chainpoint
     ports:
-      - "5432:5432"
+      - "5433:5433"
     networks:
       - chainpoint-node
+    command:
+      - -p 5433
 
   chainpoint-node:
     container_name: chainpoint-node
@@ -41,15 +43,13 @@ services:
 
   # Redis
   #
-  # LOCAL PORTS:
-  # redis : 6380 (+1 over default)
   #
   redis:
     restart: always
     image: redis:3.2.9-alpine
-    container_name: redis
+    container_name: redis-node
     ports:
-      - "6380:6379"
+      - "6381:6381"
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ./data/redis:/data
