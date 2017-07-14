@@ -12,7 +12,7 @@ const r = require('redis')
 const CALENDAR_UPDATE_SECONDS = 15
 
 // the interval at which the service audits the entire local calendar
-const CALENDAR_RECENT_AUDIT_SECONDS = 30
+const CALENDAR_RECENT_AUDIT_SECONDS = 60
 
 // the interval at which the service audits the entire local calendar
 const CALENDAR_FULL_AUDIT_SECONDS = 1800
