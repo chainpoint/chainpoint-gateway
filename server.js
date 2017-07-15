@@ -147,7 +147,7 @@ async function registerNode () {
       console.error('Unable register Node with Core. Retrying in 5 seconds...')
       if (++registerAttempts >= 5) {
         // We've tried 5 times with no success, display error an exit
-        console.error('Unable to register Node with Core after attempts, exiting : ' + error)
+        console.error('Unable to register Node with Core after 5 attempts, exiting : ' + error)
         process.exit(1)
       }
       await utils.sleepAsync(5000)
