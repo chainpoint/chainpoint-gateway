@@ -81,12 +81,12 @@ async function registerNode () {
         let hmacKey = utils.readFile(pathToKeyFile)
         let hash = crypto.createHmac('sha256', hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
-        let hmacTxt = [env.NODE_TNT_ADDRESS, env.NODE_IP_ADDRESS || null, dateString].join('')
+        let hmacTxt = [env.NODE_TNT_ADDRESS, env.NODE_PUBLIC_URI || null, dateString].join('')
         let calculatedHMAC = hash.update(hmacTxt).digest('hex')
 
         let putObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
-          ip_addr: env.NODE_IP_ADDRESS || undefined,
+          public_uri: env.NODE_PUBLIC_URI || undefined,
           hmac: calculatedHMAC
         }
 
@@ -111,7 +111,7 @@ async function registerNode () {
         // the file doesnt exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
-          ip_addr: env.NODE_IP_ADDRESS || undefined
+          public_uri: env.NODE_PUBLIC_URI || undefined
         }
 
         let postOptions = {
