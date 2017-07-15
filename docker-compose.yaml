@@ -40,6 +40,10 @@ services:
       - "9090:8080"
     networks:
       - chainpoint-node
+    environment:
+      CHAINPOINT_CORE_API_BASE_URI: ${CHAINPOINT_CORE_API_BASE_URI}
+      NODE_TNT_ADDRESS: ${NODE_TNT_ADDRESS}
+      NODE_IP_ADDRESS: ${NODE_IP_ADDRESS}
 
   # Redis
   #

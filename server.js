@@ -7,6 +7,14 @@ const calendarBlock = require('./lib/models/CalendarBlock.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
 const r = require('redis')
+const fs = require('fs')
+const untildify = require('untildify')
+const crypto = require('crypto')
+const rp = require('request-promise-native')
+const moment = require('moment')
+
+const HMACKEY_DIR = '~/.chainpoint'
+const HMACKEY_FILENAME = 'node-hmac.key'
 
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 15
@@ -36,7 +44,7 @@ function openRedisConnection (redisURI) {
     redis = null
     apiServer.setRedis(null)
     console.error('Cannot establish Redis connection. Attempting in 5 seconds...')
-    await utils.sleep(5000)
+    await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
   })
 }
@@ -56,6 +64,96 @@ async function openStorageConnectionAsync () {
   }
 }
 
+async function registerNode () {
+  let isRegistered = false
+  let registerAttempts = 0
+  while (!isRegistered) {
+    try {
+      // Ensure that the target directory exists
+      if (!fs.existsSync(untildify(HMACKEY_DIR))) {
+        fs.mkdirSync(untildify(HMACKEY_DIR))
+      }
+      let pathToKeyFile = untildify(`${HMACKEY_DIR}/${HMACKEY_FILENAME}`)
+      // Ensure that the target file exists
+      if (fs.existsSync(pathToKeyFile)) {
+        console.log('keyfile found')
+        // the file exists, so read the key and PUT Node info with HMAC to Core
+        let hmacKey = utils.readFile(pathToKeyFile)
+        let hash = crypto.createHmac('sha256', hmacKey)
+        let dateString = moment().utc().format('YYYYMMDDHHmm')
+        let hmacTxt = [env.NODE_TNT_ADDRESS, env.NODE_IP_ADDRESS || null, dateString].join('')
+        let calculatedHMAC = hash.update(hmacTxt).digest('hex')
+
+        let putObject = {
+          tnt_addr: env.NODE_TNT_ADDRESS,
+          ip_addr: env.NODE_IP_ADDRESS || undefined,
+          hmac: calculatedHMAC
+        }
+
+        let putOptions = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          method: 'PUT',
+          uri: `${env.CHAINPOINT_CORE_API_BASE_URI}/nodes/${env.NODE_TNT_ADDRESS}`,
+          body: putObject,
+          json: true,
+          gzip: true,
+          resolveWithFullResponse: true
+        }
+
+        let response = await rp(putOptions)
+        if (response.statusCode !== 200) throw new Error('Invalid response')
+        isRegistered = true
+        console.log('Node registered : key found : hmac computed and sent')
+      } else {
+        console.log('keyfile not found')
+        // the file doesnt exist, so POST Node info to Core and store resulting HMAC key
+        let postObject = {
+          tnt_addr: env.NODE_TNT_ADDRESS,
+          ip_addr: env.NODE_IP_ADDRESS || undefined
+        }
+
+        let postOptions = {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          method: 'POST',
+          uri: `${env.CHAINPOINT_CORE_API_BASE_URI}/nodes`,
+          body: postObject,
+          json: true,
+          gzip: true,
+          resolveWithFullResponse: true
+        }
+
+        try {
+          let response = await rp(postOptions)
+          isRegistered = true
+
+          utils.writeFile(pathToKeyFile, response.body.hmac_key)
+          console.log('Node registered : key not found : hmac key received and stored')
+        } catch (error) {
+          if (error.statusCode === 409) {
+          // the TNT address is already in use with an existing hmac key
+          // if the hmac key was lost, you need to re-register with a new
+          // TNT address and receive a new hmac key
+            console.error('NODE_TNT_ADDRESS already in use with existing HMAC key')
+            process.exit(1)
+          }
+          throw new Error('Invalid response')
+        }
+      }
+    } catch (error) {
+      console.error('Unable register Node with Core. Retrying in 5 seconds...')
+      if (++registerAttempts >= 5) {
+        // We've tried 5 times with no success, display error an exit
+        console.error('Unable to register Node with Core after attempts, exiting : ' + error)
+        process.exit(1)
+      }
+      await utils.sleepAsync(5000)
+    }
+  }
+}
 // instruct restify to begin listening for requests
 function startListening (callback) {
   apiServer.api.listen(8080, (err) => {
@@ -93,6 +191,7 @@ async function startAsync () {
   try {
     openRedisConnection(env.REDIS_CONNECT_URI)
     await openStorageConnectionAsync()
+    await registerNode()
     await startListeningAsync()
     let stackConfig = await syncCalendarAsync()
     startIntervals(stackConfig)
