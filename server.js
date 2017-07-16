@@ -187,7 +187,7 @@ async function registerNode (publicUri) {
 function startListening (callback) {
   apiServer.api.listen(8080, (err) => {
     if (err) return callback(err)
-    console.log(`${apiServer.api.name} listening at ${apiServer.api.url}`)
+    console.log(`${apiServer.api.name} listening on port ${env.CHAINPOINT_NODE_PORT}`)
     return callback(null)
   })
 }
