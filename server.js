@@ -190,6 +190,7 @@ function startIntervals (stackConfig) {
 async function startAsync () {
   try {
     openRedisConnection(env.REDIS_CONNECT_URI)
+    console.log(`Configured target Core: ${env.CHAINPOINT_CORE_API_BASE_URI}`)
     await openStorageConnectionAsync()
     await registerNode()
     await startListeningAsync()
