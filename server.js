@@ -12,6 +12,8 @@ const untildify = require('untildify')
 const crypto = require('crypto')
 const rp = require('request-promise-native')
 const moment = require('moment')
+const url = require('url')
+const ip = require('ip')
 
 const HMACKEY_DIR = '/home/node/app/.chainpoint'
 const HMACKEY_FILENAME = 'node-hmac.key'
@@ -47,6 +49,19 @@ function openRedisConnection (redisURI) {
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
   })
+}
+
+// ensure that the public Uri provided is a valid public ip if an ip is supplied
+async function validatePublicUri () {
+  let publicUri = env.NODE_PUBLIC_URI || null
+  if (!publicUri) return // no value was provided, nothing to check
+  let parsedPublicUri = url.parse(publicUri)
+  // ensure the prorer protocal is in use
+  if (['http', 'https'].indexOf(parsedPublicUri.protocol.toLowerCase()) === -1) throw new Error('Invalid NODE_PUBLIC_URI')
+  // ensure, if hostname is an IP, that it is not a private IP
+  if (ip.isV4Format(publicUri.hostname)) {
+    if (ip.isPrivate(publicUri.hostname)) throw new Error('Invalid NODE_PUBLIC_URI')
+  }
 }
 
 // establish a connection with the database
@@ -191,6 +206,7 @@ async function startAsync () {
   try {
     openRedisConnection(env.REDIS_CONNECT_URI)
     console.log(`Configured target Core: ${env.CHAINPOINT_CORE_API_BASE_URI}`)
+    await validatePublicUri()
     await openStorageConnectionAsync()
     await registerNode()
     await startListeningAsync()
