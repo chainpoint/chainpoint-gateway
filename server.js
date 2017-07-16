@@ -12,7 +12,6 @@ const untildify = require('untildify')
 const crypto = require('crypto')
 const rp = require('request-promise-native')
 const moment = require('moment')
-const url = require('url')
 const ip = require('ip')
 
 const HMACKEY_DIR = '/home/node/app/.chainpoint'
@@ -53,15 +52,30 @@ function openRedisConnection (redisURI) {
 
 // ensure that the public Uri provided is a valid public ip if an ip is supplied
 async function validatePublicUri () {
-  let publicUri = env.NODE_PUBLIC_URI || null
-  if (!publicUri) return // no value was provided, nothing to check
-  let parsedPublicUri = url.parse(publicUri)
-  // ensure the prorer protocal is in use
-  if (['http', 'https'].indexOf(parsedPublicUri.protocol.toLowerCase()) === -1) throw new Error('Invalid NODE_PUBLIC_URI')
-  // ensure, if hostname is an IP, that it is not a private IP
-  if (ip.isV4Format(publicUri.hostname)) {
-    if (ip.isPrivate(publicUri.hostname)) throw new Error('Invalid NODE_PUBLIC_URI')
+  let publicScheme = env.CHAINPOINT_NODE_PUBLIC_SCHEME || null
+  let publicAddr = env.CHAINPOINT_NODE_PUBLIC_ADDR || null
+  let nodePort = env.CHAINPOINT_NODE_PORT || null
+  if (!publicScheme || !publicAddr) {
+    // values were not provided for both public variables, no public access
+    return null
   }
+  // ensure the proper protocol is in use
+  if (['http', 'https'].indexOf(publicScheme.toLowerCase()) === -1) throw new Error('Invalid CHAINPOINT_NODE_PUBLIC_SCHEME')
+  // ensure, if hostname is an IP, that it is not a private IP
+  if (ip.isV4Format(publicAddr)) {
+    if (ip.isPrivate(publicAddr)) throw new Error('Invalid CHAINPOINT_NODE_PUBLIC_ADDR')
+  }
+  // disallow localhost
+  if (publicAddr === 'localhost') throw new Error('Invalid CHAINPOINT_NODE_PUBLIC_ADDR')
+  try {
+    nodePort = parseInt(nodePort)
+  } catch (error) {
+    throw new Error('Invalid CHAINPOINT_NODE_PORT')
+  }
+  if (nodePort < 1 || nodePort > 65535) throw new Error('Invalid CHAINPOINT_NODE_PORT')
+
+  let publicUri = `${publicScheme}://${publicAddr}:${nodePort}`
+  return publicUri
 }
 
 // establish a connection with the database
@@ -79,7 +93,7 @@ async function openStorageConnectionAsync () {
   }
 }
 
-async function registerNode () {
+async function registerNode (publicUri) {
   let isRegistered = false
   let registerAttempts = 0
   while (!isRegistered) {
@@ -96,12 +110,12 @@ async function registerNode () {
         let hmacKey = utils.readFile(pathToKeyFile)
         let hash = crypto.createHmac('sha256', hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
-        let hmacTxt = [env.NODE_TNT_ADDRESS, env.NODE_PUBLIC_URI || null, dateString].join('')
+        let hmacTxt = [env.NODE_TNT_ADDRESS, publicUri, dateString].join('')
         let calculatedHMAC = hash.update(hmacTxt).digest('hex')
 
         let putObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
-          public_uri: env.NODE_PUBLIC_URI || undefined,
+          public_uri: publicUri || undefined,
           hmac: calculatedHMAC
         }
 
@@ -126,7 +140,7 @@ async function registerNode () {
         // the file doesnt exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
-          public_uri: env.NODE_PUBLIC_URI || undefined
+          public_uri: publicUri || undefined
         }
 
         let postOptions = {
@@ -206,9 +220,9 @@ async function startAsync () {
   try {
     openRedisConnection(env.REDIS_CONNECT_URI)
     console.log(`Configured target Core: ${env.CHAINPOINT_CORE_API_BASE_URI}`)
-    await validatePublicUri()
+    let publicUri = await validatePublicUri()
     await openStorageConnectionAsync()
-    await registerNode()
+    await registerNode(publicUri)
     await startListeningAsync()
     let stackConfig = await syncCalendarAsync()
     startIntervals(stackConfig)
