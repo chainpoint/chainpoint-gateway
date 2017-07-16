@@ -13,7 +13,7 @@ const crypto = require('crypto')
 const rp = require('request-promise-native')
 const moment = require('moment')
 
-const HMACKEY_DIR = '~/.chainpoint'
+const HMACKEY_DIR = '/home/node/app/.chainpoint'
 const HMACKEY_FILENAME = 'node-hmac.key'
 
 // the interval at which the service queries the calendar for new blocks

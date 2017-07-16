@@ -36,7 +36,7 @@ services:
   chainpoint-node:
     container_name: chainpoint-node
     volumes:
-      - ~/.chainpoint:/root/.chainpoint
+      - ~/.chainpoint:/home/node/app/.chainpoint
     build: .
     ports:
       - "9090:8080"
