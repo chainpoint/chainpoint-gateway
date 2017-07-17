@@ -43,6 +43,8 @@
     "restify": "^4.3.1",
     "restify-cors-middleware": "^1.0.0",
     "sequelize": "^4.2.1",
+    "tweetnacl": "^1.0.0",
+    "tweetnacl-util": "^0.15.0",
     "untildify": "^3.0.2",
     "uuid": "^3.1.0",
     "uuid-time": "^1.0.0",
