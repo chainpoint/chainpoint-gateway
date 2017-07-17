@@ -4,8 +4,10 @@ const env = require('./lib/parse-env.js')
 const { promisify } = require('util')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
+const publicKey = require('./lib/models/PublicKey.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
+const publicKeys = require('./lib/public-keys.js')
 const r = require('redis')
 const fs = require('fs')
 const untildify = require('untildify')
@@ -27,7 +29,8 @@ const CALENDAR_RECENT_AUDIT_SECONDS = 60
 const CALENDAR_FULL_AUDIT_SECONDS = 1800
 
 // pull in variables defined in shared CalendarBlock module
-let sequelize = calendarBlock.sequelize
+let sequelizeCalBlock = calendarBlock.sequelize
+let sequelizePubKey = publicKey.sequelize
 
 // The redis connection used for all redis communication
 // This value is set once the connection has been established
@@ -83,9 +86,10 @@ async function openStorageConnectionAsync () {
   let storageConnected = false
   while (!storageConnected) {
     try {
-      await sequelize.sync({ logging: false })
+      await sequelizeCalBlock.sync({ logging: false })
+      await sequelizePubKey.sync({ logging: false })
       storageConnected = true
-      console.log('CalendarBlock sequelize database synchronized')
+      console.log('Successfully established Postgres connection')
     } catch (error) {
       console.error('Cannot establish Postgres connection. Attempting in 5 seconds...')
       await utils.sleepAsync(5000)
@@ -163,9 +167,9 @@ async function registerNode (publicUri) {
           console.log('Node registered : key not found : hmac key received and stored')
         } catch (error) {
           if (error.statusCode === 409) {
-          // the TNT address is already in use with an existing hmac key
-          // if the hmac key was lost, you need to re-register with a new
-          // TNT address and receive a new hmac key
+            // the TNT address is already in use with an existing hmac key
+            // if the hmac key was lost, you need to re-register with a new
+            // TNT address and receive a new hmac key
             console.error('NODE_TNT_ADDRESS already in use with existing HMAC key')
             process.exit(1)
           }
@@ -183,6 +187,30 @@ async function registerNode (publicUri) {
     }
   }
 }
+
+async function getCoreStackConfig () {
+  // get the Core stack config
+  let stackConfig = await utils.getStackConfigAsync(env.CHAINPOINT_CORE_API_BASE_URI)
+  console.log(`Successfully retrieved the Core configuration for ${env.CHAINPOINT_CORE_API_BASE_URI}`)
+  return stackConfig
+}
+
+async function initPublicKeysAsync (stackConfig) {
+  // check to see if public keys exists in database
+  try {
+    let pubKeys = await publicKeys.getLocalPublicKeysAsync()
+    if (!pubKeys) {
+      // if no public keys are present in database, store keys from stackConfig in DB and return them
+      await publicKeys.storeConfigPubKeyAsync(stackConfig.public_keys)
+      pubKeys = await publicKeys.getLocalPublicKeysAsync()
+    }
+    console.log(`Public key values initialized`)
+    return pubKeys
+  } catch (error) {
+    throw new Error(`Unable to initialize public key values : ${error.message}`)
+  }
+}
+
 // instruct restify to begin listening for requests
 function startListening (callback) {
   apiServer.api.listen(8080, (err) => {
@@ -195,11 +223,9 @@ function startListening (callback) {
 let startListeningAsync = promisify(startListening)
 
 // synchronize local calendar with global calendar, retreive all missing blocks
-async function syncCalendarAsync () {
-  // get the stack config to determine caklendar block query max per request
-  let stackConfig = await utils.getStackConfigAsync(env.CHAINPOINT_CORE_API_BASE_URI)
+async function syncCalendarAsync (stackConfig, pubKeys) {
   // pull down global calendar until local calendar is in sync, startup = true
-  await calendar.syncCalendarAsync(true, stackConfig)
+  await calendar.syncCalendarAsync(true, stackConfig, pubKeys)
   // mark the calendar as in sync, so the API and other functions know it is ready
   // apiServer.setCalendarInSync(true)
   // return the stackConfig for use in update process
@@ -223,8 +249,10 @@ async function startAsync () {
     let publicUri = await validatePublicUri()
     await openStorageConnectionAsync()
     await registerNode(publicUri)
+    let stackConfig = await getCoreStackConfig()
+    let pubKeys = await initPublicKeysAsync(stackConfig)
     await startListeningAsync()
-    let stackConfig = await syncCalendarAsync()
+    await syncCalendarAsync(stackConfig, pubKeys)
     startIntervals(stackConfig)
     console.log('startup completed successfully')
   } catch (err) {
