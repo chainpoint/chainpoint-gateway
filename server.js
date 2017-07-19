@@ -15,6 +15,7 @@ const crypto = require('crypto')
 const rp = require('request-promise-native')
 const moment = require('moment')
 const ip = require('ip')
+const bluebird = require('bluebird')
 
 const HMACKEY_DIR = '/home/node/app/.chainpoint'
 const HMACKEY_FILENAME = 'node-hmac.key'
@@ -28,6 +29,9 @@ const CALENDAR_RECENT_AUDIT_SECONDS = 60
 // the interval at which the service audits the entire local calendar
 const CALENDAR_FULL_AUDIT_SECONDS = 1800
 
+// the interval at which the service calculates the Core challenge solution
+const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
+
 // pull in variables defined in shared CalendarBlock module
 let sequelizeCalBlock = calendarBlock.sequelize
 let sequelizePubKey = publicKey.sequelize
@@ -40,13 +44,16 @@ let redis = null
 function openRedisConnection (redisURI) {
   redis = r.createClient(redisURI)
   redis.on('ready', () => {
+    bluebird.promisifyAll(redis)
     apiServer.setRedis(redis)
+    calendar.setRedis(redis)
     console.log('Redis connection established')
   })
   redis.on('error', async () => {
     redis.quit()
     redis = null
     apiServer.setRedis(null)
+    calendar.setRedis(null)
     console.error('Cannot establish Redis connection. Attempting in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
@@ -226,10 +233,6 @@ let startListeningAsync = promisify(startListening)
 async function syncCalendarAsync (stackConfig, pubKeys) {
   // pull down global calendar until local calendar is in sync, startup = true
   await calendar.syncCalendarAsync(true, stackConfig, pubKeys)
-  // mark the calendar as in sync, so the API and other functions know it is ready
-  // apiServer.setCalendarInSync(true)
-  // return the stackConfig for use in update process
-  return stackConfig
 }
 
 // start all functions meant to run on a periodic basis
@@ -239,6 +242,8 @@ function startIntervals (stackConfig) {
   // start the interval processes for auditing local calendar data
   calendar.startAuditLocalRecentAsync(CALENDAR_RECENT_AUDIT_SECONDS * 1000)
   calendar.startAuditLocalFullAsync(CALENDAR_FULL_AUDIT_SECONDS * 1000)
+  // start the interval processes for calculating the solution to the Core audit challenge
+  calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
 }
 
 // process all steps need to start the application
