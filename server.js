@@ -171,7 +171,7 @@ async function registerNode (publicUri) {
           isRegistered = true
 
           utils.writeFile(pathToKeyFile, response.body.hmac_key)
-          console.log('Node registered : key not found : hmac key received and stored')
+          console.log('Node registered : hmac key not found : new key received and save to ~/.chainpoint/node-hmac.key')
         } catch (error) {
           if (error.statusCode === 409) {
             // the TNT address is already in use with an existing hmac key
