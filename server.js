@@ -142,8 +142,13 @@ async function registerNode (publicUri) {
           resolveWithFullResponse: true
         }
 
-        let response = await rp(putOptions)
-        if (response.statusCode !== 200) throw new Error('Invalid response')
+        try {
+          await rp(putOptions)
+        } catch (error) {
+          if (error.statusCode !== 200) throw new Error(`Invalid response - ${error.statusCode}`)
+          throw new Error(error)
+        }
+
         isRegistered = true
         console.log('Node registered : key found : hmac computed and sent')
       } else {
@@ -180,7 +185,7 @@ async function registerNode (publicUri) {
             console.error('NODE_TNT_ADDRESS already in use with existing HMAC key')
             process.exit(1)
           }
-          throw new Error('Invalid response')
+          throw new Error(`Invalid response - ${error.statusCode}`)
         }
       }
     } catch (error) {
