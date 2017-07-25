@@ -13,7 +13,6 @@ const r = require('redis')
 const fs = require('fs')
 const untildify = require('untildify')
 const crypto = require('crypto')
-const rp = require('request-promise-native')
 const moment = require('moment')
 const ip = require('ip')
 const bluebird = require('bluebird')
@@ -107,10 +106,9 @@ async function openStorageConnectionAsync () {
   }
 }
 
-async function registerNode (publicUri) {
+async function registerNodeAsync (publicUri) {
   let isRegistered = false
   let registerAttempts = 0
-  let coreUri = await coreHosts.getCurrentCoreUriAsync()
   while (!isRegistered) {
     try {
       // Ensure that the target directory exists
@@ -139,7 +137,7 @@ async function registerNode (publicUri) {
             'Content-Type': 'application/json'
           },
           method: 'PUT',
-          uri: `${coreUri}/nodes/${env.NODE_TNT_ADDRESS}`,
+          uri: `/nodes/${env.NODE_TNT_ADDRESS}`,
           body: putObject,
           json: true,
           gzip: true,
@@ -147,10 +145,10 @@ async function registerNode (publicUri) {
         }
 
         try {
-          await rp(putOptions)
+          await coreHosts.coreRequestAsync(putOptions)
         } catch (error) {
-          if (error.statusCode !== 200) throw new Error(`Invalid response - ${error.statusCode}`)
-          throw new Error(error)
+          if (error.statusCode) throw new Error(`Invalid response : ${error.statusCode} : ${error.message}`)
+          throw new Error(`No response received on PUT node : ${error.message}`)
         }
 
         isRegistered = true
@@ -168,7 +166,7 @@ async function registerNode (publicUri) {
             'Content-Type': 'application/json'
           },
           method: 'POST',
-          uri: `${coreUri}/nodes`,
+          uri: `/nodes`,
           body: postObject,
           json: true,
           gzip: true,
@@ -176,10 +174,10 @@ async function registerNode (publicUri) {
         }
 
         try {
-          let response = await rp(postOptions)
+          let response = await coreHosts.coreRequestAsync(postOptions)
           isRegistered = true
 
-          utils.writeFile(pathToKeyFile, response.body.hmac_key)
+          utils.writeFile(pathToKeyFile, response.hmac_key)
           console.log('Node registered : hmac key not found : new key received and saved to ~/.chainpoint/node-hmac.key')
         } catch (error) {
           if (error.statusCode === 409) {
@@ -189,7 +187,8 @@ async function registerNode (publicUri) {
             console.error('NODE_TNT_ADDRESS already in use with existing HMAC key')
             process.exit(1)
           }
-          throw new Error(`Invalid response - ${error.statusCode}`)
+          if (error.statusCode) throw new Error(`Invalid response : ${error.statusCode} : ${error.message}`)
+          throw new Error(`No response received on POST node : ${error.message}`)
         }
       }
     } catch (error) {
@@ -204,21 +203,13 @@ async function registerNode (publicUri) {
   }
 }
 
-async function getCoreStackConfig () {
-  // get the Core stack config
-  let coreUri = await coreHosts.getCurrentCoreUriAsync()
-  let stackConfig = await utils.getStackConfigAsync(coreUri)
-  console.log(`Successfully retrieved the Core configuration for ${coreUri}`)
-  return stackConfig
-}
-
-async function initPublicKeysAsync (stackConfig) {
+async function initPublicKeysAsync (coreConfig) {
   // check to see if public keys exists in database
   try {
     let pubKeys = await publicKeys.getLocalPublicKeysAsync()
     if (!pubKeys) {
-      // if no public keys are present in database, store keys from stackConfig in DB and return them
-      await publicKeys.storeConfigPubKeyAsync(stackConfig.public_keys)
+      // if no public keys are present in database, store keys from coreConfig in DB and return them
+      await publicKeys.storeConfigPubKeyAsync(coreConfig.public_keys)
       pubKeys = await publicKeys.getLocalPublicKeysAsync()
     }
     console.log(`Public key values initialized`)
@@ -240,15 +231,15 @@ function startListening (callback) {
 let startListeningAsync = promisify(startListening)
 
 // synchronize local calendar with global calendar, retreive all missing blocks
-async function syncCalendarAsync (stackConfig, pubKeys) {
+async function syncCalendarAsync (coreConfig, pubKeys) {
   // pull down global calendar until local calendar is in sync, startup = true
-  await calendar.syncCalendarAsync(true, stackConfig, pubKeys)
+  await calendar.syncCalendarAsync(true, coreConfig, pubKeys)
 }
 
 // start all functions meant to run on a periodic basis
-function startIntervals (stackConfig) {
+function startIntervals (coreConfig) {
   // start the interval process for keeping the calendar data up to date
-  calendar.startPeriodicUpdateAsync(stackConfig, CALENDAR_UPDATE_SECONDS * 1000)
+  calendar.startPeriodicUpdateAsync(coreConfig, CALENDAR_UPDATE_SECONDS * 1000)
   // start the interval processes for auditing local calendar data
   calendar.startAuditLocalRecentAsync(CALENDAR_RECENT_AUDIT_SECONDS * 1000)
   calendar.startAuditLocalFullAsync(CALENDAR_FULL_AUDIT_SECONDS * 1000)
@@ -263,12 +254,12 @@ async function startAsync () {
     await coreHosts.initCoreHostsFromDNSAsync()
     let publicUri = await validatePublicUriAsync()
     await openStorageConnectionAsync()
-    await registerNode(publicUri)
-    let stackConfig = await getCoreStackConfig()
-    let pubKeys = await initPublicKeysAsync(stackConfig)
+    await registerNodeAsync(publicUri)
+    let coreConfig = await coreHosts.getCoreConfigAsync()
+    let pubKeys = await initPublicKeysAsync(coreConfig)
     await startListeningAsync()
-    await syncCalendarAsync(stackConfig, pubKeys)
-    startIntervals(stackConfig)
+    await syncCalendarAsync(coreConfig, pubKeys)
+    startIntervals(coreConfig)
     console.log('startup completed successfully')
   } catch (err) {
     console.error(`An error has occurred on startup: ${err}`)
