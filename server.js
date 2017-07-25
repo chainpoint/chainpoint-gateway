@@ -8,6 +8,7 @@ const publicKey = require('./lib/models/PublicKey.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
 const publicKeys = require('./lib/public-keys.js')
+const coreHosts = require('./lib/core-hosts.js')
 const r = require('redis')
 const fs = require('fs')
 const untildify = require('untildify')
@@ -47,6 +48,7 @@ function openRedisConnection (redisURI) {
     bluebird.promisifyAll(redis)
     apiServer.setRedis(redis)
     calendar.setRedis(redis)
+    coreHosts.setRedis(redis)
     console.log('Redis connection established')
   })
   redis.on('error', async () => {
@@ -54,6 +56,7 @@ function openRedisConnection (redisURI) {
     redis = null
     apiServer.setRedis(null)
     calendar.setRedis(null)
+    coreHosts.setRedis(null)
     console.error('Cannot establish Redis connection. Attempting in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
@@ -61,7 +64,7 @@ function openRedisConnection (redisURI) {
 }
 
 // ensure that the public Uri provided is a valid public ip if an ip is supplied
-async function validatePublicUri () {
+async function validatePublicUriAsync () {
   let publicScheme = env.CHAINPOINT_NODE_PUBLIC_SCHEME || null
   let publicAddr = env.CHAINPOINT_NODE_PUBLIC_ADDR || null
   let nodePort = env.CHAINPOINT_NODE_PORT || null
@@ -107,6 +110,7 @@ async function openStorageConnectionAsync () {
 async function registerNode (publicUri) {
   let isRegistered = false
   let registerAttempts = 0
+  let coreUri = await coreHosts.getCurrentCoreUriAsync()
   while (!isRegistered) {
     try {
       // Ensure that the target directory exists
@@ -135,7 +139,7 @@ async function registerNode (publicUri) {
             'Content-Type': 'application/json'
           },
           method: 'PUT',
-          uri: `${env.CHAINPOINT_CORE_API_BASE_URI}/nodes/${env.NODE_TNT_ADDRESS}`,
+          uri: `${coreUri}/nodes/${env.NODE_TNT_ADDRESS}`,
           body: putObject,
           json: true,
           gzip: true,
@@ -164,7 +168,7 @@ async function registerNode (publicUri) {
             'Content-Type': 'application/json'
           },
           method: 'POST',
-          uri: `${env.CHAINPOINT_CORE_API_BASE_URI}/nodes`,
+          uri: `${coreUri}/nodes`,
           body: postObject,
           json: true,
           gzip: true,
@@ -202,8 +206,9 @@ async function registerNode (publicUri) {
 
 async function getCoreStackConfig () {
   // get the Core stack config
-  let stackConfig = await utils.getStackConfigAsync(env.CHAINPOINT_CORE_API_BASE_URI)
-  console.log(`Successfully retrieved the Core configuration for ${env.CHAINPOINT_CORE_API_BASE_URI}`)
+  let coreUri = await coreHosts.getCurrentCoreUriAsync()
+  let stackConfig = await utils.getStackConfigAsync(coreUri)
+  console.log(`Successfully retrieved the Core configuration for ${coreUri}`)
   return stackConfig
 }
 
@@ -255,8 +260,8 @@ function startIntervals (stackConfig) {
 async function startAsync () {
   try {
     openRedisConnection(env.REDIS_CONNECT_URI)
-    console.log(`Configured target Core: ${env.CHAINPOINT_CORE_API_BASE_URI}`)
-    let publicUri = await validatePublicUri()
+    await coreHosts.initCoreHostsFromDNSAsync()
+    let publicUri = await validatePublicUriAsync()
     await openStorageConnectionAsync()
     await registerNode(publicUri)
     let stackConfig = await getCoreStackConfig()
