@@ -153,6 +153,8 @@ async function registerNodeAsync (publicUri) {
 
         isRegistered = true
         console.log('Node registered : key found : hmac computed and sent')
+
+        return hmacKey
       } else {
         console.log('keyfile not found')
         // the file doesnt exist, so POST Node info to Core and store resulting HMAC key
@@ -179,6 +181,8 @@ async function registerNodeAsync (publicUri) {
 
           utils.writeFile(pathToKeyFile, response.hmac_key)
           console.log('Node registered : hmac key not found : new key received and saved to ~/.chainpoint/node-hmac.key')
+
+          return response.hmac_key
         } catch (error) {
           if (error.statusCode === 409) {
             // the TNT address is already in use with an existing hmac key
@@ -254,7 +258,8 @@ async function startAsync () {
     await coreHosts.initCoreHostsFromDNSAsync()
     let publicUri = await validatePublicUriAsync()
     await openStorageConnectionAsync()
-    await registerNodeAsync(publicUri)
+    let hmacKey = await registerNodeAsync(publicUri)
+    apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await startListeningAsync()
