@@ -27,6 +27,7 @@
   "homepage": "https://github.com/chainpoint/chainpoint-node#readme",
   "dependencies": {
     "async": "^2.4.1",
+    "blake2s-js": "^1.2.2",
     "bluebird": "^3.5.0",
     "chainpoint-binary": "^4.0.0",
     "chainpoint-parse": "^2.0.1",
