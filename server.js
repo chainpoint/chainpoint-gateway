@@ -225,7 +225,7 @@ async function initPublicKeysAsync (coreConfig) {
 
 // instruct restify to begin listening for requests
 function startListening (callback) {
-  apiServer.api.listen(8080, (err) => {
+  apiServer.api.listen(env.CHAINPOINT_NODE_PORT, (err) => {
     if (err) return callback(err)
     console.log(`${apiServer.api.name} listening on port ${env.CHAINPOINT_NODE_PORT}`)
     return callback(null)

@@ -39,7 +39,7 @@ services:
       - ~/.chainpoint:/home/node/app/.chainpoint
     build: .
     ports:
-      - "${CHAINPOINT_NODE_PORT}:8080"
+      - "${CHAINPOINT_NODE_PORT}:${CHAINPOINT_NODE_PORT}"
     networks:
       - chainpoint-node
     environment:
