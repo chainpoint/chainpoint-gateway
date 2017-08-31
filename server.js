@@ -238,6 +238,7 @@ let startListeningAsync = promisify(startListening)
 async function syncNodeCalendarAsync (coreConfig, pubKeys) {
   // pull down Core calendar until Node calendar is in sync, startup = true
   await calendar.syncNodeCalendarAsync(true, coreConfig, pubKeys)
+  apiServer.setCalendarInSync(true)
 }
 
 // start all functions meant to run on a periodic basis
