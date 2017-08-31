@@ -23,11 +23,11 @@ const HMACKEY_FILENAME = 'node-hmac.key'
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 15
 
-// the interval at which the service audits the entire local calendar
-const CALENDAR_RECENT_AUDIT_SECONDS = 60
+// the interval at which the service validates recent entries in the Node calendar
+const CALENDAR_VALIDATE_RECENT_SECONDS = 60
 
-// the interval at which the service audits the entire local calendar
-const CALENDAR_FULL_AUDIT_SECONDS = 1800
+// the interval at which the service validates the entire Node calendar
+const CALENDAR_VALIDATE_ALL_SECONDS = 1800
 
 // the interval at which the service calculates the Core challenge solution
 const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
@@ -234,19 +234,19 @@ function startListening (callback) {
 // make awaitable async version for startListening function
 let startListeningAsync = promisify(startListening)
 
-// synchronize local calendar with global calendar, retreive all missing blocks
-async function syncCalendarAsync (coreConfig, pubKeys) {
-  // pull down global calendar until local calendar is in sync, startup = true
-  await calendar.syncCalendarAsync(true, coreConfig, pubKeys)
+// synchronize Node calendar with Core calendar, retreive all missing blocks
+async function syncNodeCalendarAsync (coreConfig, pubKeys) {
+  // pull down Core calendar until Node calendar is in sync, startup = true
+  await calendar.syncNodeCalendarAsync(true, coreConfig, pubKeys)
 }
 
 // start all functions meant to run on a periodic basis
 function startIntervals (coreConfig) {
   // start the interval process for keeping the calendar data up to date
   calendar.startPeriodicUpdateAsync(coreConfig, CALENDAR_UPDATE_SECONDS * 1000)
-  // start the interval processes for auditing local calendar data
-  calendar.startAuditLocalRecentAsync(CALENDAR_RECENT_AUDIT_SECONDS * 1000)
-  calendar.startAuditLocalFullAsync(CALENDAR_FULL_AUDIT_SECONDS * 1000)
+  // start the interval processes for validating Node calendar data
+  calendar.startValidateRecentNodeAsync(CALENDAR_VALIDATE_RECENT_SECONDS * 1000)
+  calendar.startValidateFullNodeAsync(CALENDAR_VALIDATE_ALL_SECONDS * 1000)
   // start the interval processes for calculating the solution to the Core audit challenge
   calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
 }
@@ -263,7 +263,7 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await startListeningAsync()
-    await syncCalendarAsync(coreConfig, pubKeys)
+    await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
     console.log('startup completed successfully')
   } catch (err) {
