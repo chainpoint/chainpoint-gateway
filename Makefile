@@ -72,4 +72,4 @@ ps:
 clean: down
 	@rm -rf ./data/*
 
-.PHONY: all build-config build pull push yarn up down logs clean
+.PHONY: all build-config build pull push yarn up down logs ps clean
