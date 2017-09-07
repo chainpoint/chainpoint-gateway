@@ -6,72 +6,22 @@ networks:
 
 services:
 
-# Postgres
-  #
-  # See : https://hub.docker.com/_/postgres/
-  # Note: Connect locally on OS X:
-  #
-  # Installs local client 'psql'
-  #   brew install postgres
-  #
-  # Connect (uname/pass chainpoint/chainpoint):
-  #   psql -h 127.0.0.1 -U chainpoint
-  #
   postgres:
     restart: always
-    image: postgres:9.6.2-alpine
+    image: postgres:9.6.5-alpine
     container_name: postgres-node
     volumes:
       - ./data/postgresql:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: chainpoint
       POSTGRES_PASSWORD: chainpoint
-    ports:
-      - "5433:5433"
     networks:
       - chainpoint-node
-    command:
-      - -p 5433
 
-  chainpoint-node:
-    container_name: chainpoint-node
-    volumes:
-      - ~/.chainpoint:/home/node/app/.chainpoint
-    build: .
-    ports:
-      - "${CHAINPOINT_NODE_PORT}:${CHAINPOINT_NODE_PORT}"
-    networks:
-      - chainpoint-node
-    environment:
-      CHAINPOINT_CORE_API_BASE_URI: ${CHAINPOINT_CORE_API_BASE_URI}
-      NODE_TNT_ADDRESS: ${NODE_TNT_ADDRESS}
-      CHAINPOINT_NODE_PUBLIC_SCHEME: ${CHAINPOINT_NODE_PUBLIC_SCHEME}
-      CHAINPOINT_NODE_PUBLIC_ADDR: ${CHAINPOINT_NODE_PUBLIC_ADDR}
-      CHAINPOINT_NODE_PORT: ${CHAINPOINT_NODE_PORT}
-      POSTGRES_CONNECT_PROTOCOL: ${POSTGRES_CONNECT_PROTOCOL}
-      POSTGRES_CONNECT_USER: ${POSTGRES_CONNECT_USER}
-      POSTGRES_CONNECT_PW: ${POSTGRES_CONNECT_PW}
-      POSTGRES_CONNECT_HOST: ${POSTGRES_CONNECT_HOST}
-      POSTGRES_CONNECT_PORT: ${POSTGRES_CONNECT_PORT}
-      POSTGRES_CONNECT_DB: ${POSTGRES_CONNECT_DB}  
-      CALENDAR_TABLE_NAME: ${CALENDAR_TABLE_NAME}
-      PUBKEY_TABLE_NAME: ${PUBKEY_TABLE_NAME}    
-      REDIS_CONNECT_URI: ${REDIS_CONNECT_URI}    
-      PROOF_EXPIRE_MINUTES: ${PROOF_EXPIRE_MINUTES}    
-      POST_HASHES_MAX: ${POST_HASHES_MAX}    
-      POST_VERIFY_PROOFS_MAX: ${POST_VERIFY_PROOFS_MAX}    
-      GET_CALENDAR_BLOCKS_MAX: ${GET_CALENDAR_BLOCKS_MAX}    
-      GET_PROOFS_MAX_REST: ${GET_PROOFS_MAX_REST}  
-
-  # Redis
-  #
-  #
   redis:
     restart: always
-    image: redis:3.2.9-alpine
+    image: redis:4.0.1-alpine
     container_name: redis-node
-    ports:
-      - "6381:6381"
     volumes:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ./data/redis:/data
@@ -80,3 +30,19 @@ services:
     command:
       - redis-server
       - /usr/local/etc/redis/redis.conf
+
+  chainpoint-node:
+    container_name: chainpoint-node
+    image: quay.io/chainpoint/chainpoint-node:${DOCKER_TAG}
+    volumes:
+      - ~/.chainpoint:/home/node/app/.chainpoint
+    build: .
+    ports:
+      - "${CHAINPOINT_NODE_PORT}:${CHAINPOINT_NODE_PORT}"
+    networks:
+      - chainpoint-node
+    environment:
+      NODE_TNT_ADDRESS: ${NODE_TNT_ADDRESS}
+      CHAINPOINT_NODE_PUBLIC_SCHEME: ${CHAINPOINT_NODE_PUBLIC_SCHEME}
+      CHAINPOINT_NODE_PUBLIC_ADDR: ${CHAINPOINT_NODE_PUBLIC_ADDR}
+      CHAINPOINT_NODE_PORT: ${CHAINPOINT_NODE_PORT}
