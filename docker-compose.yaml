@@ -11,7 +11,7 @@ services:
     image: postgres:9.6.5-alpine
     container_name: postgres-node
     volumes:
-      - ./data/postgresql:/var/lib/postgresql/data
+      - ./.data/postgresql:/var/lib/postgresql/data
     environment:
       POSTGRES_USER: chainpoint
       POSTGRES_PASSWORD: chainpoint
@@ -23,8 +23,8 @@ services:
     image: redis:4.0.1-alpine
     container_name: redis-node
     volumes:
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
-      - ./data/redis:/data
+      - ./.redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+      - ./.data/redis:/data
     networks:
       - chainpoint-node
     command:
