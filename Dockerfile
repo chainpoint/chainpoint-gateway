@@ -1,15 +1,17 @@
 FROM quay.io/chainpoint/node-base:master
 
-COPY package.json package-lock.json /home/node/app/
-RUN /usr/local/bin/npm install --no-optional
+COPY package.json yarn.lock server.js /home/node/app/
+RUN yarn
 
-RUN mkdir /home/node/app/lib
+RUN mkdir -p /home/node/app/lib
 COPY ./lib/*.js /home/node/app/lib/
-RUN mkdir /home/node/app/lib/endpoints
+
+RUN mkdir -p /home/node/app/lib/endpoints
 COPY ./lib/endpoints/*.js /home/node/app/lib/endpoints/
-RUN mkdir /home/node/app/lib/models
+
+RUN mkdir -p /home/node/app/lib/models
 COPY ./lib/models/*.js /home/node/app/lib/models/
 
-COPY server.js /home/node/app/
+EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["yarn", "start"]
