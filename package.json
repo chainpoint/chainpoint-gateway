@@ -1,23 +1,24 @@
 {
   "name": "chainpoint-node",
-  "description": "",
+  "description": "A Tierion Network Node is a key part of Tierion's scalable solution for anchoring data to public blockchains.",
   "version": "1.0.0",
   "main": "server.js",
-  "bin": {
-    "chainpoint": "./server.js"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "./node_modules/.bin/pkg . --targets node8-macos-x64,node8-linux-x64,node8-linux-x86,node8-alpine-x64 --out-path ./build/",
-    "build-debug": "./node_modules/.bin/pkg --debug . --targets node8-macos-x64,node8-linux-x64,node8-linux-x86,node8-alpine-x64 --out-path ./build/",
-    "build-clean": "rm -f ./build/*"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/chainpoint/chainpoint-node.git"
   },
   "keywords": [
-    "chainpoint"
+    "Chainpoint",
+    "Tierion",
+    "TNT",
+    "node",
+    "hash",
+    "blockchain",
+    "bitcoin",
+    "ethereum",
+    "crypto",
+    "cryptography",
+    "sha256"
   ],
   "author": "Jason Bukowski <jason@tierion.com> (https://tierion.com)",
   "license": "MIT",
@@ -52,6 +53,5 @@
     "uuid-time": "^1.0.0",
     "uuid-validate": "0.0.2",
     "valid-url": "^1.0.9"
-  },
-  "devDependencies": {}
+  }
 }
