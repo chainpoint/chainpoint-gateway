@@ -9,7 +9,6 @@ services:
   postgres:
     restart: always
     image: postgres:9.6.5-alpine
-    container_name: postgres-node
     volumes:
       - ./.data/postgresql:/var/lib/postgresql/data
     environment:
@@ -21,7 +20,6 @@ services:
   redis:
     restart: always
     image: redis:4.0.1-alpine
-    container_name: redis-node
     volumes:
       - ./.redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ./.data/redis:/data
@@ -32,7 +30,7 @@ services:
       - /usr/local/etc/redis/redis.conf
 
   chainpoint-node:
-    container_name: chainpoint-node
+    restart: always
     image: quay.io/chainpoint/chainpoint-node:${DOCKER_TAG}
     volumes:
       - ~/.chainpoint:/home/node/app/.chainpoint
