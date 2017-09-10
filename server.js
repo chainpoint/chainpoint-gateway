@@ -192,7 +192,12 @@ async function registerNodeAsync (publicUri) {
           let response = await coreHosts.coreRequestAsync(postOptions)
           isRegistered = true
 
-          utils.writeFile(pathToKeyFile, response.hmac_key)
+          try {
+            utils.writeAndConfirmFile(pathToKeyFile, response.hmac_key)
+          } catch (error) {
+            console.error(`Unable to write keyfile: ${error.message}`)
+            process.exit(1)
+          }
           console.log('Node registered : hmac key not found : new key received and saved to ~/.chainpoint/node-hmac.key')
 
           return response.hmac_key
