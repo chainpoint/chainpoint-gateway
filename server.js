@@ -18,20 +18,16 @@ const { promisify } = require('util')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const publicKey = require('./lib/models/PublicKey.js')
+const nodeHMAC = require('./lib/models/NodeHMAC.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
 const publicKeys = require('./lib/public-keys.js')
 const coreHosts = require('./lib/core-hosts.js')
 const r = require('redis')
-const fs = require('fs')
-const untildify = require('untildify')
 const crypto = require('crypto')
 const moment = require('moment')
 const ip = require('ip')
 const bluebird = require('bluebird')
-
-const HMACKEY_DIR = '/home/node/app/.chainpoint'
-const HMACKEY_FILENAME = 'node-hmac.key'
 
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 15
@@ -45,9 +41,11 @@ const CALENDAR_VALIDATE_ALL_SECONDS = 1800
 // the interval at which the service calculates the Core challenge solution
 const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
 
-// pull in variables defined in shared CalendarBlock module
+// pull in variables defined in shared sequelize modules
 let sequelizeCalBlock = calendarBlock.sequelize
 let sequelizePubKey = publicKey.sequelize
+let sequelizeNodeHMAC = nodeHMAC.sequelize
+let NodeHMAC = nodeHMAC.NodeHMAC
 
 // The redis connection used for all redis communication
 // This value is set once the connection has been established
@@ -110,6 +108,7 @@ async function openStorageConnectionAsync () {
     try {
       await sequelizeCalBlock.sync({ logging: false })
       await sequelizePubKey.sync({ logging: false })
+      await sequelizeNodeHMAC.sync({ logging: false })
       storageConnected = true
       console.log('Successfully established Postgres connection')
     } catch (error) {
@@ -124,23 +123,24 @@ async function registerNodeAsync (publicUri) {
   let registerAttempts = 0
   while (!isRegistered) {
     try {
-      // Ensure that the target directory exists
-      if (!fs.existsSync(untildify(HMACKEY_DIR))) {
-        fs.mkdirSync(untildify(HMACKEY_DIR))
+      // Check if HMAC key for current TNT address already exists
+      let hmacEntry
+      try {
+        hmacEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+      } catch (error) {
+        console.error(`Unable to read NodeHMAC data: ${error.message}`)
+        process.exit(1)
       }
-      let pathToKeyFile = untildify(`${HMACKEY_DIR}/${HMACKEY_FILENAME}`)
-      // Ensure that the target file exists
-      if (fs.existsSync(pathToKeyFile)) {
-        console.log('keyfile found')
-        // the file exists, so read the key and PUT Node info with HMAC to Core
-        let hmacKey = utils.readFile(pathToKeyFile)
-        let hash = crypto.createHmac('sha256', hmacKey)
+      if (hmacEntry) {
+        console.log(`Using existing NodeHMAC for TNT address ${hmacEntry.tntAddr}`)
+        // the NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
+        let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
-        let hmacTxt = [env.NODE_TNT_ADDRESS, publicUri, dateString].join('')
+        let hmacTxt = [hmacEntry.tntAddr, publicUri, dateString].join('')
         let calculatedHMAC = hash.update(hmacTxt).digest('hex')
 
         let putObject = {
-          tnt_addr: env.NODE_TNT_ADDRESS,
+          tnt_addr: hmacEntry.tntAddr,
           public_uri: publicUri || undefined,
           hmac: calculatedHMAC
         }
@@ -150,7 +150,7 @@ async function registerNodeAsync (publicUri) {
             'Content-Type': 'application/json'
           },
           method: 'PUT',
-          uri: `/nodes/${env.NODE_TNT_ADDRESS}`,
+          uri: `/nodes/${hmacEntry.tntAddr}`,
           body: putObject,
           json: true,
           gzip: true,
@@ -165,12 +165,12 @@ async function registerNodeAsync (publicUri) {
         }
 
         isRegistered = true
-        console.log('Node registered : key found : hmac computed and sent')
+        console.log('Node registration confirmed and updated')
 
-        return hmacKey
+        return hmacEntry.hmacKey
       } else {
-        console.log('keyfile not found')
-        // the file doesnt exist, so POST Node info to Core and store resulting HMAC key
+        console.log(`A NodeHMAC does not exist locally for TNT address ${env.NODE_TNT_ADDRESS}`)
+        // the NodeHMAC doesnt exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
           public_uri: publicUri || undefined
@@ -193,12 +193,20 @@ async function registerNodeAsync (publicUri) {
           isRegistered = true
 
           try {
-            utils.writeAndConfirmFile(pathToKeyFile, response.hmac_key)
+            // write new hmac entry
+            let writeHMACKey = response.hmac_key
+            await NodeHMAC.create({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey })
+            // read hmac entry that was just written
+            let newHMACEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+            // confirm the two are the same
+            if (!newHMACEntry || (newHMACEntry.hmacKey !== writeHMACKey)) {
+              throw new Error(`Write and read values do not match`)
+            }
           } catch (error) {
-            console.error(`Unable to write keyfile: ${error.message}`)
+            console.error(`Unable to write and confirm NodeHMAC data: ${error.message}`)
             process.exit(1)
           }
-          console.log('Node registered : hmac key not found : new key received and saved to ~/.chainpoint/node-hmac.key')
+          console.log(`Node registration added and HMAC saved for TNT address ${env.NODE_TNT_ADDRESS}`)
 
           return response.hmac_key
         } catch (error) {
@@ -206,7 +214,7 @@ async function registerNodeAsync (publicUri) {
             // the TNT address is already in use with an existing hmac key
             // if the hmac key was lost, you need to re-register with a new
             // TNT address and receive a new hmac key
-            console.error('NODE_TNT_ADDRESS already in use with existing HMAC key')
+            console.error(`TNT address ${env.NODE_TNT_ADDRESS} cannot be registered, it is already registered and in use with an existing HMAC key`)
             process.exit(1)
           }
           if (error.statusCode) throw new Error(`Invalid response : ${error.statusCode} : ${error.message}`)
@@ -283,6 +291,7 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await startListeningAsync()
+    console.log('Syncing local calendar with Core')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
     console.log('startup completed successfully')
