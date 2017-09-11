@@ -7,8 +7,8 @@ info:
   contact:
     email: 'team@chainpoint.org'
   license:
-    name: "MIT"
-    url: 'https://tldrlegal.com/license/mit-license'
+    name: "Apache 2.0"
+    url: 'https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)'
 tags:
 - name: "hashes"
   description: "Your hashes to be anchored"
