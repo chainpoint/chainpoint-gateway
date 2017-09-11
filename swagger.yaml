@@ -329,15 +329,9 @@ definitions:
       version:
         type: string
         example: '1.0.0'    
-      chainpoint_node_public_scheme:
+      chainpoint_node_public_uri:
         type: string
-        example: 'https'    
-      chainpoint_node_public_addr:
-        type: string
-        example: 'node5.chainpoint.com'    
-      chainpoint_node_port:
-        type: integer
-        example: 9090 
+        example: 'http://node5.chainpoint.org:9090'    
       node_tnt_address:
         type: string
         example: '0x0acabc3b942a303c11d1113a024da3428cf91565'

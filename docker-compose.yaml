@@ -36,7 +36,7 @@ services:
       - ~/.chainpoint:/home/node/app/.chainpoint
     build: .
     ports:
-      - "${CHAINPOINT_NODE_PORT}:8080"
+      - "9090:8080"
     networks:
       - chainpoint-node
     depends_on:
@@ -44,6 +44,4 @@ services:
       - postgres
     environment:
       NODE_TNT_ADDRESS: ${NODE_TNT_ADDRESS}
-      CHAINPOINT_NODE_PUBLIC_SCHEME: ${CHAINPOINT_NODE_PUBLIC_SCHEME}
-      CHAINPOINT_NODE_PUBLIC_ADDR: ${CHAINPOINT_NODE_PUBLIC_ADDR}
-      CHAINPOINT_NODE_PORT: ${CHAINPOINT_NODE_PORT}
+      CHAINPOINT_NODE_PUBLIC_URI: ${CHAINPOINT_NODE_PUBLIC_URI}

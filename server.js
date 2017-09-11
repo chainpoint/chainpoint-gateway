@@ -28,6 +28,7 @@ const crypto = require('crypto')
 const moment = require('moment')
 const ip = require('ip')
 const bluebird = require('bluebird')
+const url = require('url')
 
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 15
@@ -75,29 +76,29 @@ function openRedisConnection (redisURI) {
 
 // ensure that the public Uri provided is a valid public ip if an ip is supplied
 async function validatePublicUriAsync () {
-  let publicScheme = env.CHAINPOINT_NODE_PUBLIC_SCHEME || null
-  let publicAddr = env.CHAINPOINT_NODE_PUBLIC_ADDR || null
-  let nodePort = env.CHAINPOINT_NODE_PORT || null
-  if (!publicScheme || !publicAddr) {
-    // values were not provided for both public variables, no public access
-    return null
-  }
+  let publicUri = env.CHAINPOINT_NODE_PUBLIC_URI || null
+  if (!publicUri) return null
+
+  let parsedPublicUri = url.parse(publicUri)
   // ensure the proper protocol is in use
-  if (['http', 'https'].indexOf(publicScheme.toLowerCase()) === -1) throw new Error('Invalid CHAINPOINT_NODE_PUBLIC_SCHEME')
+  if (['http:', 'https:'].indexOf(parsedPublicUri.protocol.toLowerCase()) === -1) throw new Error('Invalid scheme in CHAINPOINT_NODE_PUBLIC_URI')
   // ensure, if hostname is an IP, that it is not a private IP
-  if (ip.isV4Format(publicAddr)) {
-    if (ip.isPrivate(publicAddr)) throw new Error('Invalid CHAINPOINT_NODE_PUBLIC_ADDR')
+  if (ip.isV4Format(parsedPublicUri.hostname)) {
+    if (ip.isPrivate(parsedPublicUri.hostname)) throw new Error('Private IPs not allowed in CHAINPOINT_NODE_PUBLIC_URI')
   }
   // disallow localhost
-  if (publicAddr === 'localhost') throw new Error('Invalid CHAINPOINT_NODE_PUBLIC_ADDR')
-  try {
-    nodePort = parseInt(nodePort)
-  } catch (error) {
-    throw new Error('Invalid CHAINPOINT_NODE_PORT')
-  }
-  if (nodePort < 1 || nodePort > 65535) throw new Error('Invalid CHAINPOINT_NODE_PORT')
+  if (parsedPublicUri.hostname === 'localhost') throw new Error('localhost not allowed in CHAINPOINT_NODE_PUBLIC_URI')
 
-  let publicUri = `${publicScheme}://${publicAddr}:${nodePort}`
+  if (parsedPublicUri.port) {
+    let nodePort
+    try {
+      nodePort = parseInt(parsedPublicUri.port)
+    } catch (error) {
+      throw new Error('Invalid port value in CHAINPOINT_NODE_PUBLIC_URI')
+    }
+    if (nodePort < 1 || nodePort > 65535) throw new Error('Invalid port value in CHAINPOINT_NODE_PUBLIC_URI')
+  }
+
   return publicUri
 }
 
@@ -251,9 +252,9 @@ async function initPublicKeysAsync (coreConfig) {
 
 // instruct restify to begin listening for requests
 function startListening (callback) {
-  apiServer.api.listen(8080, (err) => {
+  apiServer.api.listen(9090, (err) => {
     if (err) return callback(err)
-    console.log(`${apiServer.api.name} listening on port ${env.CHAINPOINT_NODE_PORT}`)
+    console.log(`${apiServer.api.name} listening at ${apiServer.api.url}`)
     return callback(null)
   })
 }
