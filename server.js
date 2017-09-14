@@ -252,9 +252,9 @@ async function initPublicKeysAsync (coreConfig) {
 
 // instruct restify to begin listening for requests
 function startListening (callback) {
-  apiServer.api.listen(9090, (err) => {
+  apiServer.api.listen(8080, (err) => {
     if (err) return callback(err)
-    console.log(`${apiServer.api.name} listening at ${apiServer.api.url}`)
+    // console.log(`${apiServer.api.name} listening at ${apiServer.api.url}`)
     return callback(null)
   })
 }
