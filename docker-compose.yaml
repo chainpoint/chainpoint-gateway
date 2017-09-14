@@ -31,7 +31,7 @@ services:
 
   chainpoint-node:
     restart: always
-    image: quay.io/chainpoint/chainpoint-node:${DOCKER_TAG}
+    image: quay.io/chainpoint/chainpoint-node:latest
     volumes:
       - ~/.chainpoint:/home/node/app/.chainpoint
     build: .
