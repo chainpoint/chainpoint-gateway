@@ -1,7 +1,7 @@
 FROM quay.io/chainpoint/node-base:master
 
 COPY package.json yarn.lock server.js /home/node/app/
-RUN yarn
+RUN yarn --verbose
 
 RUN mkdir -p /home/node/app/lib
 COPY ./lib/*.js /home/node/app/lib/
