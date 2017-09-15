@@ -1,5 +1,8 @@
 # Tierion Network Node
 
+[![JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+
 ## About
 
 A Tierion Network Node is a critical component of the Tierion Network. It allows anyone to accept hashes for anchoring to public blockchains and participate in the Tierion Network Token (TNT) ecosystem.
