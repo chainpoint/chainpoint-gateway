@@ -86,7 +86,8 @@ paths:
       summary: 'Retrieves one or more proofs by hashids supplied in header'
       description: ''
       produces:
-      - 'application/json'
+      - 'application/vnd.chainpoint.ld+json'
+      - 'application/vnd.chainpoint.json+base64'
       parameters:
         - name: 'hashids'
           in: 'header'
