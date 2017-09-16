@@ -288,6 +288,7 @@ async function startAsync() {
     let publicUri = await validatePublicUriAsync()
     await openStorageConnectionAsync()
     let hmacKey = await registerNodeAsync(publicUri)
+    console.log(`Using private auth key (back me up!): ${hmacKey}`)
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
