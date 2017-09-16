@@ -53,7 +53,7 @@ let NodeHMAC = nodeHMAC.NodeHMAC
 let redis = null
 
 // Opens a Redis connection
-function openRedisConnection (redisURI) {
+function openRedisConnection(redisURI) {
   redis = r.createClient(redisURI)
   redis.on('ready', () => {
     bluebird.promisifyAll(redis)
@@ -75,7 +75,7 @@ function openRedisConnection (redisURI) {
 }
 
 // ensure that the public Uri provided is a valid public ip if an ip is supplied
-async function validatePublicUriAsync () {
+async function validatePublicUriAsync() {
   let publicUri = env.CHAINPOINT_NODE_PUBLIC_URI || null
   if (!publicUri) return null
 
@@ -103,7 +103,7 @@ async function validatePublicUriAsync () {
 }
 
 // establish a connection with the database
-async function openStorageConnectionAsync () {
+async function openStorageConnectionAsync() {
   let storageConnected = false
   while (!storageConnected) {
     try {
@@ -119,7 +119,7 @@ async function openStorageConnectionAsync () {
   }
 }
 
-async function registerNodeAsync (publicUri) {
+async function registerNodeAsync(publicUri) {
   let isRegistered = false
   let registerAttempts = 0
   while (!isRegistered) {
@@ -129,11 +129,11 @@ async function registerNodeAsync (publicUri) {
       try {
         hmacEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
       } catch (error) {
-        console.error(`Unable to read NodeHMAC data: ${error.message}`)
+        console.error(`Unable to read NodeHMAC data: ${ error.message }`)
         process.exit(1)
       }
       if (hmacEntry) {
-        console.log(`Using existing NodeHMAC for TNT address ${hmacEntry.tntAddr}`)
+        console.log(`Using existing NodeHMAC for TNT address ${ hmacEntry.tntAddr }`)
         // the NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
@@ -151,7 +151,7 @@ async function registerNodeAsync (publicUri) {
             'Content-Type': 'application/json'
           },
           method: 'PUT',
-          uri: `/nodes/${hmacEntry.tntAddr}`,
+          uri: `/nodes/${ hmacEntry.tntAddr }`,
           body: putObject,
           json: true,
           gzip: true,
@@ -161,8 +161,8 @@ async function registerNodeAsync (publicUri) {
         try {
           await coreHosts.coreRequestAsync(putOptions)
         } catch (error) {
-          if (error.statusCode) throw new Error(`Invalid response : ${error.statusCode} : ${error.message}`)
-          throw new Error(`No response received on PUT node : ${error.message}`)
+          if (error.statusCode) throw new Error(`Invalid response : ${ error.statusCode } : ${ error.message }`)
+          throw new Error(`No response received on PUT node : ${ error.message }`)
         }
 
         isRegistered = true
@@ -170,7 +170,7 @@ async function registerNodeAsync (publicUri) {
 
         return hmacEntry.hmacKey
       } else {
-        console.log(`A NodeHMAC does not exist locally for TNT address ${env.NODE_TNT_ADDRESS}`)
+        console.log(`A NodeHMAC does not exist locally for TNT address ${ env.NODE_TNT_ADDRESS }`)
         // the NodeHMAC doesnt exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
@@ -204,10 +204,10 @@ async function registerNodeAsync (publicUri) {
               throw new Error(`Write and read values do not match`)
             }
           } catch (error) {
-            console.error(`Unable to write and confirm NodeHMAC data: ${error.message}`)
+            console.error(`Unable to write and confirm NodeHMAC data: ${ error.message }`)
             process.exit(1)
           }
-          console.log(`Node registration added and HMAC saved for TNT address ${env.NODE_TNT_ADDRESS}`)
+          console.log(`Node registration added and HMAC saved for TNT address ${ env.NODE_TNT_ADDRESS }`)
 
           return response.hmac_key
         } catch (error) {
@@ -215,11 +215,11 @@ async function registerNodeAsync (publicUri) {
             // the TNT address is already in use with an existing hmac key
             // if the hmac key was lost, you need to re-register with a new
             // TNT address and receive a new hmac key
-            console.error(`TNT address ${env.NODE_TNT_ADDRESS} cannot be registered, it is already registered and in use with an existing HMAC key`)
+            console.error(`TNT address ${ env.NODE_TNT_ADDRESS } cannot be registered, it is already registered and in use with an existing HMAC key`)
             process.exit(1)
           }
-          if (error.statusCode) throw new Error(`Invalid response : ${error.statusCode} : ${error.message}`)
-          throw new Error(`No response received on POST node : ${error.message}`)
+          if (error.statusCode) throw new Error(`Invalid response : ${ error.statusCode } : ${ error.message }`)
+          throw new Error(`No response received on POST node : ${ error.message }`)
         }
       }
     } catch (error) {
@@ -234,7 +234,7 @@ async function registerNodeAsync (publicUri) {
   }
 }
 
-async function initPublicKeysAsync (coreConfig) {
+async function initPublicKeysAsync(coreConfig) {
   // check to see if public keys exists in database
   try {
     let pubKeys = await publicKeys.getLocalPublicKeysAsync()
@@ -246,12 +246,12 @@ async function initPublicKeysAsync (coreConfig) {
     console.log(`Public key values initialized`)
     return pubKeys
   } catch (error) {
-    throw new Error(`Unable to initialize public key values : ${error.message}`)
+    throw new Error(`Unable to initialize public key values : ${ error.message }`)
   }
 }
 
 // instruct restify to begin listening for requests
-function startListening (callback) {
+function startListening(callback) {
   apiServer.api.listen(8080, (err) => {
     if (err) return callback(err)
     // console.log(`${apiServer.api.name} listening at ${apiServer.api.url}`)
@@ -263,14 +263,14 @@ function startListening (callback) {
 let startListeningAsync = promisify(startListening)
 
 // synchronize Node calendar with Core calendar, retreive all missing blocks
-async function syncNodeCalendarAsync (coreConfig, pubKeys) {
+async function syncNodeCalendarAsync(coreConfig, pubKeys) {
   // pull down Core calendar until Node calendar is in sync, startup = true
   await calendar.syncNodeCalendarAsync(true, coreConfig, pubKeys)
   apiServer.setCalendarInSync(true)
 }
 
 // start all functions meant to run on a periodic basis
-function startIntervals (coreConfig) {
+function startIntervals(coreConfig) {
   // start the interval process for keeping the calendar data up to date
   calendar.startPeriodicUpdateAsync(coreConfig, CALENDAR_UPDATE_SECONDS * 1000)
   // start the interval processes for validating Node calendar data
@@ -281,7 +281,7 @@ function startIntervals (coreConfig) {
 }
 
 // process all steps need to start the application
-async function startAsync () {
+async function startAsync() {
   try {
     openRedisConnection(env.REDIS_CONNECT_URI)
     await coreHosts.initCoreHostsFromDNSAsync()
@@ -297,7 +297,7 @@ async function startAsync () {
     startIntervals(coreConfig)
     console.log('startup completed successfully')
   } catch (err) {
-    console.error(`An error has occurred on startup: ${err}`)
+    console.error(`An error has occurred on startup: ${ err }`)
     process.exit(1)
   }
 }
