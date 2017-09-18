@@ -1,5 +1,5 @@
 # First target in the Makefile is the default.
-all: up
+all: help
 
 # Get the location of this makefile.
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
@@ -7,69 +7,76 @@ ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 # Specify the binary dependencies
 REQUIRED_BINS := docker docker-compose
 $(foreach bin,$(REQUIRED_BINS),\
-    $(if $(shell command -v $(bin) 2> /dev/null),$(info Found `$(bin)`),$(error Please install `$(bin)`)))
+    $(if $(shell command -v $(bin) 2> /dev/null),$(),$(error Please install `$(bin)` first!)))
 
-# Help Text Display
-# Usage: Put a comment with double # prior to targets.
-# See : https://gist.github.com/rcmachado/af3db315e31383502660
-## Display this help text
-help: 
-	$(info Available targets)
-	@awk '/^[a-zA-Z\-\_0-9]+:/ {                    \
-		nb = sub( /^## /, "", helpMsg );            \
-		if(nb == 0) {                               \
-		helpMsg = $$0;                              \
-		nb = sub( /^[^:]*:.* ## /, "", helpMsg );   \
-		}                                           \
-		if (nb)                                     \
-		print  $$1 "\t" helpMsg;                    \
-	}                                               \
-	{ helpMsg = $$0 }'                              \
-	$(MAKEFILE_LIST) | column -ts $$'\t' |          \
-	grep --color '^[^ ]*'
+.PHONY : help
+help : Makefile
+	@sed -n 's/^##//p' $<
 
-## Copy the .env config from .env.sample if not present
-build-config:
-	@[ ! -f ./.env ] && \
-	cp .env.sample .env && \
-	echo 'Copied config .env.sample to .env' || true
+## up              : Start Node
+.PHONY : up
+up: build-config yarn build
+	docker-compose up -d --no-build
 
-## Build Node
+## down            : Shutdown Node
+.PHONY : down
+down:
+	docker-compose down
+
+## logs            : Tail Node logs
+.PHONY : logs
+logs:
+	docker-compose logs -f -t | grep chainpoint-node
+
+## logs-redis      : Tail Redis logs
+.PHONY : logs-redis
+logs-redis:
+	docker-compose logs -f -t | grep redis
+
+## logs-postgres   : Tail PostgreSQL logs
+.PHONY : logs-postgres
+logs-postgres:
+	docker-compose logs -f -t | grep postgres
+
+## logs-all        : Tail all logs
+.PHONY : logs-all
+logs-all:
+	docker-compose logs -f -t
+
+## ps              : View running processes
+.PHONY : ps
+ps:
+	docker-compose ps
+
+## build           : Build Node image
+.PHONY : build
 build:
 	./bin/docker-make --no-push
 	docker container prune -f
 	docker-compose build
 
-## Pull Docker images
+## build-config    : Copy the .env config from .env.sample
+.PHONY : build-config
+build-config:
+	@[ ! -f ./.env ] && \
+	cp .env.sample .env && \
+	echo 'Copied config .env.sample to .env' || true
+
+## pull            : Pull Docker images
+.PHONY : pull
 pull:
 	docker-compose pull
 
-## Push Docker images using docker-make
+## push            : Push Docker images using docker-make
+.PHONY : push
 push:
 	./bin/docker-make
 
-## Install Node Javascript dependencies
+## yarn            : Install Node Javascript dependencies
+.PHONY : yarn
 yarn:
 	./bin/yarn
 
-## Build and start Node
-up: build-config yarn build
-	docker-compose up -d --build
-
-## Shutdown Node
-down:
-	docker-compose down
-
-## Tail Node logs
-logs:
-	docker-compose logs -f -t
-
-## View running processes
-ps:
-	docker-compose ps
-
-## Shutdown and **destroy** all local Node data
+## down            : Shutdown and **destroy** all local Node data
 clean: down
-	@sudo rm -rf ./.data/*
-
-.PHONY: all build-config build pull push yarn up down logs ps clean
+	@rm -rf ./.data/*
