@@ -340,9 +340,6 @@ definitions:
       post_verify_proofs_max:
         type: integer
         example: 1000
-      get_calendar_blocks_max:
-        type: integer
-        example: 1000
       time:
         type: string
         format: date-time

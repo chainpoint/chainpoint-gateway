@@ -31,7 +31,7 @@ const bluebird = require('bluebird')
 const url = require('url')
 
 // the interval at which the service queries the calendar for new blocks
-const CALENDAR_UPDATE_SECONDS = 15
+const CALENDAR_UPDATE_SECONDS = 300
 
 // the interval at which the service validates recent entries in the Node calendar
 const CALENDAR_VALIDATE_RECENT_SECONDS = 60
