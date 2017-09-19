@@ -60,7 +60,7 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(redis)
     calendar.setRedis(redis)
     coreHosts.setRedis(redis)
-    console.log('Redis connection established')
+    console.log('Redis connection established.')
   })
   redis.on('error', async () => {
     redis.quit()
@@ -113,7 +113,7 @@ async function openStorageConnectionAsync () {
       await sequelizePubKey.sync({ logging: false })
       await sequelizeNodeHMAC.sync({ logging: false })
       storageConnected = true
-      console.log('Successfully established Postgres connection')
+      console.log('Postgres connection established.')
     } catch (error) {
       console.error('Cannot establish Postgres connection. Attempting in 5 seconds...')
       await utils.sleepAsync(5000)
@@ -131,11 +131,11 @@ async function registerNodeAsync (publicUri) {
       try {
         hmacEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
       } catch (error) {
-        console.error(`Unable to read NodeHMAC data: ${error.message}`)
+        console.error(`Unable to find local Node authentication key.`)
         process.exit(1)
       }
       if (hmacEntry) {
-        console.log(`Using existing NodeHMAC for TNT address ${hmacEntry.tntAddr}`)
+        console.log(`Found existing Node authentication key for TNT address ${hmacEntry.tntAddr}`)
         // the NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
@@ -168,12 +168,12 @@ async function registerNodeAsync (publicUri) {
         }
 
         isRegistered = true
-        console.log('Node registration confirmed and updated')
+        console.log('Node registration with Core confirmed and updated.')
 
         return hmacEntry.hmacKey
       } else {
-        console.log(`A NodeHMAC does not exist locally for TNT address ${env.NODE_TNT_ADDRESS}`)
-        // the NodeHMAC doesnt exist, so POST Node info to Core and store resulting HMAC key
+        console.log(`No local Node authentication key for TNT address ${env.NODE_TNT_ADDRESS}. Registering.`)
+        // the NodeHMAC doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
           public_uri: publicUri || undefined
@@ -203,13 +203,13 @@ async function registerNodeAsync (publicUri) {
             let newHMACEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
             // confirm the two are the same
             if (!newHMACEntry || (newHMACEntry.hmacKey !== writeHMACKey)) {
-              throw new Error(`Write and read values do not match`)
+              throw new Error(`Unable to confirm authentication key with read after write.`)
             }
           } catch (error) {
-            console.error(`Unable to write and confirm NodeHMAC data: ${error.message}`)
+            console.error(`Unable to write and confirm new authentication key locally.`)
             process.exit(1)
           }
-          console.log(`Node registration added and HMAC saved for TNT address ${env.NODE_TNT_ADDRESS}`)
+          console.log(`Node registered and authentication key saved for TNT address ${env.NODE_TNT_ADDRESS}`)
 
           return response.hmac_key
         } catch (error) {
@@ -217,15 +217,15 @@ async function registerNodeAsync (publicUri) {
             // the TNT address is already in use with an existing hmac key
             // if the hmac key was lost, you need to re-register with a new
             // TNT address and receive a new hmac key
-            console.error(`TNT address ${env.NODE_TNT_ADDRESS} cannot be registered, it is already registered and in use with an existing HMAC key`)
+            console.error(`TNT address ${env.NODE_TNT_ADDRESS} already exists and cannot be registered.`)
             process.exit(1)
           }
-          if (error.statusCode) throw new Error(`Invalid response : ${error.statusCode} : ${error.message}`)
-          throw new Error(`No response received on POST node : ${error.message}`)
+          if (error.statusCode) throw new Error(`Node registration failed with status code : ${error.statusCode}`)
+          throw new Error(`Node registration failed. No response received.`)
         }
       }
     } catch (error) {
-      console.error('Unable register Node with Core. Retrying in 5 seconds...')
+      console.error('Unable to register Node with Core. Retrying in 5 seconds...')
       if (++registerAttempts >= 5) {
         // We've tried 5 times with no success, display error an exit
         console.error('Unable to register Node with Core after 5 attempts, exiting : ' + error)
@@ -245,10 +245,10 @@ async function initPublicKeysAsync (coreConfig) {
       await publicKeys.storeConfigPubKeyAsync(coreConfig.public_keys)
       pubKeys = await publicKeys.getLocalPublicKeysAsync()
     }
-    console.log(`Public key values initialized`)
+    console.log(`Initial public key import completed.`)
     return pubKeys
   } catch (error) {
-    throw new Error(`Unable to initialize public key values : ${error.message}`)
+    throw new Error(`Unable to initialize Core public keys.`)
   }
 }
 
@@ -290,17 +290,19 @@ async function startAsync () {
     let publicUri = await validatePublicUriAsync()
     await openStorageConnectionAsync()
     let hmacKey = await registerNodeAsync(publicUri)
-    console.log(`Using private auth key (back me up!): ${hmacKey}`)
+    console.log('******************************************************************************')
+    console.log(`Node private authentication key (back me up!): ${hmacKey}`)
+    console.log('******************************************************************************')
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await startListeningAsync()
-    console.log('Syncing local calendar with Core')
+    console.log('Node syncing local calendar with Core...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
-    console.log('startup completed successfully')
+    console.log('Node startup completed successfully!')
   } catch (err) {
-    console.error(`An error has occurred on startup: ${err}`)
+    console.error(`Node startup error : ${err}`)
     process.exit(1)
   }
 }
