@@ -225,10 +225,13 @@ async function registerNodeAsync (publicUri) {
         }
       }
     } catch (error) {
-      console.error('Unable to register Node with Core. Retrying in 5 seconds...')
+      if (error.statusCode) {
+        console.error(`Unable to register Node with Core: error ${error.statusCode} ...Retrying in 5 seconds...`)
+      } else {
+        console.error(`Unable to register Node with Core: error ${error.message} ...Retrying in 5 seconds...`)
+      }
       if (++registerAttempts >= 5) {
-        // We've tried 5 times with no success, display error an exit
-        console.error('Unable to register Node with Core after 5 attempts, exiting : ' + error)
+        // We've tried 5 times with no success, exit
         process.exit(1)
       }
       await utils.sleepAsync(5000)
