@@ -163,7 +163,10 @@ async function registerNodeAsync (publicUri) {
         try {
           await coreHosts.coreRequestAsync(putOptions)
         } catch (error) {
-          if (error.statusCode) throw new Error(`Invalid response : ${error.statusCode} : ${error.message}`)
+          if (error.statusCode) {
+            let err = { statusCode: error.statusCode }
+            throw err
+          }
           throw new Error(`No response received on PUT node : ${error.message}`)
         }
 
