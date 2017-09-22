@@ -163,6 +163,13 @@ async function registerNodeAsync (publicUri) {
         try {
           await coreHosts.coreRequestAsync(putOptions)
         } catch (error) {
+          if (error.statusCode === 409) {
+            if (error.error.message === 'public_uri') {
+              // the public uri is already in use by another Node
+              console.error(`Public URI ${publicUri} is already in use and cannot be registered.`)
+            }
+            process.exit(1)
+          }
           if (error.statusCode) {
             let err = { statusCode: error.statusCode }
             throw err
@@ -217,10 +224,15 @@ async function registerNodeAsync (publicUri) {
           return response.hmac_key
         } catch (error) {
           if (error.statusCode === 409) {
-            // the TNT address is already in use with an existing hmac key
-            // if the hmac key was lost, you need to re-register with a new
-            // TNT address and receive a new hmac key
-            console.error(`TNT address ${env.NODE_TNT_ADDRESS} already exists and cannot be registered.`)
+            if (error.error.message === 'tnt_addr') {
+              // the TNT address is already in use with an existing hmac key
+              // if the hmac key was lost, you need to re-register with a new
+              // TNT address and receive a new hmac key
+              console.error(`TNT address ${env.NODE_TNT_ADDRESS} is already in use and cannot be registered.`)
+            } else if (error.error.message === 'public_uri') {
+              // the public uri is already in use by another Node
+              console.error(`Public URI ${publicUri} is already in use and cannot be registered.`)
+            }
             process.exit(1)
           }
           if (error.statusCode) throw new Error(`Node registration failed with status code : ${error.statusCode}`)
