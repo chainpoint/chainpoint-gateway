@@ -83,7 +83,7 @@ async function validatePublicUriAsync () {
   // ensure the proper protocol is in use
   if (['http:', 'https:'].indexOf(parsedPublicUri.protocol.toLowerCase()) === -1) throw new Error('Invalid scheme in CHAINPOINT_NODE_PUBLIC_URI')
   // ensure that hostname is an IP
-  if (!ip.isV4Format(parsedPublicUri.hostname)) {
+  if (!utils.isIP(parsedPublicUri.hostname)) {
     throw new Error('Hostname must be a valid IP in CHAINPOINT_NODE_PUBLIC_URI')
   }
   // ensure that it is not a private IP
