@@ -82,12 +82,12 @@ async function validatePublicUriAsync () {
   let parsedPublicUri = url.parse(publicUri)
   // ensure the proper protocol is in use
   if (['http:', 'https:'].indexOf(parsedPublicUri.protocol.toLowerCase()) === -1) throw new Error('Invalid scheme in CHAINPOINT_NODE_PUBLIC_URI')
-  // ensure, if hostname is an IP, that it is not a private IP
-  if (ip.isV4Format(parsedPublicUri.hostname)) {
-    if (ip.isPrivate(parsedPublicUri.hostname)) throw new Error('Private IPs not allowed in CHAINPOINT_NODE_PUBLIC_URI')
+  // ensure that hostname is an IP
+  if (!ip.isV4Format(parsedPublicUri.hostname)) {
+    throw new Error('Hostname must be a valid IP in CHAINPOINT_NODE_PUBLIC_URI')
   }
-  // disallow localhost
-  if (parsedPublicUri.hostname === 'localhost') throw new Error('localhost not allowed in CHAINPOINT_NODE_PUBLIC_URI')
+  // ensure that it is not a private IP
+  if (ip.isPrivate(parsedPublicUri.hostname)) throw new Error('Private IPs not allowed in CHAINPOINT_NODE_PUBLIC_URI')
   // disallow 0.0.0.0
   if (parsedPublicUri.hostname === '0.0.0.0') throw new Error('0.0.0.0 not allowed in CHAINPOINT_NODE_PUBLIC_URI')
 
