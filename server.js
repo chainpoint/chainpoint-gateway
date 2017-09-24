@@ -11,6 +11,9 @@
  * limitations under the License.
 */
 
+const _ = require('lodash')
+const validator = require('validator')
+
 // load environment variables
 const env = require('./lib/parse-env.js')
 
@@ -74,34 +77,29 @@ function openRedisConnection (redisURI) {
   })
 }
 
-// ensure that the public Uri provided is a valid public ip if an ip is supplied
-async function validatePublicUriAsync () {
-  let publicUri = env.CHAINPOINT_NODE_PUBLIC_URI || null
-  if (!publicUri) return null
+// Ensure that the URI provided is valid
+// Returns either a valid public URI that can be registered, or null
+async function validateUriAsync (nodeUri) {
+  if (_.isEmpty(nodeUri)) return null
 
-  let parsedPublicUri = url.parse(publicUri)
-  // ensure the proper protocol is in use
-  if (['http:', 'https:'].indexOf(parsedPublicUri.protocol.toLowerCase()) === -1) throw new Error('Invalid scheme in CHAINPOINT_NODE_PUBLIC_URI')
-  // ensure that hostname is an IP
-  if (!utils.isIP(parsedPublicUri.hostname)) {
-    throw new Error('Hostname must be a valid IP in CHAINPOINT_NODE_PUBLIC_URI')
+  // Valid URI with restrictions
+  // Blacklisting 0.0.0.0 since its not considered a private IP
+  let isValidURI = validator.isURL(nodeUri, {
+    protocols: ['http', 'https'],
+    require_protocol: true,
+    host_blacklist: ['0.0.0.0']
+  })
+
+  let parsedURIHost = url.parse(nodeUri).hostname
+
+  // Valid IPv4 IP address
+  let uriHasValidIPHost = validator.isIP(parsedURIHost, 4)
+
+  if (isValidURI && uriHasValidIPHost && !ip.isPrivate(parsedURIHost)) {
+    return nodeUri
+  } else {
+    return null
   }
-  // ensure that it is not a private IP
-  if (ip.isPrivate(parsedPublicUri.hostname)) throw new Error('Private IPs not allowed in CHAINPOINT_NODE_PUBLIC_URI')
-  // disallow 0.0.0.0
-  if (parsedPublicUri.hostname === '0.0.0.0') throw new Error('0.0.0.0 not allowed in CHAINPOINT_NODE_PUBLIC_URI')
-
-  if (parsedPublicUri.port) {
-    let nodePort
-    try {
-      nodePort = parseInt(parsedPublicUri.port)
-    } catch (error) {
-      throw new Error('Invalid port value in CHAINPOINT_NODE_PUBLIC_URI')
-    }
-    if (nodePort < 1 || nodePort > 65535) throw new Error('Invalid port value in CHAINPOINT_NODE_PUBLIC_URI')
-  }
-
-  return publicUri
 }
 
 // establish a connection with the database
@@ -121,9 +119,10 @@ async function openStorageConnectionAsync () {
   }
 }
 
-async function registerNodeAsync (publicUri) {
+async function registerNodeAsync (nodeURI) {
   let isRegistered = false
   let registerAttempts = 0
+
   while (!isRegistered) {
     try {
       // Check if HMAC key for current TNT address already exists
@@ -134,17 +133,19 @@ async function registerNodeAsync (publicUri) {
         console.error(`Unable to find local Node authentication key.`)
         process.exit(1)
       }
+
+      // HMAC auth key found!
       if (hmacEntry) {
         console.log(`Found existing Node authentication key for TNT address ${hmacEntry.tntAddr}`)
         // the NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
-        let hmacTxt = [hmacEntry.tntAddr, publicUri, dateString].join('')
+        let hmacTxt = [hmacEntry.tntAddr, nodeURI, dateString].join('')
         let calculatedHMAC = hash.update(hmacTxt).digest('hex')
 
         let putObject = {
           tnt_addr: hmacEntry.tntAddr,
-          public_uri: publicUri || undefined,
+          public_uri: nodeURI,
           hmac: calculatedHMAC
         }
 
@@ -166,9 +167,11 @@ async function registerNodeAsync (publicUri) {
           if (error.statusCode === 409) {
             if (error.error.message === 'public_uri') {
               // the public uri is already in use by another Node
-              console.error(`Public URI ${publicUri} is already in use and cannot be registered.`)
+              console.error(`Public URI ${nodeURI} is already in use and cannot be registered.`)
             }
-            process.exit(1)
+            // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
+            // won't force a restart since this situation will not resolve itself.
+            process.exit(0)
           }
           if (error.statusCode) {
             let err = { statusCode: error.statusCode }
@@ -186,7 +189,7 @@ async function registerNodeAsync (publicUri) {
         // the NodeHMAC doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
-          public_uri: publicUri || undefined
+          public_uri: nodeURI
         }
 
         let postOptions = {
@@ -231,9 +234,11 @@ async function registerNodeAsync (publicUri) {
               console.error(`TNT address ${env.NODE_TNT_ADDRESS} is already in use and cannot be registered.`)
             } else if (error.error.message === 'public_uri') {
               // the public uri is already in use by another Node
-              console.error(`Public URI ${publicUri} is already in use and cannot be registered.`)
+              console.error(`Public URI ${nodeURI} is already in use and cannot be registered.`)
             }
-            process.exit(1)
+            // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
+            // won't force a restart since this situation will not resolve itself.
+            process.exit(0)
           }
           if (error.statusCode) throw new Error(`Node registration failed with status code : ${error.statusCode}`)
           throw new Error(`Node registration failed. No response received.`)
@@ -241,15 +246,19 @@ async function registerNodeAsync (publicUri) {
       }
     } catch (error) {
       if (error.statusCode) {
-        console.error(`Unable to register Node with Core: error ${error.statusCode} ...Retrying in 5 seconds...`)
+        console.error(`ERROR : Unable to register Node with Core: error ${error.statusCode} ...Retrying in 30 seconds...`)
       } else {
-        console.error(`Unable to register Node with Core: error ${error.message} ...Retrying in 5 seconds...`)
+        console.error(`ERROR : Unable to register Node with Core: error ${error.message} ...Retrying in 30 seconds...`)
       }
-      if (++registerAttempts >= 5) {
-        // We've tried 5 times with no success, exit
-        process.exit(1)
+
+      if (++registerAttempts >= 3) {
+        // We've tried 3 times with no success
+        // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
+        // won't force a restart since this situation will not resolve itself.
+        process.exit(0)
       }
-      await utils.sleepAsync(5000)
+
+      await utils.sleepAsync(30 * 1000)
     }
   }
 }
@@ -305,9 +314,9 @@ async function startAsync () {
   try {
     openRedisConnection(env.REDIS_CONNECT_URI)
     await coreHosts.initCoreHostsFromDNSAsync()
-    let publicUri = await validatePublicUriAsync()
+    let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     await openStorageConnectionAsync()
-    let hmacKey = await registerNodeAsync(publicUri)
+    let hmacKey = await registerNodeAsync(nodeUri)
     console.log('******************************************************************************')
     console.log(`Node private authentication key (back me up!): ${hmacKey}`)
     console.log('******************************************************************************')
@@ -320,8 +329,10 @@ async function startAsync () {
     startIntervals(coreConfig)
     console.log('Node startup completed successfully!')
   } catch (err) {
-    console.error(`Node startup error : ${err}`)
-    process.exit(1)
+    console.error(`ERROR : Startup error : ${err}`)
+    // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
+    // won't force a restart since this situation will not resolve itself.
+    process.exit(0)
   }
 }
 
