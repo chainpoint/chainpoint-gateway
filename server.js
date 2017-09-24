@@ -58,13 +58,14 @@ let redis = null
 // Opens a Redis connection
 function openRedisConnection (redisURI) {
   redis = r.createClient(redisURI)
+
   redis.on('ready', () => {
     bluebird.promisifyAll(redis)
     apiServer.setRedis(redis)
     calendar.setRedis(redis)
     coreHosts.setRedis(redis)
-    console.log('Redis connection established.')
   })
+
   redis.on('error', async () => {
     redis.quit()
     redis = null
@@ -111,7 +112,6 @@ async function openStorageConnectionAsync () {
       await sequelizePubKey.sync({ logging: false })
       await sequelizeNodeHMAC.sync({ logging: false })
       storageConnected = true
-      console.log('Postgres connection established.')
     } catch (error) {
       console.error('Cannot establish Postgres connection. Attempting in 5 seconds...')
       await utils.sleepAsync(5000)
@@ -130,13 +130,14 @@ async function registerNodeAsync (nodeURI) {
       try {
         hmacEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
       } catch (error) {
-        console.error(`Unable to find local Node authentication key.`)
+        console.error(`ERROR : Unable to load local authentication key.`)
+        // Exit 1 : this is a recoverable error that might be resolved on container restart.
         process.exit(1)
       }
 
       // HMAC auth key found!
       if (hmacEntry) {
-        console.log(`Found existing Node authentication key for TNT address ${hmacEntry.tntAddr}`)
+        console.log(`INFO : Found authentication key for Ethereum (TNT) address ${hmacEntry.tntAddr}`)
         // the NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
@@ -167,25 +168,32 @@ async function registerNodeAsync (nodeURI) {
           if (error.statusCode === 409) {
             if (error.error.message === 'public_uri') {
               // the public uri is already in use by another Node
-              console.error(`Public URI ${nodeURI} is already in use and cannot be registered.`)
+              console.error(`ERROR : Public URI ${nodeURI} is already in use and cannot be registered.`)
             }
             // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
             // won't force a restart since this situation will not resolve itself.
             process.exit(0)
           }
+
           if (error.statusCode) {
             let err = { statusCode: error.statusCode }
             throw err
           }
+
           throw new Error(`No response received on PUT node : ${error.message}`)
         }
 
         isRegistered = true
-        console.log('Node registration with Core confirmed and updated.')
+
+        if (nodeURI) {
+          console.log(`INFO : Registration updated : ${env.NODE_TNT_ADDRESS} : ${nodeURI}`)
+        } else {
+          console.log(`INFO : Registration updated : ${env.NODE_TNT_ADDRESS} : (no public URI)`)
+        }
 
         return hmacEntry.hmacKey
       } else {
-        console.log(`No local Node authentication key for TNT address ${env.NODE_TNT_ADDRESS}. Registering.`)
+        console.log(`INFO : No local Node authentication key for TNT address ${env.NODE_TNT_ADDRESS}. Registering.`)
         // the NodeHMAC doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
@@ -219,10 +227,11 @@ async function registerNodeAsync (nodeURI) {
               throw new Error(`Unable to confirm authentication key with read after write.`)
             }
           } catch (error) {
-            console.error(`Unable to write and confirm new authentication key locally.`)
+            console.error(`ERROR : Unable to write and confirm new authentication key locally.`)
+            // Exit 1 : this is a recoverable error that might be resolved on container restart.
             process.exit(1)
           }
-          console.log(`Node registered and authentication key saved for TNT address ${env.NODE_TNT_ADDRESS}`)
+          console.log(`INFO : Node registered and authentication key saved for TNT address ${env.NODE_TNT_ADDRESS}`)
 
           return response.hmac_key
         } catch (error) {
@@ -231,16 +240,16 @@ async function registerNodeAsync (nodeURI) {
               // the TNT address is already in use with an existing hmac key
               // if the hmac key was lost, you need to re-register with a new
               // TNT address and receive a new hmac key
-              console.error(`TNT address ${env.NODE_TNT_ADDRESS} is already in use and cannot be registered.`)
+              console.error(`ERROR : TNT address ${env.NODE_TNT_ADDRESS} is already in use and cannot be registered.`)
             } else if (error.error.message === 'public_uri') {
               // the public uri is already in use by another Node
-              console.error(`Public URI ${nodeURI} is already in use and cannot be registered.`)
+              console.error(`ERROR : Public URI ${nodeURI} is already in use and cannot be registered.`)
             }
             // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
             // won't force a restart since this situation will not resolve itself.
             process.exit(0)
           }
-          if (error.statusCode) throw new Error(`Node registration failed with status code : ${error.statusCode}`)
+          if (error.statusCode) throw new Error(`ERROR : Node registration failed with status code : ${error.statusCode}`)
           throw new Error(`Node registration failed. No response received.`)
         }
       }
@@ -272,7 +281,6 @@ async function initPublicKeysAsync (coreConfig) {
       await publicKeys.storeConfigPubKeyAsync(coreConfig.public_keys)
       pubKeys = await publicKeys.getLocalPublicKeysAsync()
     }
-    console.log(`Initial public key import completed.`)
     return pubKeys
   } catch (error) {
     throw new Error(`Unable to initialize Core public keys.`)
@@ -317,17 +325,17 @@ async function startAsync () {
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     await openStorageConnectionAsync()
     let hmacKey = await registerNodeAsync(nodeUri)
-    console.log('******************************************************************************')
-    console.log(`Node private authentication key (back me up!): ${hmacKey}`)
-    console.log('******************************************************************************')
+    console.log('INFO : ******************************************************************************')
+    console.log(`INFO : Private auth key (back me up!): ${hmacKey}`)
+    console.log('INFO : ******************************************************************************')
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await startListeningAsync()
-    console.log('Node syncing local calendar with Core...')
+    console.log('INFO : Syncing local Calendar with Core...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
-    console.log('Node startup completed successfully!')
+    console.log('INFO : Startup completed!')
   } catch (err) {
     console.error(`ERROR : Startup error : ${err}`)
     // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
