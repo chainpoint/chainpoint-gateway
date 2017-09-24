@@ -260,7 +260,7 @@ async function registerNodeAsync (nodeURI) {
         console.error(`ERROR : Unable to register Node with Core: error ${error.message} ...Retrying in 60 seconds...`)
       }
 
-      if (++registerAttempts >= 3) {
+      if (++registerAttempts > 3) {
         // We've tried 3 times with no success
         // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
         // won't force a restart since this situation will not resolve itself.
