@@ -255,9 +255,9 @@ async function registerNodeAsync (nodeURI) {
       }
     } catch (error) {
       if (error.statusCode) {
-        console.error(`ERROR : Unable to register Node with Core: error ${error.statusCode} ...Retrying in 30 seconds...`)
+        console.error(`ERROR : Unable to register Node with Core: error ${error.statusCode} ...Retrying in 60 seconds...`)
       } else {
-        console.error(`ERROR : Unable to register Node with Core: error ${error.message} ...Retrying in 30 seconds...`)
+        console.error(`ERROR : Unable to register Node with Core: error ${error.message} ...Retrying in 60 seconds...`)
       }
 
       if (++registerAttempts >= 3) {
@@ -267,7 +267,7 @@ async function registerNodeAsync (nodeURI) {
         process.exit(0)
       }
 
-      await utils.sleepAsync(30 * 1000)
+      await utils.sleepAsync(60 * 1000)
     }
   }
 }
