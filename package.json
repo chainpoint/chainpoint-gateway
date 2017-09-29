@@ -45,7 +45,6 @@
     "pg-hstore": "^2.3.2",
     "redis": "^2.7.1",
     "request": "^2.81.0",
-    "request-ip": "^2.0.2",
     "request-promise-native": "^1.0.4",
     "restify": "^4.3.1",
     "restify-cors-middleware": "^1.0.0",
