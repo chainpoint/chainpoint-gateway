@@ -46,6 +46,29 @@ make up
 
 Run `make help` to learn about additional control and build commands.
 
+### Connecting to Local Databases
+
+You can connect to the local PostgreSQL or Redis data stores using preconfigured clients which are found in the `bin` directory. You do not need to locally install any client software to use these clients, they are provided as Docker container binaries. These clients wrappers are preconfigured to connect on the appropriate ports and with the appropriate user credentials.
+
+Redis (exit with `control-d`)
+(can also be run with `make redis`)
+
+```
+~ ./bin/redis-cli
+127.0.0.1:6381>
+```
+
+PostgreSQL (exit with `control-d`)
+(can also be run with `make postgres`)
+
+```
+~ ./bin/psql
+psql (9.6.5)
+Type "help" for help.
+
+chainpoint=#
+```
+
 ## Node Public API
 
 A Chainpoint Node exposes a public HTTP API that can:

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# redis-cli
+# A wrapper script for invoking redis-cli with Docker and
+# attaching to the local Chainpoint Node's Redis instance.
+
+PROGNAME="$(basename $0)"
+VERSION="4.0.1-alpine"
+export PATH=$PATH:/usr/local/bin
+
+# Helper functions for guards
+error(){
+  error_code=$1
+  echo "ERROR: $2" >&2
+  echo "($PROGNAME wrapper version: $VERSION, error code: $error_code )" >&2
+  exit $1
+}
+
+check_cmd_in_path(){
+  cmd=$1
+  which $cmd > /dev/null 2>&1 || error 1 "$cmd not found!"
+}
+
+# Guards (checks for dependencies)
+check_cmd_in_path docker
+
+# Set up mounted volumes, environment, and run our containerized command
+exec docker run \
+  --interactive --tty --rm \
+  --net=host \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume "$PWD":/wd \
+  --workdir /wd \
+  "redis:$VERSION" redis-cli -p 6381 "$@"

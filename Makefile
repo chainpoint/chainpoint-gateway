@@ -72,11 +72,22 @@ pull:
 push:
 	./bin/docker-make
 
+## clean           : Shutdown and **destroy** all local Node data
+.PHONY : clean
+clean: down
+	@rm -rf ./.data/*
+
 ## yarn            : Install Node Javascript dependencies
 .PHONY : yarn
 yarn:
 	./bin/yarn
 
-## down            : Shutdown and **destroy** all local Node data
-clean: down
-	@rm -rf ./.data/*
+## postgres        : Connect to the local PostgreSQL with `psql`
+.PHONY : postgres
+postgres: up
+	./bin/psql
+
+## redis           : Connect to the local Redis with `redis-cli`
+.PHONY : redis
+redis: up
+	./bin/redis-cli

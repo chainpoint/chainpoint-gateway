@@ -7,8 +7,11 @@ networks:
 services:
 
   postgres:
-    restart: always
     image: postgres:9.6.5-alpine
+    container_name: postgres-node-src
+    restart: always
+    ports:
+      - "5434:5432"
     volumes:
       - ./.data/postgresql:/var/lib/postgresql/data
     environment:
@@ -18,8 +21,11 @@ services:
       - chainpoint-node
 
   redis:
-    restart: always
     image: redis:4.0.1-alpine
+    container_name: redis-node-src
+    restart: always
+    ports:
+      - "6381:6379"
     volumes:
       - ./.redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ./.data/redis:/data
@@ -32,8 +38,6 @@ services:
   chainpoint-node:
     image: quay.io/chainpoint/chainpoint-node:latest
     restart: on-failure
-    volumes:
-      - ~/.chainpoint:/home/node/app/.chainpoint
     build: .
     ports:
       - "9090:8080"
