@@ -32,4 +32,4 @@ exec docker run \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume "$PWD":/wd \
   --workdir /wd \
-  "postgres:$VERSION" psql -h localhost -p 5434 -d chainpoint -U chainpoint
+  "postgres:$VERSION" psql -h localhost -p 5434 -d chainpoint -U chainpoint "$@"

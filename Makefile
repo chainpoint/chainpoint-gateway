@@ -91,3 +91,8 @@ postgres: up
 .PHONY : redis
 redis: up
 	./bin/redis-cli
+
+## auth-keys       : Export HMAC authentication keys from PostgreSQL
+.PHONY : auth-keys
+auth-keys: up
+	@./bin/psql -c 'SELECT * FROM hmackey;'
