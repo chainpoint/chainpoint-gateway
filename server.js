@@ -135,10 +135,9 @@ async function registerNodeAsync (nodeURI) {
         process.exit(1)
       }
 
-      // HMAC auth key found!
       if (hmacEntry) {
         console.log(`INFO : Found authentication key for Ethereum (TNT) address ${hmacEntry.tntAddr}`)
-        // the NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
+        // The NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
         let hmacTxt = [hmacEntry.tntAddr, nodeURI, dateString].join('')
@@ -166,12 +165,17 @@ async function registerNodeAsync (nodeURI) {
           await coreHosts.coreRequestAsync(putOptions)
         } catch (error) {
           if (error.statusCode === 409) {
-            if (error.error.message === 'public_uri') {
-              // the public uri is already in use by another Node
-              console.error(`ERROR : Public URI ${nodeURI} is already in use and cannot be registered.`)
+            if (error.error && error.error.code && error.error.message) {
+              console.error(`ERROR : Registration update error : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
+            } else if (error.error && error.error.code) {
+              console.error(`ERROR : Registration update error : ${nodeURI} : ${error.error.code}`)
+            } else {
+              console.error(`ERROR : Registration update error`)
             }
-            // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
-            // won't force a restart since this situation will not resolve itself.
+
+            // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
+            // so Docker Compose `on-failure` policy won't force a restart since this
+            // situation will not resolve itself.
             process.exit(0)
           }
 
@@ -236,19 +240,20 @@ async function registerNodeAsync (nodeURI) {
           return response.hmac_key
         } catch (error) {
           if (error.statusCode === 409) {
-            if (error.error.message === 'tnt_addr') {
-              // the TNT address is already in use with an existing hmac key
-              // if the hmac key was lost, you need to re-register with a new
-              // TNT address and receive a new hmac key
-              console.error(`ERROR : TNT address ${env.NODE_TNT_ADDRESS} is already in use and cannot be registered.`)
-            } else if (error.error.message === 'public_uri') {
-              // the public uri is already in use by another Node
-              console.error(`ERROR : Public URI ${nodeURI} is already in use and cannot be registered.`)
+            if (error.error && error.error.code && error.error.message) {
+              console.error(`ERROR : Registration error : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
+            } else if (error.error && error.error.code) {
+              console.error(`ERROR : Registration error : ${nodeURI} : ${error.error.code}`)
+            } else {
+              console.error(`ERROR : Registration error`)
             }
-            // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
-            // won't force a restart since this situation will not resolve itself.
+
+            // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
+            // so Docker Compose `on-failure` policy won't force a restart since this
+            // situation will not resolve itself.
             process.exit(0)
           }
+
           if (error.statusCode) throw new Error(`ERROR : Node registration failed with status code : ${error.statusCode}`)
           throw new Error(`Node registration failed. No response received.`)
         }
