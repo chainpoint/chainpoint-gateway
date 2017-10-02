@@ -1,6 +1,9 @@
 # First target in the Makefile is the default.
 all: help
 
+# without this 'source' won't work.
+SHELL := /bin/bash
+
 # Get the location of this makefile.
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
@@ -22,6 +25,10 @@ up: build-config yarn build
 .PHONY : down
 down:
 	docker-compose down
+
+## restart         : Restart Node
+.PHONY : restart
+restart: down up
 
 ## logs            : Tail Node logs
 .PHONY : logs
@@ -67,6 +74,15 @@ build-config:
 pull:
 	docker-compose pull
 
+## git-pull        : Git pull latest
+.PHONY : git-pull
+git-pull:
+	@git pull
+
+## upgrade         : Same as `make down && git pull && make up`
+.PHONY : upgrade
+upgrade: down git-pull up
+
 ## push            : Push Docker images using docker-make
 .PHONY : push
 push:
@@ -84,27 +100,41 @@ yarn:
 
 ## postgres        : Connect to the local PostgreSQL with `psql`
 .PHONY : postgres
-postgres: up
-	./bin/psql
+postgres:
+	@docker-compose up -d postgres
+	@sleep 4
+	@./bin/psql
 
 ## redis           : Connect to the local Redis with `redis-cli`
 .PHONY : redis
-redis: up
-	./bin/redis-cli
+redis:
+	@docker-compose up -d redis
+	@sleep 2
+	@./bin/redis-cli
 
-## auth-keys       : Export HMAC authentication keys from PostgreSQL
+## auth-keys       : Export HMAC auth keys from PostgreSQL
 .PHONY : auth-keys
 auth-keys: up
+	@sleep 4
+	@echo ''
 	@./bin/psql -c 'SELECT * FROM hmackey;'
-	
 
-## update-auth-key : Update HMAC authentication key with `key` variable. Example `make update-auth-key key=mysecretkey`
-.PHONY : update-auth-key
-update-auth-key: check-auth-variable
-        @source .env && ./bin/psql -c "UPDATE hmackey SET hmac_key = '$(key)' WHERE tnt_addr = '$$NODE_TNT_ADDRESS' "
+## auth-key-update : Update HMAC auth key with `KEY` (hex string) var. Example `make update-auth-key KEY=mysecrethexkey`
+.PHONY : auth-key-update
+auth-key-update: guard-KEY up
+	@sleep 8
+	@source .env && ./bin/psql -c "INSERT INTO hmackey (tnt_addr, hmac_key) VALUES (LOWER('$$NODE_TNT_ADDRESS'), LOWER('$(KEY)')) ON CONFLICT (tnt_addr) DO UPDATE SET hmac_key = LOWER('$(KEY)')"
+	make restart
 
-check-auth-variable:
-ifndef key
-        $(error key variable is undefined. \n\n Example usage: make update-auth-key key=mysecretkey )
-endif
+## auth-key-delete : Delete HMAC auth key with `NODE_TNT_ADDRESS` var. Example `make auth-key-delete NODE_TNT_ADDRESS=0xmyethaddress`
+.PHONY : auth-key-delete
+auth-key-delete: guard-NODE_TNT_ADDRESS up
+	@sleep 4
+	./bin/psql -c "DELETE FROM hmackey WHERE tnt_addr = LOWER('$(NODE_TNT_ADDRESS)')"
+	make restart
 
+guard-%:
+	@ if [ "${${*}}" = "" ]; then \
+		echo "Environment variable $* not set"; \
+		exit 1; \
+	fi
