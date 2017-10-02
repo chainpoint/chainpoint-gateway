@@ -12,6 +12,15 @@ REQUIRED_BINS := docker docker-compose
 $(foreach bin,$(REQUIRED_BINS),\
     $(if $(shell command -v $(bin) 2> /dev/null),$(),$(error Please install `$(bin)` first!)))
 
+# Ask Tnt Address
+TNT_ADDRESS_ANSWER ?= $(shell bash -c 'read -p "Write your TNT Address: " input_tnt_addr; echo $$input_tnt_addr')
+
+# Get Public Ip Address
+LOOKUP_PUBLIC_IP_ADDRESS ?= $(shell bash -c 'curl --connect-timeout 2 -s http://icanhazip.com/')
+
+# Ask Public Ip Address
+TNT_PUBLIC_HOST_ANSWER ?= $(shell bash -c 'read -p "Write your TNT Node Public Host Address: We found your ip address $(LOOKUP_PUBLIC_IP_ADDRESS) write y and press enter. If Ip Address is not true write your Ip address: " input_ip_addr; if [ $$input_ip_addr == "y" ]; then echo $(LOOKUP_PUBLIC_IP_ADDRESS); else echo $$input_ip_addr; fi ' )
+
 .PHONY : help
 help : Makefile
 	@sed -n 's/^##//p' $<
@@ -61,6 +70,14 @@ build:
 	./bin/docker-make --no-push
 	docker container prune -f
 	docker-compose build
+
+## easy-setup	 : Easy Chain Point Node Setup
+.PHONY : easy-setup
+easy-setup: build-config
+	@sed -i '' 's/^\(NODE_TNT_ADDRESS=\).*/\1$(TNT_ADDRESS_ANSWER)/' .env
+	@sed -i '' 's/^\(CHAINPOINT_NODE_PUBLIC_URI=\).*/\1http:\/\/$(TNT_PUBLIC_HOST_ANSWER)/' .env
+	@echo 'Setup finished'
+	docker-compose up -d --no-build
 
 ## build-config    : Copy the .env config from .env.sample
 .PHONY : build-config
