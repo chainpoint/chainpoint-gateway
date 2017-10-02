@@ -113,7 +113,7 @@ auth-keys: up
 ## auth-key-update : Update HMAC auth key with `KEY` (hex string) var. Example `make update-auth-key KEY=mysecrethexkey`
 .PHONY : auth-key-update
 auth-key-update: guard-KEY up
-	@sleep 4
+	@sleep 8
 	@source .env && ./bin/psql -c "INSERT INTO hmackey (tnt_addr, hmac_key) VALUES (LOWER('$$NODE_TNT_ADDRESS'), LOWER('$(KEY)')) ON CONFLICT (tnt_addr) DO UPDATE SET hmac_key = LOWER('$(KEY)')"
 	make restart
 
