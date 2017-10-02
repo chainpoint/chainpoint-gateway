@@ -102,25 +102,19 @@ redis:
 
 ## auth-keys       : Export HMAC auth keys from PostgreSQL
 .PHONY : auth-keys
-auth-keys:
-	@docker-compose up -d postgres
-	@sleep 4
+auth-keys: up
 	@echo ''
 	@./bin/psql -c 'SELECT * FROM hmackey;'
 
 ## auth-key-update : Update HMAC auth key with `KEY` (hex string) var. Example `make update-auth-key KEY=mysecrethexkey`
 .PHONY : auth-key-update
-auth-key-update: guard-KEY
-	@docker-compose up -d postgres
-	@sleep 4
+auth-key-update: guard-KEY up
 	@source .env && ./bin/psql -c "INSERT INTO hmackey (tnt_addr, hmac_key) VALUES (LOWER('$$NODE_TNT_ADDRESS'), LOWER('$(KEY)')) ON CONFLICT (tnt_addr) DO UPDATE SET hmac_key = LOWER('$(KEY)')"
 	make restart
 
 ## auth-key-delete : Delete HMAC auth key with `NODE_TNT_ADDRESS` var. Example `make auth-key-delete NODE_TNT_ADDRESS=0xmyethaddress`
 .PHONY : auth-key-delete
-auth-key-delete: guard-NODE_TNT_ADDRESS
-	@docker-compose up -d postgres
-	@sleep 4
+auth-key-delete: guard-NODE_TNT_ADDRESS up
 	./bin/psql -c "DELETE FROM hmackey WHERE tnt_addr = LOWER('$(NODE_TNT_ADDRESS)')"
 	make restart
 
