@@ -74,6 +74,10 @@ build-config:
 pull:
 	docker-compose pull
 
+## upgrade         : Same as `make down && git pull && make up`
+.PHONY : upgrade
+upgrade: down git-pull up
+
 ## push            : Push Docker images using docker-make
 .PHONY : push
 push:
