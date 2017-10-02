@@ -96,3 +96,15 @@ redis: up
 .PHONY : auth-keys
 auth-keys: up
 	@./bin/psql -c 'SELECT * FROM hmackey;'
+	
+
+## update-auth-key : Update HMAC authentication key with `key` variable. Example `make update-auth-key key=mysecretkey`
+.PHONY : update-auth-key
+update-auth-key: check-auth-variable
+        @source .env && ./bin/psql -c "UPDATE hmackey SET hmac_key = '$(key)' WHERE tnt_addr = '$$NODE_TNT_ADDRESS' "
+
+check-auth-variable:
+ifndef key
+        $(error key variable is undefined. \n\n Example usage: make update-auth-key key=mysecretkey )
+endif
+
