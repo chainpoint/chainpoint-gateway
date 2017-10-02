@@ -23,6 +23,10 @@ up: build-config yarn build
 down:
 	docker-compose down
 
+## restart         : Restart Node
+.PHONY : restart
+restart: down up
+
 ## logs            : Tail Node logs
 .PHONY : logs
 logs:
