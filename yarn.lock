@@ -112,8 +112,8 @@ chainpoint-binary@^4.0.0:
     pako "^1.0.5"
 
 chainpoint-parse@^2.0.1:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-2.0.2.tgz#c4e4bf46ada1e9448d6617d92816baa66957c65e"
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-2.0.3.tgz#bc6bb46426ce31b7a2bb81a0b133a4aaa5847529"
   dependencies:
     chainpoint-binary "^4.0.0"
     chainpoint-proof-json-schema "^1.0.0"
