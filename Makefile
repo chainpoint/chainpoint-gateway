@@ -96,35 +96,35 @@ clean: down
 ## yarn            : Install Node Javascript dependencies
 .PHONY : yarn
 yarn:
-	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd node:8.1.4 yarn
+	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd node:8.6.0-alpine yarn
 
 ## postgres        : Connect to the local PostgreSQL with `psql`
 .PHONY : postgres
 postgres:
 	@docker-compose up -d postgres
 	@sleep 6
-	@docker exec -it postgres-node psql -U chainpoint
+	@docker exec -it postgres-node-src psql -U chainpoint
 
 ## redis           : Connect to the local Redis with `redis-cli`
 .PHONY : redis
 redis:
 	@docker-compose up -d redis
 	@sleep 2
-	@docker exec -it redis-node redis-cli
+	@docker exec -it redis-node-src redis-cli
 
 ## auth-keys       : Export HMAC auth keys from PostgreSQL
 .PHONY : auth-keys
 auth-keys:
 	@docker-compose up -d postgres	
 	@sleep 6
-	@docker exec -it postgres-node psql -U chainpoint -c 'SELECT * FROM hmackey;'
+	@docker exec -it postgres-node-src psql -U chainpoint -c 'SELECT * FROM hmackey;'
 
 ## auth-key-update : Update HMAC auth key with `KEY` (hex string) var. Example `make update-auth-key KEY=mysecrethexkey`
 .PHONY : auth-key-update
 auth-key-update: guard-KEY
 	@docker-compose up -d postgres
 	@sleep 6
-	@source .env && docker exec -it postgres-node psql -U chainpoint -c "INSERT INTO hmackey (tnt_addr, hmac_key) VALUES (LOWER('$$NODE_TNT_ADDRESS'), LOWER('$(KEY)')) ON CONFLICT (tnt_addr) DO UPDATE SET hmac_key = LOWER('$(KEY)')"
+	@source .env && docker exec -it postgres-node-src psql -U chainpoint -c "INSERT INTO hmackey (tnt_addr, hmac_key) VALUES (LOWER('$$NODE_TNT_ADDRESS'), LOWER('$(KEY)')) ON CONFLICT (tnt_addr) DO UPDATE SET hmac_key = LOWER('$(KEY)')"
 	make restart
 
 ## auth-key-delete : Delete HMAC auth key with `NODE_TNT_ADDRESS` var. Example `make auth-key-delete NODE_TNT_ADDRESS=0xmyethaddress`
@@ -132,7 +132,7 @@ auth-key-update: guard-KEY
 auth-key-delete: guard-NODE_TNT_ADDRESS
 	@docker-compose up -d postgres
 	@sleep 6
-	@docker exec -it postgres-node psql -U chainpoint -c "DELETE FROM hmackey WHERE tnt_addr = LOWER('$(NODE_TNT_ADDRESS)')"
+	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM hmackey WHERE tnt_addr = LOWER('$(NODE_TNT_ADDRESS)')"
 	make restart
 
 guard-%:
