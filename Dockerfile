@@ -1,4 +1,23 @@
-FROM quay.io/chainpoint/node-base:master
+FROM node:8.6.0-alpine
+
+LABEL MAINTAINER="Glenn Rempe <glenn@tierion.com>"
+
+RUN apk update && \
+    apk upgrade && \
+    rm -rf /var/cache/apk/*
+
+RUN apk add --update tini su-exec --no-cache
+
+# Needed to load native node modules
+# See : https://github.com/grpc/grpc/issues/8528
+RUN apk add libc6-compat --no-cache
+
+# The `node` user and its home dir is provided by
+# the base image. Create a subdir where app code lives.
+RUN mkdir /home/node/app
+WORKDIR /home/node/app
+
+ENV NODE_ENV production
 
 COPY package.json yarn.lock server.js /home/node/app/
 RUN yarn
@@ -13,5 +32,7 @@ RUN mkdir -p /home/node/app/lib/models
 COPY ./lib/models/*.js /home/node/app/lib/models/
 
 EXPOSE 8080
+
+ENTRYPOINT ["su-exec", "node:node", "/sbin/tini", "--"]
 
 CMD ["yarn", "start"]
