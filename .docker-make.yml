@@ -1,11 +1,11 @@
 builds:
-
   chainpoint-node:
     context: .
     dockerfile: Dockerfile
     pushes:
-      - 'on_tag=quay.io/chainpoint/chainpoint-node:{git_tag}'
+      - 'always=quay.io/chainpoint/chainpoint-node:{fcommitid}'
       - 'on_branch:master=quay.io/chainpoint/chainpoint-node:latest'
-      - 'on_branch:master=quay.io/chainpoint/chainpoint-node:{fcommitid}'
     labels:
       - 'org.chainpoint.git.commitid={fcommitid}'
+    dockerignore:
+      - .git
