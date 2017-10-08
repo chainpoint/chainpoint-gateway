@@ -32,7 +32,7 @@
   "dependencies": {
     "async": "^2.4.1",
     "blake2s-js": "^1.2.2",
-    "bluebird": "^3.5.0",
+    "bluebird": "^3.5.1",
     "chainpoint-binary": "^4.0.1",
     "chainpoint-parse": "^2.0.3",
     "envalid": "^4.0.2",
