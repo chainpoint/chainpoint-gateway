@@ -58,7 +58,7 @@ ps:
 ## build           : Build Node image
 .PHONY : build
 build:
-	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --workdir /usr/src/app jizhilong/docker-make:v1.1.6 docker-make --no-push
+	docker run --rm -w /usr/src/app -v ~/.docker:/root/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$(PWD)":/usr/src/app jizhilong/docker-make:latest docker-make --no-push
 	docker container prune -f
 	docker-compose build
 
@@ -86,7 +86,7 @@ upgrade: down git-pull up
 ## push            : Push Docker images using docker-make
 .PHONY : push
 push:
-	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --workdir /usr/src/app jizhilong/docker-make:v1.1.6 docker-make
+	docker run --rm -w /usr/src/app -v ~/.docker:/root/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$(PWD)":/usr/src/app jizhilong/docker-make:latest docker-make
 
 ## clean           : Shutdown and **destroy** all local Node data
 .PHONY : clean
