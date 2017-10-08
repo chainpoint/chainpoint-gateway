@@ -49,7 +49,7 @@
     "restify": "^5.2.0",
     "restify-cors-middleware": "^1.0.1",
     "restify-errors": "^5.0.0",
-    "sequelize": "^4.2.1",
+    "sequelize": "^4.13.5",
     "tweetnacl": "^1.0.0",
     "tweetnacl-util": "^0.15.0",
     "url": "^0.11.0",
