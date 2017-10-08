@@ -35,7 +35,7 @@
     "bluebird": "^3.5.0",
     "chainpoint-binary": "^4.0.1",
     "chainpoint-parse": "^2.0.3",
-    "envalid": "^3.1.1",
+    "envalid": "^4.0.2",
     "ip": "^1.1.5",
     "jmespath": "^0.15.0",
     "lodash": "^4.17.4",
