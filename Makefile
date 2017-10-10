@@ -57,7 +57,7 @@ ps:
 
 ## build           : Build Node image
 .PHONY : build
-build:
+build: tor-exit-nodes
 	docker run --rm -w /usr/src/app -v ~/.docker:/root/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$(PWD)":/usr/src/app jizhilong/docker-make:latest docker-make --no-push
 	docker container prune -f
 	docker-compose build
@@ -77,7 +77,7 @@ pull:
 ## git-pull        : Git pull latest
 .PHONY : git-pull
 git-pull:
-	@git pull
+	@git pull --all
 
 ## upgrade         : Same as `make down && git pull && make up`
 .PHONY : upgrade
@@ -140,3 +140,7 @@ guard-%:
 		echo "Environment variable $* not set"; \
 		exit 1; \
 	fi
+
+.PHONY : tor-exit-nodes
+tor-exit-nodes:
+	curl -s https://check.torproject.org/exit-addresses | grep ExitAddress | cut -d' ' -f2 > ./tor-exit-nodes.txt

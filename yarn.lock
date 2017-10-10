@@ -1124,6 +1124,17 @@ wbuf@^1.1.0, wbuf@^1.7.2:
   dependencies:
     minimalistic-assert "^1.0.0"
 
+webfirewall@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/webfirewall/-/webfirewall-0.2.1.tgz#60babd210a0fba6496264eb211d776c6515bede1"
+  dependencies:
+    co "^4.6.0"
+    wildcard "^1.1.2"
+
+wildcard@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/wildcard/-/wildcard-1.1.2.tgz#a7020453084d8cd2efe70ba9d3696263de1710a5"
+
 wkx@^0.4.1:
   version "0.4.1"
   resolved "https://registry.yarnpkg.com/wkx/-/wkx-0.4.1.tgz#2fc171b5e9cb55c6256fef4bde1f21be413befee"

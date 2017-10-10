@@ -57,6 +57,7 @@
     "uuid-time": "^1.0.0",
     "uuid-validate": "0.0.2",
     "valid-url": "^1.0.9",
-    "validator": "^9.0.0"
+    "validator": "^9.0.0",
+    "webfirewall": "^0.2.1"
   }
 }
