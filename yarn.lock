@@ -143,6 +143,12 @@ chalk@2.1.0:
     escape-string-regexp "^1.0.5"
     supports-color "^4.0.0"
 
+cidr-matcher@1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/cidr-matcher/-/cidr-matcher-1.0.5.tgz#1805e49751be8fc8279a73355574e31c9f49666b"
+  dependencies:
+    ip "^1.0.2"
+
 clone-regexp@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/clone-regexp/-/clone-regexp-1.0.0.tgz#eae0a2413f55c0942f818c229fefce845d7f3b1c"
@@ -439,7 +445,7 @@ int64-buffer@^0.1.9:
   version "0.1.9"
   resolved "https://registry.yarnpkg.com/int64-buffer/-/int64-buffer-0.1.9.tgz#9e039da043b24f78b196b283e04653ef5e990f61"
 
-ip@^1.1.5:
+ip@^1.0.2, ip@^1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
 
@@ -632,6 +638,10 @@ ncp@~2.0.0:
 negotiator@^0.6.1:
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.1.tgz#2b327184e8992101177b28563fb5e7102acd0ca9"
+
+net@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/net/-/net-1.0.2.tgz#d1757ec9a7fb2371d83cf4755ce3e27e10829388"
 
 oauth-sign@~0.8.2:
   version "0.8.2"
@@ -1124,11 +1134,13 @@ wbuf@^1.1.0, wbuf@^1.7.2:
   dependencies:
     minimalistic-assert "^1.0.0"
 
-webfirewall@^0.2.1:
+"webfirewall@https://github.com/chainpoint/webfirewall.git#ca145c0b528e953b97f29931e9af3dc0cb05777a":
   version "0.2.1"
-  resolved "https://registry.yarnpkg.com/webfirewall/-/webfirewall-0.2.1.tgz#60babd210a0fba6496264eb211d776c6515bede1"
+  resolved "https://github.com/chainpoint/webfirewall.git#ca145c0b528e953b97f29931e9af3dc0cb05777a"
   dependencies:
+    cidr-matcher "1.0.5"
     co "^4.6.0"
+    net "1.0.2"
     wildcard "^1.1.2"
 
 wildcard@^1.1.2:
