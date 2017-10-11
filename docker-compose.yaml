@@ -34,6 +34,8 @@ services:
   chainpoint-node:
     image: quay.io/chainpoint/chainpoint-node:latest
     restart: on-failure
+    volumes:
+      - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
     build: .
     ports:
       - "9090:8080"

@@ -1,0 +1,6 @@
+# ip-blacklist.txt
+#
+# Add a single IPv4 address per line that you'd
+# like to block from connecting to this Node.
+#
+# Lines beginning with '#' are ignored.

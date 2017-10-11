@@ -6,7 +6,7 @@ RUN apk update && \
     apk upgrade && \
     rm -rf /var/cache/apk/*
 
-RUN apk add --update tini su-exec --no-cache
+RUN apk add --update git tini su-exec --no-cache
 
 # Needed to load native node modules
 # See : https://github.com/grpc/grpc/issues/8528
