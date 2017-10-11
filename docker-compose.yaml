@@ -47,4 +47,4 @@ services:
     environment:
       NODE_TNT_ADDRESS: ${NODE_TNT_ADDRESS}
       CHAINPOINT_NODE_PUBLIC_URI: "${CHAINPOINT_NODE_PUBLIC_URI:-http://0.0.0.0}"
-      DEBUG: "sequelize*"
+      #DEBUG: "sequelize*"
