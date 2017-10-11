@@ -21,7 +21,7 @@ const { promisify } = require('util')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const publicKey = require('./lib/models/PublicKey.js')
-const nodeHMAC = require('./lib/models/NodeHMAC.js')
+const hmacKey = require('./lib/models/HMACKey.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
 const publicKeys = require('./lib/public-keys.js')
@@ -48,8 +48,8 @@ const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
 // pull in variables defined in shared sequelize modules
 let sequelizeCalBlock = calendarBlock.sequelize
 let sequelizePubKey = publicKey.sequelize
-let sequelizeNodeHMAC = nodeHMAC.sequelize
-let NodeHMAC = nodeHMAC.NodeHMAC
+let sequelizeHMACKey = hmacKey.sequelize
+let HMACKey = hmacKey.HMACKey
 
 // The redis connection used for all redis communication
 // This value is set once the connection has been established
@@ -110,7 +110,7 @@ async function openStorageConnectionAsync () {
     try {
       await sequelizeCalBlock.sync({ logging: false })
       await sequelizePubKey.sync({ logging: false })
-      await sequelizeNodeHMAC.sync({ logging: false })
+      await sequelizeHMACKey.sync({ logging: false })
       storageConnected = true
     } catch (error) {
       console.error('Cannot establish Postgres connection. Attempting in 5 seconds...')
@@ -128,7 +128,7 @@ async function registerNodeAsync (nodeURI) {
       // Check if HMAC key for current TNT address already exists
       let hmacEntry
       try {
-        hmacEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+        hmacEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
       } catch (error) {
         console.error(`ERROR : Unable to load local authentication key.`)
         // Exit 1 : this is a recoverable error that might be resolved on container restart.
@@ -137,7 +137,7 @@ async function registerNodeAsync (nodeURI) {
 
       if (hmacEntry) {
         console.log(`INFO : Found authentication key for Ethereum (TNT) address ${hmacEntry.tntAddr}`)
-        // The NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
+        // The HMACKey exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
         let hmacTxt = [hmacEntry.tntAddr, nodeURI, dateString].join('')
@@ -198,7 +198,7 @@ async function registerNodeAsync (nodeURI) {
         return hmacEntry.hmacKey
       } else {
         console.log(`INFO : No local Node authentication key for TNT address ${env.NODE_TNT_ADDRESS}. Registering.`)
-        // the NodeHMAC doesn't exist, so POST Node info to Core and store resulting HMAC key
+        // the HMACKey doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
           public_uri: nodeURI
@@ -223,9 +223,9 @@ async function registerNodeAsync (nodeURI) {
           try {
             // write new hmac entry
             let writeHMACKey = response.hmac_key
-            await NodeHMAC.create({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey })
+            await HMACKey.create({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey, version: 1 })
             // read hmac entry that was just written
-            let newHMACEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+            let newHMACEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
             // confirm the two are the same
             if (!newHMACEntry || (newHMACEntry.hmacKey !== writeHMACKey)) {
               throw new Error(`Unable to confirm authentication key with read after write.`)
