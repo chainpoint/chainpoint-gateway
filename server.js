@@ -364,3 +364,27 @@ async function startAsync () {
 
 // get the whole show started
 startAsync()
+
+async function restartAsync () {
+  // sleep for a random interval ms before executing at some
+  // time during the next 23 hours (so as not to overlap with
+  // next run). Help prevent a 'thundering herd' problem with
+  // Nodes restarting all at once.
+  await utils.sleepAsync(utils.randomIntFromInterval(1000, 60 * 60 * 23 * 1000))
+
+  if (apiServer.getHashDataCount() === 0) {
+    apiServer.setAcceptingHashes(false)
+    console.log('INFO : App : Performing daily Auto-restart...')
+    // exit(1) : force Docker compose to restart app
+    process.exit(1)
+  } else {
+    console.log('INFO : App : Auto restart skipped. Busy.')
+  }
+}
+
+var schedule = require('node-schedule')
+// Schedule a random interval restart triggered daily at midnight.
+// sec min hour day_of_month month day_of_week
+schedule.scheduleJob('0 0 0 * * *', () => {
+  restartAsync()
+})
