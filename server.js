@@ -72,7 +72,7 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(null)
     calendar.setRedis(null)
     coreHosts.setRedis(null)
-    console.error('Cannot establish Redis connection. Attempting in 5 seconds...')
+    console.error('Redis : not available. Retry in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
   })
@@ -113,7 +113,7 @@ async function openStorageConnectionAsync () {
       await sequelizeHMACKey.sync({ logging: false })
       storageConnected = true
     } catch (error) {
-      console.error('Cannot establish Postgres connection. Attempting in 5 seconds...')
+      console.error('PostgreSQL : not available : Retry in 5 seconds...')
       await utils.sleepAsync(5000)
     }
   }
@@ -130,13 +130,14 @@ async function registerNodeAsync (nodeURI) {
       try {
         hmacEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
       } catch (error) {
-        console.error(`ERROR : Unable to load local authentication key.`)
+        console.error(`ERROR : Registration : Unable to load auth key`)
         // Exit 1 : this is a recoverable error that might be resolved on container restart.
         process.exit(1)
       }
 
       if (hmacEntry) {
-        console.log(`INFO : Found authentication key for Ethereum (TNT) address ${hmacEntry.tntAddr}`)
+        console.log(`INFO : Registration : Ethereum Address : ${hmacEntry.tntAddr}`)
+        console.log(`INFO : Registration : Key : ${hmacEntry.hmacKey}`)
         // The HMACKey exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
@@ -166,11 +167,11 @@ async function registerNodeAsync (nodeURI) {
         } catch (error) {
           if (error.statusCode === 409) {
             if (error.error && error.error.code && error.error.message) {
-              console.error(`ERROR : Registration update error : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
+              console.error(`ERROR : Registration update : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
             } else if (error.error && error.error.code) {
-              console.error(`ERROR : Registration update error : ${nodeURI} : ${error.error.code}`)
+              console.error(`ERROR : Registration update : ${nodeURI} : ${error.error.code}`)
             } else {
-              console.error(`ERROR : Registration update error`)
+              console.error(`ERROR : Registration update`)
             }
 
             // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
@@ -184,20 +185,20 @@ async function registerNodeAsync (nodeURI) {
             throw err
           }
 
-          throw new Error(`No response received on PUT node : ${error.message}`)
+          throw new Error(`Registration : No response received on update : ${error.message}`)
         }
 
         isRegistered = true
 
         if (nodeURI) {
-          console.log(`INFO : Registration updated : ${env.NODE_TNT_ADDRESS} : ${nodeURI}`)
+          console.log(`INFO : Registration : Public URI : ${nodeURI}`)
         } else {
-          console.log(`INFO : Registration updated : ${env.NODE_TNT_ADDRESS} : (no public URI)`)
+          console.log(`INFO : Registration : Public URI : (no public URI)`)
         }
 
         return hmacEntry.hmacKey
       } else {
-        console.log(`INFO : No local Node authentication key for TNT address ${env.NODE_TNT_ADDRESS}. Registering.`)
+        console.log(`INFO : Registration : Attempting new registration`)
         // the HMACKey doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
@@ -228,24 +229,24 @@ async function registerNodeAsync (nodeURI) {
             let newHMACEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
             // confirm the two are the same
             if (!newHMACEntry || (newHMACEntry.hmacKey !== writeHMACKey)) {
-              throw new Error(`Unable to confirm authentication key with read after write.`)
+              throw new Error(`Registration : Unable to confirm authentication key with read after write.`)
             }
           } catch (error) {
-            console.error(`ERROR : Unable to write and confirm new authentication key locally.`)
+            console.error(`ERROR : Registration : Auth key write and confirm failed.`)
             // Exit 1 : this is a recoverable error that might be resolved on container restart.
             process.exit(1)
           }
-          console.log(`INFO : Node registered and authentication key saved for TNT address ${env.NODE_TNT_ADDRESS}`)
+          console.log(`INFO : Registration : Success, auth key saved!`)
 
           return response.hmac_key
         } catch (error) {
           if (error.statusCode === 409) {
             if (error.error && error.error.code && error.error.message) {
-              console.error(`ERROR : Registration error : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
+              console.error(`ERROR : Registration : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
             } else if (error.error && error.error.code) {
-              console.error(`ERROR : Registration error : ${nodeURI} : ${error.error.code}`)
+              console.error(`ERROR : Registration : ${nodeURI} : ${error.error.code}`)
             } else {
-              console.error(`ERROR : Registration error`)
+              console.error(`ERROR : Registration`)
             }
 
             // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
@@ -256,16 +257,16 @@ async function registerNodeAsync (nodeURI) {
 
           if (error.statusCode) {
             let showMessage = error.statusCode.toString().charAt(0) === '4' || error.statusCode.toString() === '500'
-            throw new Error(`Node registration failed with status code : ${error.statusCode}${showMessage ? ' : ' + error.message : ''}`)
+            throw new Error(`Registration : failed with status code : ${error.statusCode}${showMessage ? ' : ' + error.message : ''}`)
           }
-          throw new Error(`Node registration failed. No response received.`)
+          throw new Error(`Registration : failed with no response received`)
         }
       }
     } catch (error) {
       if (error.statusCode) {
-        console.error(`ERROR : Unable to register Node with Core: error ${error.statusCode} ...Retrying in 60 seconds...`)
+        console.error(`ERROR : Registration : Unable to register with Core : ${error.statusCode} : Retry in 60 seconds...`)
       } else {
-        console.error(`ERROR : Unable to register Node with Core: ${error.message} ...Retrying in 60 seconds...`)
+        console.error(`ERROR : Registration : Unable to register with Core : ${error.message} : Retry in 60 seconds...`)
       }
 
       if (++registerAttempts > 3) {
@@ -291,7 +292,7 @@ async function initPublicKeysAsync (coreConfig) {
     }
     return pubKeys
   } catch (error) {
-    throw new Error(`Unable to initialize Core public keys.`)
+    throw new Error(`Registration : Unable to initialize Core public keys.`)
   }
 }
 
@@ -333,20 +334,16 @@ async function startAsync () {
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     await openStorageConnectionAsync()
     let hmacKey = await registerNodeAsync(nodeUri)
-    console.log('INFO : ******************************************************************************')
-    console.log(`INFO : Private auth key (back me up!): ${hmacKey}`)
-    console.log('INFO : ******************************************************************************')
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
-    console.log('INFO : Initializing application server...')
     await startListeningAsync()
-    console.log('INFO : Synchronizing local Calendar with Core...')
+    console.log('INFO : Calendar : Starting Sync...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
-    console.log('INFO : Startup completed!')
+    console.log('INFO : App : Startup completed!')
   } catch (err) {
-    console.error(`ERROR : Startup error : ${err}`)
+    console.error(`ERROR : App : Startup : ${err}`)
     // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
     // won't force a restart since this situation will not resolve itself.
     process.exit(0)
