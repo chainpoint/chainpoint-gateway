@@ -254,7 +254,7 @@ async function registerNodeAsync (nodeURI) {
             process.exit(0)
           }
 
-          if (error.statusCode) throw new Error(`ERROR : Node registration failed with status code : ${error.statusCode}`)
+          if (error.statusCode) throw new Error(`Node registration failed with status code : ${error.statusCode}`)
           throw new Error(`Node registration failed. No response received.`)
         }
       }
