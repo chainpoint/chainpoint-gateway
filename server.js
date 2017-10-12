@@ -256,8 +256,16 @@ async function registerNodeAsync (nodeURI) {
           }
 
           if (error.statusCode) {
-            let showMessage = error.statusCode.toString().charAt(0) === '4' || error.statusCode.toString() === '500'
-            throw new Error(`failed with status code : ${error.statusCode}${showMessage ? ' : ' + error.message : ''}`)
+            try {
+              let codeInt = parseInt(error.statusCode)
+              if (codeInt >= 400 && codeInt <= 500) {
+                throw new Error(`failed with status code : ${error.statusCode} : ${error.error.message}`)
+              } else {
+                throw new Error(`failed with status code : ${error.statusCode}`)
+              }
+            } catch (innerError) {
+              throw new Error(`failed with status code : ${error.statusCode}`)
+            }
           }
           throw new Error(`failed with no response received`)
         }
