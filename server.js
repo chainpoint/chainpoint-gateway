@@ -181,6 +181,9 @@ async function registerNodeAsync (nodeURI) {
           }
 
           if (error.statusCode) {
+            if (error.error && error.error.message) {
+              throw new Error(`failed with status code : ${error.statusCode} : ${error.error.message}`)
+            }
             let err = { statusCode: error.statusCode }
             throw err
           }
@@ -262,7 +265,7 @@ async function registerNodeAsync (nodeURI) {
             } catch (innerError) {
               throw new Error(`failed with status code : ${error.statusCode}`)
             }
-            if (codeInt >= 400 && codeInt <= 500) {
+            if (codeInt >= 400 && codeInt <= 500 && error.error && error.error.message) {
               throw new Error(`failed with status code : ${error.statusCode} : ${error.error.message}`)
             } else {
               throw new Error(`failed with status code : ${error.statusCode}`)
