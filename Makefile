@@ -96,7 +96,7 @@ clean: down
 ## yarn            : Install Node Javascript dependencies
 .PHONY : yarn
 yarn:
-	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd node:8.6.0-alpine yarn
+	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd quay.io/chainpoint/chainpoint-node:latest yarn
 
 ## postgres        : Connect to the local PostgreSQL with `psql`
 .PHONY : postgres
