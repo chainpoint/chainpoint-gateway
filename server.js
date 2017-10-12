@@ -254,7 +254,10 @@ async function registerNodeAsync (nodeURI) {
             process.exit(0)
           }
 
-          if (error.statusCode) throw new Error(`Node registration failed with status code : ${error.statusCode}`)
+          if (error.statusCode) {
+            let showMessage = error.statusCode.toString().charAt(0) === '4' || error.statusCode.toString() === '500'
+            throw new Error(`Node registration failed with status code : ${error.statusCode}${showMessage ? ' : ' + error.message : ''}`)
+          }
           throw new Error(`Node registration failed. No response received.`)
         }
       }
@@ -262,7 +265,7 @@ async function registerNodeAsync (nodeURI) {
       if (error.statusCode) {
         console.error(`ERROR : Unable to register Node with Core: error ${error.statusCode} ...Retrying in 60 seconds...`)
       } else {
-        console.error(`ERROR : Unable to register Node with Core: error ${error.message} ...Retrying in 60 seconds...`)
+        console.error(`ERROR : Unable to register Node with Core: ${error.message} ...Retrying in 60 seconds...`)
       }
 
       if (++registerAttempts > 3) {
