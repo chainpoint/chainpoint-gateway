@@ -185,7 +185,7 @@ async function registerNodeAsync (nodeURI) {
             throw err
           }
 
-          throw new Error(`Registration : No response received on update : ${error.message}`)
+          throw new Error(`No response received on update : ${error.message}`)
         }
 
         isRegistered = true
@@ -229,7 +229,7 @@ async function registerNodeAsync (nodeURI) {
             let newHMACEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
             // confirm the two are the same
             if (!newHMACEntry || (newHMACEntry.hmacKey !== writeHMACKey)) {
-              throw new Error(`Registration : Unable to confirm authentication key with read after write.`)
+              throw new Error(`Unable to confirm authentication key with read after write.`)
             }
           } catch (error) {
             console.error(`ERROR : Registration : Auth key write and confirm failed.`)
@@ -257,9 +257,9 @@ async function registerNodeAsync (nodeURI) {
 
           if (error.statusCode) {
             let showMessage = error.statusCode.toString().charAt(0) === '4' || error.statusCode.toString() === '500'
-            throw new Error(`Registration : failed with status code : ${error.statusCode}${showMessage ? ' : ' + error.message : ''}`)
+            throw new Error(`failed with status code : ${error.statusCode}${showMessage ? ' : ' + error.message : ''}`)
           }
-          throw new Error(`Registration : failed with no response received`)
+          throw new Error(`failed with no response received`)
         }
       }
     } catch (error) {
