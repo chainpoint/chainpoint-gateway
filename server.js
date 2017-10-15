@@ -374,7 +374,7 @@ async function restartAsync () {
 
   if (apiServer.getHashDataCount() === 0) {
     apiServer.setAcceptingHashes(false)
-    console.log('INFO : App : Performing daily Auto-restart...')
+    console.log('INFO : App : Performing daily Auto-restart to update Firewall. Docker may now report "error Command failed with exit code 1" as it restarts. This is expected behavior and can be safely ignored.')
     // exit(1) : force Docker compose to restart app
     process.exit(1)
   } else {
