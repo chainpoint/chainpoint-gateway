@@ -380,7 +380,7 @@ async function restartAsync () {
     // exit(99) : force Docker compose to restart app w/ custom err code so we can filter it from Node logs
     process.exit(99)
   } else {
-    console.log('INFO : App : Auto restart skipped. Busy.')
+    console.log('INFO : App : Auto-restart skipped. Busy.')
   }
 }
 
