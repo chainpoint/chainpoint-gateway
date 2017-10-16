@@ -370,13 +370,15 @@ async function restartAsync () {
   // time during the next 23 hours (so as not to overlap with
   // next run). Help prevent a 'thundering herd' problem with
   // Nodes restarting all at once.
-  await utils.sleepAsync(utils.randomIntFromInterval(1000, 60 * 60 * 23 * 1000))
+  let randomInterval = utils.randomIntFromInterval(1000, 60 * 60 * 23 * 1000)
+  console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomInterval, 'ms').format()}`)
+  await utils.sleepAsync(randomInterval)
 
   if (apiServer.getHashDataCount() === 0) {
     apiServer.setAcceptingHashes(false)
-    console.log('INFO : App : Performing daily Auto-restart to update Firewall. Docker may now report "error Command failed with exit code 1" as it restarts. This is expected behavior and can be safely ignored.')
-    // exit(1) : force Docker compose to restart app
-    process.exit(1)
+    console.log('INFO : App : Performing daily Auto-restart to update Firewall (may show exit(99) message, which is OK).')
+    // exit(99) : force Docker compose to restart app w/ custom err code so we can filter it from Node logs
+    process.exit(99)
   } else {
     console.log('INFO : App : Auto restart skipped. Busy.')
   }
