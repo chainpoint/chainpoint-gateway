@@ -141,6 +141,7 @@ guard-%:
 		exit 1; \
 	fi
 
+## tor-exit-nodes : Update static list of Exit Nodes
 .PHONY : tor-exit-nodes
 tor-exit-nodes:
 	curl -s https://check.torproject.org/exit-addresses | grep ExitAddress | cut -d' ' -f2 > ./tor-exit-nodes.txt
