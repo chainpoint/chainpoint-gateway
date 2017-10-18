@@ -125,7 +125,9 @@ async function openStorageConnectionAsync () {
 
 async function registerNodeAsync (nodeURI) {
   let isRegistered = false
-  let registerAttempts = 0
+  let registerAttempts = 1
+  const maxRegisterAttempts = 60
+  const retryWaitTimeMs = 15 * 1000
 
   while (!isRegistered) {
     try {
@@ -186,7 +188,7 @@ async function registerNodeAsync (nodeURI) {
 
           if (error.statusCode) {
             if (error.error && error.error.message) {
-              throw new Error(`failed with status code : ${error.statusCode} : ${error.error.message}`)
+              throw new Error(`${error.statusCode} : ${error.error.message}`)
             }
             let err = { statusCode: error.statusCode }
             throw err
@@ -205,7 +207,6 @@ async function registerNodeAsync (nodeURI) {
 
         return hmacEntry.hmacKey
       } else {
-        console.log(`INFO : Registration : Attempting new registration`)
         // the HMACKey doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
@@ -243,7 +244,7 @@ async function registerNodeAsync (nodeURI) {
             // Exit 1 : this is a recoverable error that might be resolved on container restart.
             process.exit(1)
           }
-          console.log(`INFO : Registration : Success, auth key saved!`)
+          console.log(`INFO : Registration : Auth key saved!`)
 
           return response.hmac_key
         } catch (error) {
@@ -267,32 +268,33 @@ async function registerNodeAsync (nodeURI) {
             try {
               codeInt = parseInt(error.statusCode)
             } catch (innerError) {
-              throw new Error(`failed with status code : ${error.statusCode}`)
+              throw new Error(`${error.statusCode}`)
             }
             if (codeInt >= 400 && codeInt <= 500 && error.error && error.error.message) {
-              throw new Error(`failed with status code : ${error.statusCode} : ${error.error.message}`)
+              throw new Error(`${error.statusCode} : ${error.error.message}`)
             } else {
-              throw new Error(`failed with status code : ${error.statusCode}`)
+              throw new Error(`${error.statusCode}`)
             }
           }
-          throw new Error(`failed with no response received`)
+          throw new Error(`no response received`)
         }
       }
     } catch (error) {
       if (error.statusCode) {
-        console.error(`ERROR : Registration : Unable to register with Core : ${error.statusCode} : Retry in 60 seconds...`)
+        console.error(`ERROR : Registration : Core : ${registerAttempts}/${maxRegisterAttempts} : ${error.statusCode} : Retrying...`)
       } else {
-        console.error(`ERROR : Registration : Unable to register with Core : ${error.message} : Retry in 60 seconds...`)
+        console.error(`ERROR : Registration : Core : ${registerAttempts}/${maxRegisterAttempts} : ${error.message} : Retrying...`)
       }
 
-      if (++registerAttempts > 3) {
-        // We've tried 3 times with no success
+      registerAttempts += 1
+      if (registerAttempts >= maxRegisterAttempts) {
+        // We've retried with no success
         // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
         // won't force a restart since this situation will not resolve itself.
         process.exit(0)
       }
 
-      await utils.sleepAsync(60 * 1000)
+      await utils.sleepAsync(retryWaitTimeMs)
     }
   }
 }
