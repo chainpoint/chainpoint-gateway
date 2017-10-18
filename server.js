@@ -72,7 +72,7 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(null)
     calendar.setRedis(null)
     coreHosts.setRedis(null)
-    console.error('Redis : not available. Retry in 5 seconds...')
+    console.error('Redis : not available. Will retry in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
   })
@@ -106,6 +106,7 @@ async function validateUriAsync (nodeUri) {
 // establish a connection with the database
 async function openStorageConnectionAsync () {
   let storageConnected = false
+  let retryCount = 0
   while (!storageConnected) {
     try {
       await sequelizeCalBlock.sync({ logging: false })
@@ -113,7 +114,10 @@ async function openStorageConnectionAsync () {
       await sequelizeHMACKey.sync({ logging: false })
       storageConnected = true
     } catch (error) {
-      console.error('PostgreSQL : not available : Retry in 5 seconds...')
+      if (retryCount >= 1) {
+        console.error('PostgreSQL : not available : Will retry in 5 seconds...')
+      }
+      retryCount += 1
       await utils.sleepAsync(5000)
     }
   }
