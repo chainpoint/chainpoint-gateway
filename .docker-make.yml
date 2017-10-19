@@ -4,7 +4,6 @@ builds:
     dockerfile: Dockerfile
     pushes:
       - 'always=quay.io/chainpoint/chainpoint-node:{fcommitid}'
-      - 'on_branch:master=quay.io/chainpoint/chainpoint-node:latest'
     labels:
       - 'org.chainpoint.git.commitid={fcommitid}'
     dockerignore:
