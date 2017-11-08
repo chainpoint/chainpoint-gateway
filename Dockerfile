@@ -1,4 +1,8 @@
-FROM node:8.6.0-alpine
+# Node.js LTS on Alpine Linux
+# see: https://github.com/nodejs/LTS
+# see: https://hub.docker.com/_/node/
+# see: https://alpinelinux.org/
+FROM node:8.9.0-alpine
 
 LABEL MAINTAINER="Glenn Rempe <glenn@tierion.com>"
 
