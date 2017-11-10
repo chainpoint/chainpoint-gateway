@@ -342,6 +342,8 @@ function startIntervals (coreConfig) {
   calendar.startValidateFullNodeAsync(CALENDAR_VALIDATE_ALL_SECONDS * 1000)
   // start the interval processes for calculating the solution to the Core audit challenge
   calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
+  // start the interval processes for aggregating and submitting hashes to Core
+  apiServer.startAggInterval()
 }
 
 // process all steps need to start the application
