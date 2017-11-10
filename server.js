@@ -380,7 +380,8 @@ async function restartAsync () {
   console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomInterval, 'ms').format()}`)
   await utils.sleepAsync(randomInterval)
 
-  if (apiServer.getHashDataCount() === 0) {
+  let hashDataCount = await redis.scardAsync(env.HASH_DATA_KEY)
+  if (hashDataCount === 0) {
     apiServer.setAcceptingHashes(false)
     console.log('INFO : App : Performing daily Auto-restart to update Firewall (may show exit(99) message, which is OK).')
     // exit(99) : force Docker compose to restart app w/ custom err code so we can filter it from Node logs
