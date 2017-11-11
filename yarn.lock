@@ -47,12 +47,6 @@ async-retry@^1.1.4:
   dependencies:
     retry "0.10.1"
 
-async@^2.4.1:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/async/-/async-2.5.0.tgz#843190fd6b7357a0b9e1c956edddd5ec8462b54d"
-  dependencies:
-    lodash "^4.14.0"
-
 asynckit@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
@@ -131,17 +125,17 @@ chainpoint-binary@^4.0.0, chainpoint-binary@^4.0.1:
     msgpack-lite "^0.1.26"
     pako "^1.0.5"
 
-chainpoint-parse@^2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-2.0.3.tgz#bc6bb46426ce31b7a2bb81a0b133a4aaa5847529"
+chainpoint-parse@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-2.1.0.tgz#586520a57d4d7098e7a61ed95ee7c89612deab79"
   dependencies:
     chainpoint-binary "^4.0.0"
     chainpoint-proof-json-schema "^1.0.0"
     js-sha3 "^0.5.7"
 
 chainpoint-proof-json-schema@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/chainpoint-proof-json-schema/-/chainpoint-proof-json-schema-1.0.0.tgz#39795322e3619724766638fce6de8c8632f3d25a"
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/chainpoint-proof-json-schema/-/chainpoint-proof-json-schema-1.0.1.tgz#b933ab0116b94789f053b6a2340e57c4f514f9c0"
   dependencies:
     is-my-json-valid "^2.16.0"
 
@@ -575,7 +569,7 @@ lodash.get@^4.0.0:
   version "4.4.2"
   resolved "https://registry.yarnpkg.com/lodash.get/-/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
 
-lodash@^4.13.1, lodash@^4.14.0, lodash@^4.17.1, lodash@^4.17.4, lodash@^4.2.1:
+lodash@^4.13.1, lodash@^4.17.1, lodash@^4.17.4, lodash@^4.2.1:
   version "4.17.4"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.4.tgz#78203a4d1c328ae1d86dca6460e369b57f4055ae"
 
@@ -716,8 +710,8 @@ packet-reader@0.3.1:
   resolved "https://registry.yarnpkg.com/packet-reader/-/packet-reader-0.3.1.tgz#cd62e60af8d7fea8a705ec4ff990871c46871f27"
 
 pako@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.5.tgz#d2205dfe5b9da8af797e7c163db4d1f84e4600bc"
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.6.tgz#0101211baa70c4bca4a0f63f2206e97b7dfaf258"
 
 path-is-absolute@^1.0.0:
   version "1.0.1"
