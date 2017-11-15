@@ -156,6 +156,52 @@ paths:
           description: 'invalid argument in request'
           schema:
             $ref: '#/definitions/ErrorResponse'
+  '/calendar/{height}/hash':
+    get:
+      tags:
+      - 'calendar'
+      summary: 'Retrieves the calendar block hash at the given height'
+      description: ''
+      produces:
+      - 'text/plain'
+      parameters:
+        - name: 'height'
+          in: 'path'
+          required: true
+          description: 'The height of the block hash to retrieve'
+          type: integer
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            $ref: '#/definitions/GetCalendarBlockHashResponse'
+        '409':
+          description: 'invalid argument in request'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+  '/calendar/{height}/data':
+    get:
+      tags:
+      - 'calendar'
+      summary: 'Retrieves the calendar block data_val at the given height'
+      description: ''
+      produces:
+      - 'text/plain'
+      parameters:
+        - name: 'height'
+          in: 'path'
+          required: true
+          description: 'The height of the block data_val to retrieve'
+          type: integer
+      responses:
+        '200':
+          description: 'successful operation'
+          schema:
+            $ref: '#/definitions/GetCalendarBlockDataResponse'
+        '409':
+          description: 'invalid argument in request'
+          schema:
+            $ref: '#/definitions/ErrorResponse'
   '/config':
     get:
       tags:
@@ -322,6 +368,12 @@ definitions:
       sig:
         type: string
         example: 'lfdvO6fOeRo+wAj9n3Ca9GHMsRsosawRdZ6o2fkvdgIjMkaAa83RkTX/iveK5ogTs7FdNrxnnjmvC9bR5ayLACn3K8f65uUE0QgKwgaxSdbL2MohtLvQrF6eRCE6UhZa'
+  GetCalendarBlockHashResponse:
+    type: string
+    example: 'f18bf0968b224f73528d99cc83ca9e79d467f34875e85f36e2c1f074ff2dc657'
+  GetCalendarBlockDataResponse:
+    type: string
+    example: 'b387600e023670fa8c7cac9689d8d8aa212c681c0b0d9d5a86c53acea0f25c48'
   GetConfigResponse:
     type: object
     properties:    
