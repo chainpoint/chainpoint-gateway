@@ -135,6 +135,14 @@ auth-key-delete: guard-NODE_TNT_ADDRESS
 	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM hmackeys WHERE tnt_addr = LOWER('$(NODE_TNT_ADDRESS)')"
 	make restart
 
+## calendar-delete : Delete all calendar data for this Node
+.PHONY : calendar-delete
+calendar-delete: 
+	@docker-compose up -d postgres
+	@sleep 6
+	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM calendar"
+	make restart
+
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \
 		echo "Environment variable $* not set"; \
