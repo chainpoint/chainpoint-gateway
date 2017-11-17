@@ -330,7 +330,6 @@ let startListeningAsync = promisify(startListening)
 async function syncNodeCalendarAsync (coreConfig, pubKeys) {
   // pull down Core calendar until Node calendar is in sync, startup = true
   await calendar.syncNodeCalendarAsync(true, coreConfig, pubKeys)
-  apiServer.setCalendarInSync(true)
 }
 
 // start all functions meant to run on a periodic basis
@@ -342,8 +341,6 @@ function startIntervals (coreConfig) {
   calendar.startValidateFullNodeAsync(CALENDAR_VALIDATE_ALL_SECONDS * 1000)
   // start the interval processes for calculating the solution to the Core audit challenge
   calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
-  // start the interval processes for aggregating and submitting hashes to Core
-  apiServer.startAggInterval()
 }
 
 // process all steps need to start the application
@@ -358,6 +355,8 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await startListeningAsync()
+    // start the interval processes for aggregating and submitting hashes to Core
+    apiServer.startAggInterval()
     await calendar.initNodeTopBlockAsync()
     console.log('INFO : Calendar : Starting Sync...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
