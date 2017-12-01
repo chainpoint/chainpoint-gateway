@@ -1,6 +1,9 @@
 # First target in the Makefile is the default.
 all: help
 
+# without this 'source' won't work.
+SHELL := /bin/bash
+
 # Get the location of this makefile.
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
@@ -22,6 +25,10 @@ up: build-config yarn build
 .PHONY : down
 down:
 	docker-compose down
+
+## restart         : Restart Node
+.PHONY : restart
+restart: down up
 
 ## logs            : Tail Node logs
 .PHONY : logs
@@ -50,8 +57,8 @@ ps:
 
 ## build           : Build Node image
 .PHONY : build
-build:
-	./bin/docker-make --no-push
+build: tor-exit-nodes
+	docker run --rm -w /usr/src/app -v ~/.docker:/root/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$(PWD)":/usr/src/app jizhilong/docker-make:latest docker-make --no-push
 	docker container prune -f
 	docker-compose build
 
@@ -67,16 +74,82 @@ build-config:
 pull:
 	docker-compose pull
 
+## git-pull        : Git pull latest
+.PHONY : git-pull
+git-pull:
+	@git pull --all
+
+## upgrade         : Same as `make down && git pull && make up`
+.PHONY : upgrade
+upgrade: down git-pull up
+
 ## push            : Push Docker images using docker-make
 .PHONY : push
 push:
-	./bin/docker-make
+	docker run --rm -w /usr/src/app -v ~/.docker:/root/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$(PWD)":/usr/src/app jizhilong/docker-make:latest docker-make
+
+## clean           : Shutdown and **destroy** all local Node data
+.PHONY : clean
+clean: down
+	@rm -rf ./.data/*
 
 ## yarn            : Install Node Javascript dependencies
 .PHONY : yarn
 yarn:
-	./bin/yarn
+	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd quay.io/chainpoint/chainpoint-node:latest yarn
 
-## down            : Shutdown and **destroy** all local Node data
-clean: down
-	@rm -rf ./.data/*
+## postgres        : Connect to the local PostgreSQL with `psql`
+.PHONY : postgres
+postgres:
+	@docker-compose up -d postgres
+	@sleep 6
+	@docker exec -it postgres-node-src psql -U chainpoint
+
+## redis           : Connect to the local Redis with `redis-cli`
+.PHONY : redis
+redis:
+	@docker-compose up -d redis
+	@sleep 2
+	@docker exec -it redis-node-src redis-cli
+
+## auth-keys       : Export HMAC auth keys from PostgreSQL
+.PHONY : auth-keys
+auth-keys:
+	@docker-compose up -d postgres	
+	@sleep 6
+	@docker exec -it postgres-node-src psql -U chainpoint -c 'SELECT * FROM hmackeys;'
+
+## auth-key-update : Update HMAC auth key with `KEY` (hex string) var. Example `make auth-key-update KEY=mysecrethexkey`
+.PHONY : auth-key-update
+auth-key-update: guard-KEY
+	@docker-compose up -d postgres
+	@sleep 6
+	@source .env && docker exec -it postgres-node-src psql -U chainpoint -c "INSERT INTO hmackeys (tnt_addr, hmac_key, version, created_at, updated_at) VALUES (LOWER('$$NODE_TNT_ADDRESS'), LOWER('$(KEY)'), 1, clock_timestamp(), clock_timestamp()) ON CONFLICT (tnt_addr) DO UPDATE SET hmac_key = LOWER('$(KEY)'), version = 1, updated_at = clock_timestamp()"
+	make restart
+
+## auth-key-delete : Delete HMAC auth key with `NODE_TNT_ADDRESS` var. Example `make auth-key-delete NODE_TNT_ADDRESS=0xmyethaddress`
+.PHONY : auth-key-delete
+auth-key-delete: guard-NODE_TNT_ADDRESS
+	@docker-compose up -d postgres
+	@sleep 6
+	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM hmackeys WHERE tnt_addr = LOWER('$(NODE_TNT_ADDRESS)')"
+	make restart
+
+## calendar-delete : Delete all calendar data for this Node
+.PHONY : calendar-delete
+calendar-delete: 
+	@docker-compose up -d postgres
+	@sleep 6
+	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM calendar"
+	make restart
+
+guard-%:
+	@ if [ "${${*}}" = "" ]; then \
+		echo "Environment variable $* not set"; \
+		exit 1; \
+	fi
+
+## tor-exit-nodes : Update static list of Exit Nodes
+.PHONY : tor-exit-nodes
+tor-exit-nodes:
+	curl -s https://check.torproject.org/exit-addresses | grep ExitAddress | cut -d' ' -f2 > ./tor-exit-nodes.txt

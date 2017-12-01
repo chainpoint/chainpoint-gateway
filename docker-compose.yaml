@@ -7,8 +7,9 @@ networks:
 services:
 
   postgres:
-    restart: always
     image: postgres:9.6.5-alpine
+    container_name: postgres-node-src
+    restart: always
     volumes:
       - ./.data/postgresql:/var/lib/postgresql/data
     environment:
@@ -18,8 +19,9 @@ services:
       - chainpoint-node
 
   redis:
+    image: redis:4.0.2-alpine
+    container_name: redis-node-src
     restart: always
-    image: redis:4.0.1-alpine
     volumes:
       - ./.redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
       - ./.data/redis:/data
@@ -33,7 +35,7 @@ services:
     image: quay.io/chainpoint/chainpoint-node:latest
     restart: on-failure
     volumes:
-      - ~/.chainpoint:/home/node/app/.chainpoint
+      - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
     build: .
     ports:
       - "9090:8080"
@@ -45,3 +47,4 @@ services:
     environment:
       NODE_TNT_ADDRESS: ${NODE_TNT_ADDRESS}
       CHAINPOINT_NODE_PUBLIC_URI: "${CHAINPOINT_NODE_PUBLIC_URI:-http://0.0.0.0}"
+      #DEBUG: "sequelize*"

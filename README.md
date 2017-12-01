@@ -46,6 +46,29 @@ make up
 
 Run `make help` to learn about additional control and build commands.
 
+### Connecting to Local Databases
+
+You can connect to the local PostgreSQL or Redis data stores using preconfigured clients which are found in the `bin` directory. You do not need to locally install any client software to use these clients, they are provided as Docker container binaries. These clients wrappers are preconfigured to connect on the appropriate ports and with the appropriate user credentials.
+
+Redis (exit with `control-d`)
+(can also be run with `make redis`)
+
+```
+~ ./bin/redis-cli
+127.0.0.1:6381>
+```
+
+PostgreSQL (exit with `control-d`)
+(can also be run with `make postgres`)
+
+```
+~ ./bin/psql
+psql (9.6.5)
+Type "help" for help.
+
+chainpoint=#
+```
+
 ## Node Public API
 
 A Chainpoint Node exposes a public HTTP API that can:
@@ -290,4 +313,24 @@ curl -s -X POST \
     "status": "verified"
   }
 ]
+```
+
+## License
+
+[Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0)
+
+```
+Copyright (C) 2017 Tierion
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 ```

@@ -21,7 +21,7 @@ const { promisify } = require('util')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const publicKey = require('./lib/models/PublicKey.js')
-const nodeHMAC = require('./lib/models/NodeHMAC.js')
+const hmacKey = require('./lib/models/HMACKey.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
 const publicKeys = require('./lib/public-keys.js')
@@ -48,8 +48,8 @@ const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
 // pull in variables defined in shared sequelize modules
 let sequelizeCalBlock = calendarBlock.sequelize
 let sequelizePubKey = publicKey.sequelize
-let sequelizeNodeHMAC = nodeHMAC.sequelize
-let NodeHMAC = nodeHMAC.NodeHMAC
+let sequelizeHMACKey = hmacKey.sequelize
+let HMACKey = hmacKey.HMACKey
 
 // The redis connection used for all redis communication
 // This value is set once the connection has been established
@@ -72,7 +72,7 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(null)
     calendar.setRedis(null)
     coreHosts.setRedis(null)
-    console.error('Cannot establish Redis connection. Attempting in 5 seconds...')
+    console.error('Redis : not available. Will retry in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
   })
@@ -106,14 +106,18 @@ async function validateUriAsync (nodeUri) {
 // establish a connection with the database
 async function openStorageConnectionAsync () {
   let storageConnected = false
+  let retryCount = 0
   while (!storageConnected) {
     try {
       await sequelizeCalBlock.sync({ logging: false })
       await sequelizePubKey.sync({ logging: false })
-      await sequelizeNodeHMAC.sync({ logging: false })
+      await sequelizeHMACKey.sync({ logging: false })
       storageConnected = true
     } catch (error) {
-      console.error('Cannot establish Postgres connection. Attempting in 5 seconds...')
+      if (retryCount >= 1) {
+        console.error('PostgreSQL : not available : Will retry in 5 seconds...')
+      }
+      retryCount += 1
       await utils.sleepAsync(5000)
     }
   }
@@ -121,24 +125,26 @@ async function openStorageConnectionAsync () {
 
 async function registerNodeAsync (nodeURI) {
   let isRegistered = false
-  let registerAttempts = 0
+  let registerAttempts = 1
+  const maxRegisterAttempts = 60
+  const retryWaitTimeMs = 15 * 1000
 
   while (!isRegistered) {
     try {
       // Check if HMAC key for current TNT address already exists
       let hmacEntry
       try {
-        hmacEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+        hmacEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
       } catch (error) {
-        console.error(`ERROR : Unable to load local authentication key.`)
+        console.error(`ERROR : Registration : Unable to load auth key`)
         // Exit 1 : this is a recoverable error that might be resolved on container restart.
         process.exit(1)
       }
 
-      // HMAC auth key found!
       if (hmacEntry) {
-        console.log(`INFO : Found authentication key for Ethereum (TNT) address ${hmacEntry.tntAddr}`)
-        // the NodeHMAC exists, so read the key and PUT Node info with HMAC to Core
+        console.log(`INFO : Registration : Ethereum Address : ${hmacEntry.tntAddr}`)
+        console.log(`INFO : Registration : Key : ${hmacEntry.hmacKey}`)
+        // The HMACKey exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
         let dateString = moment().utc().format('YYYYMMDDHHmm')
         let hmacTxt = [hmacEntry.tntAddr, nodeURI, dateString].join('')
@@ -166,35 +172,42 @@ async function registerNodeAsync (nodeURI) {
           await coreHosts.coreRequestAsync(putOptions)
         } catch (error) {
           if (error.statusCode === 409) {
-            if (error.error.message === 'public_uri') {
-              // the public uri is already in use by another Node
-              console.error(`ERROR : Public URI ${nodeURI} is already in use and cannot be registered.`)
+            if (error.error && error.error.code && error.error.message) {
+              console.error(`ERROR : Registration update : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
+            } else if (error.error && error.error.code) {
+              console.error(`ERROR : Registration update : ${nodeURI} : ${error.error.code}`)
+            } else {
+              console.error(`ERROR : Registration update`)
             }
-            // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
-            // won't force a restart since this situation will not resolve itself.
+
+            // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
+            // so Docker Compose `on-failure` policy won't force a restart since this
+            // situation will not resolve itself.
             process.exit(0)
           }
 
           if (error.statusCode) {
+            if (error.error && error.error.message) {
+              throw new Error(`${error.statusCode} : ${error.error.message}`)
+            }
             let err = { statusCode: error.statusCode }
             throw err
           }
 
-          throw new Error(`No response received on PUT node : ${error.message}`)
+          throw new Error(`No response received on update : ${error.message}`)
         }
 
         isRegistered = true
 
         if (nodeURI) {
-          console.log(`INFO : Registration updated : ${env.NODE_TNT_ADDRESS} : ${nodeURI}`)
+          console.log(`INFO : Registration : Public URI : ${nodeURI}`)
         } else {
-          console.log(`INFO : Registration updated : ${env.NODE_TNT_ADDRESS} : (no public URI)`)
+          console.log(`INFO : Registration : Public URI : (no public URI)`)
         }
 
         return hmacEntry.hmacKey
       } else {
-        console.log(`INFO : No local Node authentication key for TNT address ${env.NODE_TNT_ADDRESS}. Registering.`)
-        // the NodeHMAC doesn't exist, so POST Node info to Core and store resulting HMAC key
+        // the HMACKey doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
           public_uri: nodeURI
@@ -219,55 +232,69 @@ async function registerNodeAsync (nodeURI) {
           try {
             // write new hmac entry
             let writeHMACKey = response.hmac_key
-            await NodeHMAC.create({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey })
+            await HMACKey.create({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey, version: 1 })
             // read hmac entry that was just written
-            let newHMACEntry = await NodeHMAC.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+            let newHMACEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
             // confirm the two are the same
             if (!newHMACEntry || (newHMACEntry.hmacKey !== writeHMACKey)) {
               throw new Error(`Unable to confirm authentication key with read after write.`)
             }
           } catch (error) {
-            console.error(`ERROR : Unable to write and confirm new authentication key locally.`)
+            console.error(`ERROR : Registration : Auth key write and confirm failed.`)
             // Exit 1 : this is a recoverable error that might be resolved on container restart.
             process.exit(1)
           }
-          console.log(`INFO : Node registered and authentication key saved for TNT address ${env.NODE_TNT_ADDRESS}`)
+          console.log(`INFO : Registration : Auth key saved!`)
 
           return response.hmac_key
         } catch (error) {
           if (error.statusCode === 409) {
-            if (error.error.message === 'tnt_addr') {
-              // the TNT address is already in use with an existing hmac key
-              // if the hmac key was lost, you need to re-register with a new
-              // TNT address and receive a new hmac key
-              console.error(`ERROR : TNT address ${env.NODE_TNT_ADDRESS} is already in use and cannot be registered.`)
-            } else if (error.error.message === 'public_uri') {
-              // the public uri is already in use by another Node
-              console.error(`ERROR : Public URI ${nodeURI} is already in use and cannot be registered.`)
+            if (error.error && error.error.code && error.error.message) {
+              console.error(`ERROR : Registration : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
+            } else if (error.error && error.error.code) {
+              console.error(`ERROR : Registration : ${nodeURI} : ${error.error.code}`)
+            } else {
+              console.error(`ERROR : Registration`)
             }
-            // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
-            // won't force a restart since this situation will not resolve itself.
+
+            // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
+            // so Docker Compose `on-failure` policy won't force a restart since this
+            // situation will not resolve itself.
             process.exit(0)
           }
-          if (error.statusCode) throw new Error(`ERROR : Node registration failed with status code : ${error.statusCode}`)
-          throw new Error(`Node registration failed. No response received.`)
+
+          if (error.statusCode) {
+            let codeInt
+            try {
+              codeInt = parseInt(error.statusCode)
+            } catch (innerError) {
+              throw new Error(`${error.statusCode}`)
+            }
+            if (codeInt >= 400 && codeInt <= 500 && error.error && error.error.message) {
+              throw new Error(`${error.statusCode} : ${error.error.message}`)
+            } else {
+              throw new Error(`${error.statusCode}`)
+            }
+          }
+          throw new Error(`no response received`)
         }
       }
     } catch (error) {
       if (error.statusCode) {
-        console.error(`ERROR : Unable to register Node with Core: error ${error.statusCode} ...Retrying in 60 seconds...`)
+        console.error(`ERROR : Registration : Core : ${registerAttempts}/${maxRegisterAttempts} : ${error.statusCode} : Retrying...`)
       } else {
-        console.error(`ERROR : Unable to register Node with Core: error ${error.message} ...Retrying in 60 seconds...`)
+        console.error(`ERROR : Registration : Core : ${registerAttempts}/${maxRegisterAttempts} : ${error.message} : Retrying...`)
       }
 
-      if (++registerAttempts > 3) {
-        // We've tried 3 times with no success
+      registerAttempts += 1
+      if (registerAttempts >= maxRegisterAttempts) {
+        // We've retried with no success
         // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
         // won't force a restart since this situation will not resolve itself.
         process.exit(0)
       }
 
-      await utils.sleepAsync(60 * 1000)
+      await utils.sleepAsync(retryWaitTimeMs)
     }
   }
 }
@@ -283,7 +310,7 @@ async function initPublicKeysAsync (coreConfig) {
     }
     return pubKeys
   } catch (error) {
-    throw new Error(`Unable to initialize Core public keys.`)
+    throw new Error(`Registration : Unable to initialize Core public keys.`)
   }
 }
 
@@ -303,7 +330,6 @@ let startListeningAsync = promisify(startListening)
 async function syncNodeCalendarAsync (coreConfig, pubKeys) {
   // pull down Core calendar until Node calendar is in sync, startup = true
   await calendar.syncNodeCalendarAsync(true, coreConfig, pubKeys)
-  apiServer.setCalendarInSync(true)
 }
 
 // start all functions meant to run on a periodic basis
@@ -325,19 +351,19 @@ async function startAsync () {
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     await openStorageConnectionAsync()
     let hmacKey = await registerNodeAsync(nodeUri)
-    console.log('INFO : ******************************************************************************')
-    console.log(`INFO : Private auth key (back me up!): ${hmacKey}`)
-    console.log('INFO : ******************************************************************************')
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await startListeningAsync()
-    console.log('INFO : Syncing local Calendar with Core...')
+    // start the interval processes for aggregating and submitting hashes to Core
+    apiServer.startAggInterval()
+    await calendar.initNodeTopBlockAsync()
+    console.log('INFO : Calendar : Starting Sync...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
-    console.log('INFO : Startup completed!')
+    console.log('INFO : App : Startup completed!')
   } catch (err) {
-    console.error(`ERROR : Startup error : ${err}`)
+    console.error(`ERROR : App : Startup : ${err}`)
     // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
     // won't force a restart since this situation will not resolve itself.
     process.exit(0)
@@ -346,3 +372,30 @@ async function startAsync () {
 
 // get the whole show started
 startAsync()
+
+async function restartAsync () {
+  // sleep for a random interval ms before executing at some
+  // time during the next 23 hours (so as not to overlap with
+  // next run). Help prevent a 'thundering herd' problem with
+  // Nodes restarting all at once.
+  let randomInterval = utils.randomIntFromInterval(1000, 60 * 60 * 23 * 1000)
+  console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomInterval, 'ms').format()}`)
+  await utils.sleepAsync(randomInterval)
+
+  let hashDataCount = await redis.scardAsync(env.HASH_DATA_KEY)
+  if (hashDataCount === 0) {
+    apiServer.setAcceptingHashes(false)
+    console.log('INFO : App : Performing daily Auto-restart to update Firewall (may show exit(99) message, which is OK).')
+    // exit(99) : force Docker compose to restart app w/ custom err code so we can filter it from Node logs
+    process.exit(99)
+  } else {
+    console.log('INFO : App : Auto-restart skipped. Busy.')
+  }
+}
+
+var schedule = require('node-schedule')
+// Schedule a random interval restart triggered daily at midnight.
+// sec min hour day_of_month month day_of_week
+schedule.scheduleJob('0 0 0 * * *', () => {
+  restartAsync()
+})
