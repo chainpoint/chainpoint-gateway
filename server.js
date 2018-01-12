@@ -387,7 +387,7 @@ async function restartAsync () {
   let hashDataCount = await redis.scardAsync(env.HASH_DATA_KEY)
   if (hashDataCount === 0) {
     console.log('INFO : App : Performing daily Auto-restart to update Firewall.')
-    apiServer.restartRestify()
+    apiServer.restartRestifyAsync()
   } else {
     console.log('INFO : App : Auto-restart skipped. Busy.')
   }
