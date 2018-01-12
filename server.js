@@ -315,10 +315,9 @@ async function initPublicKeysAsync (coreConfig) {
 }
 
 // instruct restify to begin listening for requests
-function startListening (callback) {
-  apiServer.api.listen(8080, (err) => {
+function startListening (server, callback) {
+  server.listen(8080, (err) => {
     if (err) return callback(err)
-    // console.log(`${apiServer.api.name} listening at ${apiServer.api.url}`)
     return callback(null)
   })
 }
@@ -354,7 +353,9 @@ async function startAsync () {
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
-    await startListeningAsync()
+
+    let restApi = await apiServer.getServerAsync()
+    await startListeningAsync(restApi)
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval()
     apiServer.setPublicKeySet(pubKeys)
@@ -385,10 +386,8 @@ async function restartAsync () {
 
   let hashDataCount = await redis.scardAsync(env.HASH_DATA_KEY)
   if (hashDataCount === 0) {
-    apiServer.setAcceptingHashes(false)
-    console.log('INFO : App : Performing daily Auto-restart to update Firewall (may show exit(99) message, which is OK).')
-    // exit(99) : force Docker compose to restart app w/ custom err code so we can filter it from Node logs
-    process.exit(99)
+    console.log('INFO : App : Performing daily Auto-restart to update Firewall.')
+    apiServer.restartRestify()
   } else {
     console.log('INFO : App : Auto-restart skipped. Busy.')
   }
