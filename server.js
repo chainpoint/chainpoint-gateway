@@ -357,6 +357,7 @@ async function startAsync () {
     await startListeningAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval()
+    apiServer.setPublicKeySet(pubKeys)
     await calendar.initNodeTopBlockAsync()
     console.log('INFO : Calendar : Starting Sync...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
