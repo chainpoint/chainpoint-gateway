@@ -351,6 +351,7 @@ async function startAsync () {
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
     console.log('INFO : App : Startup completed!')
+    scheduleRestifyRestart()
   } catch (err) {
     console.error(`ERROR : App : Startup : ${err}`)
     // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
@@ -362,27 +363,17 @@ async function startAsync () {
 // get the whole show started
 startAsync()
 
-async function restartAsync () {
-  // sleep for a random interval ms before executing at some
-  // time during the next 23 hours (so as not to overlap with
-  // next run). Help prevent a 'thundering herd' problem with
-  // Nodes restarting all at once.
-  let randomInterval = utils.randomIntFromInterval(1000, 60 * 60 * 23 * 1000)
-  console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomInterval, 'ms').format()}`)
-  await utils.sleepAsync(randomInterval)
-
-  let hashDataCount = await redis.scardAsync(env.HASH_DATA_KEY)
-  if (hashDataCount === 0) {
-    console.log('INFO : App : Performing daily Auto-restart to update Firewall.')
-    apiServer.restartRestifyAsync()
-  } else {
-    console.log('INFO : App : Auto-restart skipped. Busy.')
-  }
+function scheduleRestifyRestart () {
+  // schedule restart for a random time within the next 12-24 hours
+  // this prevents all Nodes from restarting at the same time
+  let minMS = 60 * 60 * 12 * 1000 // 12 hours
+  let maxMS = 60 * 60 * 12 * 1000 // 24 hours
+  let randomMS = utils.randomIntFromInterval(minMS, maxMS)
+  console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomMS, 'ms').format()}`)
+  setTimeout(async () => {
+    console.log('INFO : App : Performing daily Auto-restart of API server to update Firewall.')
+    await apiServer.restartRestifyAsync()
+    // schedule the next restart
+    scheduleRestifyRestart()
+  }, randomMS)
 }
-
-var schedule = require('node-schedule')
-// Schedule a random interval restart triggered daily at midnight.
-// sec min hour day_of_month month day_of_week
-schedule.scheduleJob('0 0 0 * * *', () => {
-  restartAsync()
-})
