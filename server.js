@@ -17,7 +17,6 @@ const validator = require('validator')
 // load environment variables
 const env = require('./lib/parse-env.js')
 
-const { promisify } = require('util')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const publicKey = require('./lib/models/PublicKey.js')
@@ -314,17 +313,6 @@ async function initPublicKeysAsync (coreConfig) {
   }
 }
 
-// instruct restify to begin listening for requests
-function startListening (server, callback) {
-  server.listen(8080, (err) => {
-    if (err) return callback(err)
-    return callback(null)
-  })
-}
-
-// make awaitable async version for startListening function
-let startListeningAsync = promisify(startListening)
-
 // synchronize Node calendar with Core calendar, retreive all missing blocks
 async function syncNodeCalendarAsync (coreConfig, pubKeys) {
   // pull down Core calendar until Node calendar is in sync, startup = true
@@ -354,8 +342,7 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
 
-    let restApi = await apiServer.getServerAsync()
-    await startListeningAsync(restApi)
+    await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval()
     apiServer.setPublicKeySet(pubKeys)
