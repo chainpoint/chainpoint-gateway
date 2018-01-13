@@ -367,7 +367,7 @@ function scheduleRestifyRestart () {
   // schedule restart for a random time within the next 12-24 hours
   // this prevents all Nodes from restarting at the same time
   let minMS = 60 * 60 * 12 * 1000 // 12 hours
-  let maxMS = 60 * 60 * 12 * 1000 // 24 hours
+  let maxMS = 60 * 60 * 24 * 1000 // 24 hours
   let randomMS = utils.randomIntFromInterval(minMS, maxMS)
   console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomMS, 'ms').format()}`)
   setTimeout(async () => {
