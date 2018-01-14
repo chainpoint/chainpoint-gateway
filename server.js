@@ -17,7 +17,6 @@ const validator = require('validator')
 // load environment variables
 const env = require('./lib/parse-env.js')
 
-const { promisify } = require('util')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const publicKey = require('./lib/models/PublicKey.js')
@@ -314,18 +313,6 @@ async function initPublicKeysAsync (coreConfig) {
   }
 }
 
-// instruct restify to begin listening for requests
-function startListening (callback) {
-  apiServer.api.listen(8080, (err) => {
-    if (err) return callback(err)
-    // console.log(`${apiServer.api.name} listening at ${apiServer.api.url}`)
-    return callback(null)
-  })
-}
-
-// make awaitable async version for startListening function
-let startListeningAsync = promisify(startListening)
-
 // synchronize Node calendar with Core calendar, retreive all missing blocks
 async function syncNodeCalendarAsync (coreConfig, pubKeys) {
   // pull down Core calendar until Node calendar is in sync, startup = true
@@ -354,7 +341,8 @@ async function startAsync () {
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
-    await startListeningAsync()
+
+    await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval()
     apiServer.setPublicKeySet(pubKeys)
@@ -363,6 +351,7 @@ async function startAsync () {
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
     console.log('INFO : App : Startup completed!')
+    scheduleRestifyRestart()
   } catch (err) {
     console.error(`ERROR : App : Startup : ${err}`)
     // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
@@ -374,29 +363,17 @@ async function startAsync () {
 // get the whole show started
 startAsync()
 
-async function restartAsync () {
-  // sleep for a random interval ms before executing at some
-  // time during the next 23 hours (so as not to overlap with
-  // next run). Help prevent a 'thundering herd' problem with
-  // Nodes restarting all at once.
-  let randomInterval = utils.randomIntFromInterval(1000, 60 * 60 * 23 * 1000)
-  console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomInterval, 'ms').format()}`)
-  await utils.sleepAsync(randomInterval)
-
-  let hashDataCount = await redis.scardAsync(env.HASH_DATA_KEY)
-  if (hashDataCount === 0) {
-    apiServer.setAcceptingHashes(false)
-    console.log('INFO : App : Performing daily Auto-restart to update Firewall (may show exit(99) message, which is OK).')
-    // exit(99) : force Docker compose to restart app w/ custom err code so we can filter it from Node logs
-    process.exit(99)
-  } else {
-    console.log('INFO : App : Auto-restart skipped. Busy.')
-  }
+function scheduleRestifyRestart () {
+  // schedule restart for a random time within the next 12-24 hours
+  // this prevents all Nodes from restarting at the same time
+  let minMS = 60 * 60 * 12 * 1000 // 12 hours
+  let maxMS = 60 * 60 * 24 * 1000 // 24 hours
+  let randomMS = utils.randomIntFromInterval(minMS, maxMS)
+  console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomMS, 'ms').format()}`)
+  setTimeout(async () => {
+    console.log('INFO : App : Performing daily Auto-restart of API server to update Firewall.')
+    await apiServer.restartRestifyAsync()
+    // schedule the next restart
+    scheduleRestifyRestart()
+  }, randomMS)
 }
-
-var schedule = require('node-schedule')
-// Schedule a random interval restart triggered daily at midnight.
-// sec min hour day_of_month month day_of_week
-schedule.scheduleJob('0 0 0 * * *', () => {
-  restartAsync()
-})
