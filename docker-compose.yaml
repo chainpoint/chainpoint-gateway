@@ -32,7 +32,7 @@ services:
       - /usr/local/etc/redis/redis.conf
 
   chainpoint-node:
-    image: quay.io/chainpoint/chainpoint-node:latest
+    image: gcr.io/chainpoint-registry/chainpoint-node:latest
     restart: on-failure
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
