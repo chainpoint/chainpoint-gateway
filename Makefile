@@ -8,7 +8,7 @@ SHELL := /bin/bash
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 # Specify the binary dependencies
-REQUIRED_BINS := docker docker-compose
+REQUIRED_BINS := docker docker-compose gcloud
 $(foreach bin,$(REQUIRED_BINS),\
     $(if $(shell command -v $(bin) 2> /dev/null),$(),$(error Please install `$(bin)` first!)))
 
@@ -58,7 +58,8 @@ ps:
 ## build           : Build Node image
 .PHONY : build
 build: tor-exit-nodes
-	docker run --rm -w /usr/src/app -v ~/.docker:/root/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$(PWD)":/usr/src/app jizhilong/docker-make:latest docker-make --no-push
+	docker build -t chainpoint-node .
+	docker tag chainpoint-node gcr.io/chainpoint-registry/chainpoint-node
 	docker container prune -f
 	docker-compose build
 
@@ -68,6 +69,11 @@ build-config:
 	@[ ! -f ./.env ] && \
 	cp .env.sample .env && \
 	echo 'Copied config .env.sample to .env' || true
+
+## push            : Push Docker images to public google container registry
+.PHONY : push
+push:
+	gcloud docker -- push gcr.io/chainpoint-registry/chainpoint-node
 
 ## pull            : Pull Docker images
 .PHONY : pull
@@ -83,11 +89,6 @@ git-pull:
 .PHONY : upgrade
 upgrade: down git-pull up
 
-## push            : Push Docker images using docker-make
-.PHONY : push
-push:
-	docker run --rm -w /usr/src/app -v ~/.docker:/root/.docker -v /var/run/docker.sock:/var/run/docker.sock -v "$(PWD)":/usr/src/app jizhilong/docker-make:latest docker-make
-
 ## clean           : Shutdown and **destroy** all local Node data
 .PHONY : clean
 clean: down
@@ -96,7 +97,7 @@ clean: down
 ## yarn            : Install Node Javascript dependencies
 .PHONY : yarn
 yarn:
-	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd quay.io/chainpoint/chainpoint-node:latest yarn
+	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd gcr.io/chainpoint-registry/chainpoint-node:latest yarn
 
 ## postgres        : Connect to the local PostgreSQL with `psql`
 .PHONY : postgres
@@ -149,7 +150,7 @@ guard-%:
 		exit 1; \
 	fi
 
-## tor-exit-nodes : Update static list of Exit Nodes
+## tor-exit-nodes  : Update static list of Exit Nodes
 .PHONY : tor-exit-nodes
 tor-exit-nodes:
 	curl -s https://check.torproject.org/exit-addresses | grep ExitAddress | cut -d' ' -f2 > ./tor-exit-nodes.txt

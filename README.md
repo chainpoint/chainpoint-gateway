@@ -100,16 +100,16 @@ curl -s -X POST "http://35.188.224.112/hashes" -H "accept: application/json" -H 
 
 {
   "meta": {
-    "submitted_at": "2017-09-15T16:47:54Z",
+    "submitted_at": "2018-01-09T15:43:46Z",
     "processing_hints": {
-      "cal": "2017-09-15T16:48:04Z",
-      "eth": "2017-09-15T17:28:54Z",
-      "btc": "2017-09-15T17:48:54Z"
+      "cal": "2018-01-09T15:43:56Z",
+      "eth": "2018-01-09T16:24:46Z",
+      "btc": "2018-01-09T16:44:46Z"
     }
   },
   "hashes": [
     {
-      "hash_id_node": "9ed605e0-9a35-11e7-b652-01397d29af71",
+      "hash_id_node": "e0dab610-f553-11e7-963e-01d98c837763",
       "hash": "1957db7fe23e4be1740ddeb941ddda7ae0a6b782e536a9e00b5aa82db1e84547"
     }
   ]
@@ -142,52 +142,52 @@ JSON
 Example:
 
 ```
-curl -s -X GET "http://35.188.224.112/proofs/9ed605e0-9a35-11e7-b652-01397d29af71" -H "accept: application/vnd.chainpoint.ld+json" | jq
+curl -s -X GET "http://35.188.224.112/proofs/e0dab610-f553-11e7-963e-01d98c837763" -H "accept: application/vnd.chainpoint.ld+json" | jq
 
 [
   {
-    "hash_id_node": "9ed605e0-9a35-11e7-b652-01397d29af71",
+    "hash_id_node": "e0dab610-f553-11e7-963e-01d98c837763",
     "proof": {
       "@context": "https://w3id.org/chainpoint/v3",
       "type": "Chainpoint",
       "hash": "1957db7fe23e4be1740ddeb941ddda7ae0a6b782e536a9e00b5aa82db1e84547",
-      "hash_id_node": "9ed605e0-9a35-11e7-b652-01397d29af71",
-      "hash_submitted_node_at": "2017-09-15T16:47:54Z",
-      "hash_id_core": "9f169150-9a35-11e7-997c-01f36f7b0210",
-      "hash_submitted_core_at": "2017-09-15T16:47:55Z",
+      "hash_id_node": "e0dab610-f553-11e7-963e-01d98c837763",
+      "hash_submitted_node_at": "2018-01-09T15:43:46Z",
+      "hash_id_core": "e13ea800-f553-11e7-8b26-01bc617b4481",
+      "hash_submitted_core_at": "2018-01-09T15:43:46Z",
       "branches": [
         {
           "label": "cal_anchor_branch",
           "ops": [
             {
-              "l": "node_id:9ed605e0-9a35-11e7-b652-01397d29af71"
+              "l": "node_id:e0dab610-f553-11e7-963e-01d98c837763"
             },
             {
               "op": "sha-256"
             },
             {
-              "l": "core_id:9f169150-9a35-11e7-997c-01f36f7b0210"
+              "l": "core_id:e13ea800-f553-11e7-8b26-01bc617b4481"
             },
             {
               "op": "sha-256"
             },
             {
-              "l": "nist:1505494020:9041b2df21da43ef46c839e3573acd5faf35b35e2e45bc7a7beb6f07ea3314908c8ba26535535cb1385edbc04adb12986536319628a159b494537e98aed3e988"
+              "l": "nist:1515512580:8be3a9cff9f539f430aa7218b5ad257f0652fe9881191e71633fbf00f4660c6e11c66476effaba612cb9fdc1ec58f543bc59d207b93581201da089c5d3d153be"
             },
             {
               "op": "sha-256"
             },
             {
-              "r": "c8d9a7118d3cfd95eb40c846457103365c02c5f29e53824c20a4c0448bd42410"
+              "r": "3451658019f4228cdc901130fd82cb8528580ce8af0291314fd30beea503ede5"
             },
             {
               "op": "sha-256"
             },
             {
-              "l": "15483:1505494080:1:https://b.chainpoint.org:cal:15483"
+              "l": "986692:1515512636:1:https://c.chainpoint.org:cal:986692"
             },
             {
-              "r": "5ebc6eafddca8f91a01831452a37b90dfb827a44f5f6d2cf20ce60730ee2e7f2"
+              "r": "d5b9a270d3304d2f9912b1424409e98cb63a788c5cba55067a4e51a84b6dd07e"
             },
             {
               "op": "sha-256"
@@ -196,9 +196,9 @@ curl -s -X GET "http://35.188.224.112/proofs/9ed605e0-9a35-11e7-b652-01397d29af7
               "anchors": [
                 {
                   "type": "cal",
-                  "anchor_id": "15483",
+                  "anchor_id": "986692",
                   "uris": [
-                    "https://b.chainpoint.org/calendar/15483/hash"
+                    "https://c.chainpoint.org/calendar/986692/hash"
                   ]
                 }
               ]
@@ -221,7 +221,7 @@ Pass in the proof output from the previous step.
 Pro Tip: You can extract just the proof from that previous command using `jq`. There are more examples of how to use `jq` [here](https://stedolan.github.io/jq/tutorial/).
 
 ```
-curl -s -X GET "http://35.188.224.112/proofs/9ed605e0-9a35-11e7-b652-01397d29af71" -H "accept: application/vnd.chainpoint.ld+json" | jq '.[0].proof'
+curl -s -X GET "http://35.188.224.112/proofs/e0dab610-f553-11e7-963e-01d98c837763" -H "accept: application/vnd.chainpoint.ld+json" | jq '.[0].proof'
 ```
 
 Submit that proof as part of the `proofs` Array to verify it:
@@ -236,43 +236,43 @@ curl -s -X POST \
   "@context": "https://w3id.org/chainpoint/v3",
   "type": "Chainpoint",
   "hash": "1957db7fe23e4be1740ddeb941ddda7ae0a6b782e536a9e00b5aa82db1e84547",
-  "hash_id_node": "9ed605e0-9a35-11e7-b652-01397d29af71",
-  "hash_submitted_node_at": "2017-09-15T16:47:54Z",
-  "hash_id_core": "9f169150-9a35-11e7-997c-01f36f7b0210",
-  "hash_submitted_core_at": "2017-09-15T16:47:55Z",
+  "hash_id_node": "e0dab610-f553-11e7-963e-01d98c837763",
+  "hash_submitted_node_at": "2018-01-09T15:43:46Z",
+  "hash_id_core": "e13ea800-f553-11e7-8b26-01bc617b4481",
+  "hash_submitted_core_at": "2018-01-09T15:43:46Z",
   "branches": [
     {
       "label": "cal_anchor_branch",
       "ops": [
         {
-          "l": "node_id:9ed605e0-9a35-11e7-b652-01397d29af71"
+          "l": "node_id:e0dab610-f553-11e7-963e-01d98c837763"
         },
         {
           "op": "sha-256"
         },
         {
-          "l": "core_id:9f169150-9a35-11e7-997c-01f36f7b0210"
+          "l": "core_id:e13ea800-f553-11e7-8b26-01bc617b4481"
         },
         {
           "op": "sha-256"
         },
         {
-          "l": "nist:1505494020:9041b2df21da43ef46c839e3573acd5faf35b35e2e45bc7a7beb6f07ea3314908c8ba26535535cb1385edbc04adb12986536319628a159b494537e98aed3e988"
+          "l": "nist:1515512580:8be3a9cff9f539f430aa7218b5ad257f0652fe9881191e71633fbf00f4660c6e11c66476effaba612cb9fdc1ec58f543bc59d207b93581201da089c5d3d153be"
         },
         {
           "op": "sha-256"
         },
         {
-          "r": "c8d9a7118d3cfd95eb40c846457103365c02c5f29e53824c20a4c0448bd42410"
+          "r": "3451658019f4228cdc901130fd82cb8528580ce8af0291314fd30beea503ede5"
         },
         {
           "op": "sha-256"
         },
         {
-          "l": "15483:1505494080:1:https://b.chainpoint.org:cal:15483"
+          "l": "986692:1515512636:1:https://c.chainpoint.org:cal:986692"
         },
         {
-          "r": "5ebc6eafddca8f91a01831452a37b90dfb827a44f5f6d2cf20ce60730ee2e7f2"
+          "r": "d5b9a270d3304d2f9912b1424409e98cb63a788c5cba55067a4e51a84b6dd07e"
         },
         {
           "op": "sha-256"
@@ -281,9 +281,9 @@ curl -s -X POST \
           "anchors": [
             {
               "type": "cal",
-              "anchor_id": "15483",
+              "anchor_id": "986692",
               "uris": [
-                "https://b.chainpoint.org/calendar/15483/hash"
+                "https://c.chainpoint.org/calendar/986692/hash"
               ]
             }
           ]
@@ -299,10 +299,10 @@ curl -s -X POST \
   {
     "proof_index": 0,
     "hash": "1957db7fe23e4be1740ddeb941ddda7ae0a6b782e536a9e00b5aa82db1e84547",
-    "hash_id_node": "9ed605e0-9a35-11e7-b652-01397d29af71",
-    "hash_submitted_node_at": "2017-09-15T16:47:54Z",
-    "hash_id_core": "9f169150-9a35-11e7-997c-01f36f7b0210",
-    "hash_submitted_core_at": "2017-09-15T16:47:55Z",
+    "hash_id_node": "e0dab610-f553-11e7-963e-01d98c837763",
+    "hash_submitted_node_at": "2018-01-09T15:43:46Z",
+    "hash_id_core": "e13ea800-f553-11e7-8b26-01bc617b4481",
+    "hash_submitted_core_at": "2018-01-09T15:43:46Z",
     "anchors": [
       {
         "branch": "cal_anchor_branch",
