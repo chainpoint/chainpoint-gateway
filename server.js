@@ -31,6 +31,7 @@ const moment = require('moment')
 const ip = require('ip')
 const bluebird = require('bluebird')
 const url = require('url')
+const { version } = require('./package.json')
 
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 300
@@ -333,6 +334,7 @@ function startIntervals (coreConfig) {
 // process all steps need to start the application
 async function startAsync () {
   try {
+    console.log(`INFO : App : Starting : Version ${version}`)
     openRedisConnection(env.REDIS_CONNECT_URI)
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
