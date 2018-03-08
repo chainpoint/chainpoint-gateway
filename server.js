@@ -143,7 +143,7 @@ async function registerNodeAsync (nodeURI) {
 
       if (hmacEntry) {
         console.log(`INFO : Registration : Ethereum Address : ${hmacEntry.tntAddr}`)
-        console.log('Info : Registration : Node Registered : Beginning Node synchronization')
+        console.log('INFO : Registration : Node Registered : Beginning Node synchronization')
         // console.log(`INFO : Registration : Key : ${hmacEntry.hmacKey}`)
         // The HMACKey exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
