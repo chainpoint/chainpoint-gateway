@@ -126,8 +126,8 @@ async function openStorageConnectionAsync () {
 async function registerNodeAsync (nodeURI) {
   let isRegistered = false
   let registerAttempts = 1
-  const maxRegisterAttempts = 60
-  const retryWaitTimeMs = 15 * 1000
+  const maxRegisterAttempts = 12
+  const retryWaitTimeMs = 5 * 1000
 
   while (!isRegistered) {
     try {
@@ -208,7 +208,13 @@ async function registerNodeAsync (nodeURI) {
 
         return hmacEntry.hmacKey
       } else {
-        console.log(`INFO : Registration : Key Not Found : Attempting Registration...`)
+        // If this is the first Registration attempt we want to log to the console that registration requests are starting, and
+        // we will sleep for 10seconds
+        if (registerAttempts === 1) {
+          console.log(`INFO : Registration : Key Not Found : Attempting Registration...`)
+          await utils.sleepAsync(10000)
+        }
+
         // the HMACKey doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
@@ -247,6 +253,7 @@ async function registerNodeAsync (nodeURI) {
             process.exit(1)
           }
           console.log(`INFO : Registration : Auth key saved!`)
+          console.log(`INFO : Registration : Successful Registration!`)
 
           return response.hmac_key
         } catch (error) {
@@ -293,6 +300,7 @@ async function registerNodeAsync (nodeURI) {
         // We've retried with no success
         // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
         // won't force a restart since this situation will not resolve itself.
+        console.error(`ERROR : Registration : Failed`)
         process.exit(0)
       }
 
