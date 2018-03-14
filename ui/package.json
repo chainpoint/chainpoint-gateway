@@ -25,6 +25,7 @@
     "react-table": "^6.8.0",
     "redux": "^3.7.2",
     "redux-devtools": "^3.4.1",
+    "redux-localstorage": "^0.4.1",
     "redux-thunk": "^2.2.0"
   },
   "scripts": {

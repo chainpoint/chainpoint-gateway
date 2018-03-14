@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Row, Col } from 'react-bootstrap'
+import { isUndefined as _isUndefined, isNumber as _isNumber, toNumber as _toNumber } from 'lodash'
 import moment from 'moment'
 import CountTile from '../../../components/CountTile'
 import ReactTable from 'react-table'
@@ -56,21 +57,33 @@ class Dashboard extends Component {
     this._mapHashesReceivedToday = this._mapHashesReceivedToday.bind(this)
   }
 
+  componentWillMount () {
+    if (_isUndefined(this.props.auth.access_token)) {
+      this.props.history.push('/login')
+    }
+  }
+
   componentDidMount () {
     // Fetch Node Config Details like version, calendar block height, etc.
     this.props.getNodeConfig()
     // Fetch Node stats 'last_1_days' filter by default
-    this.props.getNodeStats('last_1_days')
+    this.props.getNodeStats('last_1_days').catch(err => {
+      if (_isNumber(_toNumber(err)) && parseInt(err, 10) === 401) this.props.history.push('/login')
+    })
 
-    setInterval(() => {
+    this.statsInterval = setInterval(() => {
       // Provide near real-time information
       this.props.getNodeConfig()
       this.props.getNodeStats('last_1_days')
     }, 5000)
   }
 
-  _mapHashesReceivedToday (hashes) {
+  _mapHashesReceivedToday (hashes = []) {
     return hashes.map(currVal => ({ hash_id_node: currVal.split('|')[0], created_at: currVal.split('|')[1] }))
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.statsInterval)
   }
 
   render () {
@@ -110,7 +123,8 @@ Dashboard.propTypes = {
 }
 
 Dashboard.defaultProps = {
-  nodeConfig: {}
+  nodeConfig: {},
+  auth: {}
 }
 
 export default Dashboard

@@ -1,4 +1,5 @@
 import deepAssign from 'deep-assign'
+import { AUTH_LOGIN_ERROR } from './appReducer'
 // ------------------------------------
 // Constants
 // ------------------------------------
@@ -18,7 +19,6 @@ export const GET_NODE_HASHES_RECEIVED_TODAY_LIST_ERROR = 'GET_NODE_HASHES_RECEIV
 export function getNodeConfig (query) {
   return async (dispatch, getState) => {
     dispatch({ type: GET_NODE_CONFIG, payload: null })
-
     try {
       let result = await fetch('http://0.0.0.0:9090/config').then(res => res.json()) // eslint-disable-line
       dispatch({ type: GET_NODE_CONFIG_SUCCESSFUL, payload: Object.assign({}, result, { ip: '127.0.0.1' }) })
@@ -51,20 +51,28 @@ export function getNodeStats (query = 'last_1_days') {
     }
     dispatch({ type: GET_NODE_STATS, payload: { query } })
     try {
+      let headers = { auth: getState().app.auth.access_token || '' }
       let url = new URL('http://0.0.0.0:9090/stats') // eslint-disable-line
       let params = Object.assign({}, {filter: query}, {
         ...(query === 'last_1_days') ? { verbose: true } : {}
       })
       Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
 
-      let result = await fetch(url).then(res => res.json()) // eslint-disable-line
+      let result = await fetch(url, { headers }).then(res => { // eslint-disable-line
+        if (res.status === 401) throw new Error(401)
+
+        return res.json()
+      })
       dispatch({ type: GET_NODE_STATS_SUCCESSFUL, payload: { data: transformStatsResult(result) } })
 
       return result
     } catch (error) {
-      dispatch({ type: GET_NODE_STATS_ERROR, payload: error.message })
+      let errMsg = (error.message === 401) ? 'Unauthorized request. Make sure you are passing "auth" header' : error.message
+      dispatch({ type: GET_NODE_STATS_ERROR, payload: errMsg })
 
-      return Promise.reject(error.message)
+      if (errMsg == 401) dispatch({ type: AUTH_LOGIN_ERROR, payload: null }) // eslint-disable-line
+
+      return Promise.reject(errMsg)
     }
   }
 }

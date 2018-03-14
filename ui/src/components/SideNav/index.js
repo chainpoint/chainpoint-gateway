@@ -14,7 +14,7 @@ class SideNav extends Component {
       <div className='sidenav' style={{ width: this.props.menuOpen ? '300px' : '0px' }}>
         <span className='closebtn lightgray-text curosr' onClick={this.props.closeMenu}><FontAwesome className='lightgray-text' name='times' /></span>
         <Link to='/' onClick={this.props.closeMenu}><FontAwesome className='lightgray-text' name='signal' />&nbsp;&nbsp;Activity</Link>
-        <Link to='/status' onClick={this.props.closeMenu}><FontAwesome className='lightgray-text' name='list' />&nbsp;&nbsp;Status</Link>
+        <Link to='/status' onClick={this.props.closeMenu}><FontAwesome className='lightgray-text' name='list' />&nbsp;&nbsp;Config</Link>
       </div>
     )
   }

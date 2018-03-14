@@ -6,6 +6,7 @@ const mapStateToProps = (state, ownProps) => {
   return {
     nodeConfig: state.app.node,
     node: state.node,
+    auth: state.app.auth,
     routing: state.routing
   }
 }

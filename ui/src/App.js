@@ -6,6 +6,8 @@ import { syncHistoryWithStore } from 'react-router-redux'
 import TopNav from './components/Nav'
 import Dashboard from './routes/Dashboard'
 import NodeStatus from './routes/NodeStatus'
+import Login from './routes/Login'
+
 import './css/index.css'
 import './css/colors.css'
 import './css/utils.css'
@@ -25,6 +27,7 @@ class App extends Component {
             <Switch>
               <Route exact path='/' component={(props) => <Dashboard {...props} />} />
               <Route exact path='/status' component={(props) => <NodeStatus {...props} />} />
+              <Route exact path='/login' component={(props) => <Login {...props} />} />
             </Switch>
           </section>
         </BrowserRouter>
