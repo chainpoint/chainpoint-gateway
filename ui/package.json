@@ -1,0 +1,38 @@
+{
+  "name": "node-stats-ui",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "bootstrap": "3",
+    "classnames": "^2.2.5",
+    "deep-assign": "^2.0.0",
+    "highcharts": "^6.0.7",
+    "history": "^4.7.2",
+    "moment": "^2.20.1",
+    "node-sass-chokidar": "^0.0.3",
+    "react": "^16.2.0",
+    "react-bootstrap": "^0.32.1",
+    "react-bootstrap-card": "^0.1.5",
+    "react-dom": "^16.2.0",
+    "react-fontawesome": "^1.6.1",
+    "react-highcharts": "^16.0.2",
+    "react-number-format": "^3.2.0",
+    "react-redux": "^5.0.7",
+    "react-router-bootstrap": "^0.24.4",
+    "react-router-dom": "^4.2.2",
+    "react-router-redux": "^4.0.8",
+    "react-scripts": "1.1.1",
+    "react-table": "^6.8.0",
+    "redux": "^3.7.2",
+    "redux-devtools": "^3.4.1",
+    "redux-thunk": "^2.2.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "build-css": "node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/",
+    "watch-css": "npm run build-css && node-sass-chokidar --include-path ./src --include-path ./node_modules src/ -o src/ --watch --recursive",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

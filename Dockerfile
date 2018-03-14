@@ -19,6 +19,13 @@ RUN apk add libc6-compat --no-cache
 # The `node` user and its home dir is provided by
 # the base image. Create a subdir where app code lives.
 RUN mkdir /home/node/app
+RUN mkdir /home/node/app/ui
+
+# Copy Build Artifacts Node Stats UI
+COPY ./ui/build /home/node/app/ui
+
+RUN ls -la /home/node/app/ui
+
 WORKDIR /home/node/app
 
 ENV NODE_ENV production

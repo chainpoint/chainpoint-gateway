@@ -1,0 +1,32 @@
+.tile {
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.count-tile {
+  padding: 20px;
+  border-radius: 15px;
+  text-align: center;
+  position: relative;
+}
+
+.count-tile:after{
+  content:'';
+  display:block;
+  position:absolute;
+  z-index:2;
+ }
+
+.count-tile .title {
+  font-size: 18px;
+  opacity: 1;
+}
+
+.count-tile .count {
+  font-size: 40px;
+  font-weight: bold;
+}
+
+.node-health-tile .health-icon {
+  color: white;
+}
