@@ -116,7 +116,7 @@ curl -s -X POST "http://35.230.179.171/hashes" -H "accept: application/json" -H 
 }
 ```
 
-#### Retrieve a Proof 
+#### Retrieve a Proof
 
 Pass in the `hash_id_node` value from the previous step.
 
@@ -127,7 +127,7 @@ Binary
 
 ```
 ...
--H 'Accept: application/vnd.chainpoint.api.v1.base64+json'
+-H 'Accept: application/vnd.chainpoint.json+base64'
 ...
 ```
 
@@ -231,7 +231,7 @@ curl -s -X POST \
   http://35.230.179.171/verify \
   -H 'cache-control: no-cache' \
   -H 'content-type: application/json' \
-  -d '{"proofs": [ 
+  -d '{"proofs": [
 {
   "@context": "https://w3id.org/chainpoint/v3",
   "type": "Chainpoint",
