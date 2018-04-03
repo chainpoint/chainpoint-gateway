@@ -208,11 +208,10 @@ async function registerNodeAsync (nodeURI) {
 
         return hmacEntry.hmacKey
       } else {
-        // If this is the first Registration attempt we want to log to the console that registration requests are starting, and
-        // we will sleep for 10sec
+        // If this is the first Registration attempt we want to log to the
+        //console that registration requests are starting
         if (registerAttempts === 1) {
           console.log(`INFO : Registration : Key Not Found : Attempting Registration...`)
-          await utils.sleepAsync(10000)
         }
 
         // the HMACKey doesn't exist, so POST Node info to Core and store resulting HMAC key
