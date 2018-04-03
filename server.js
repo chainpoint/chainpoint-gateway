@@ -126,8 +126,8 @@ async function openStorageConnectionAsync () {
 async function registerNodeAsync (nodeURI) {
   let isRegistered = false
   let registerAttempts = 1
-  const maxRegisterAttempts = 60
-  const retryWaitTimeMs = 15 * 1000
+  const maxRegisterAttempts = 12
+  const retryWaitTimeMs = 5 * 1000
 
   while (!isRegistered) {
     try {
@@ -143,6 +143,7 @@ async function registerNodeAsync (nodeURI) {
 
       if (hmacEntry) {
         console.log(`INFO : Registration : Ethereum Address : ${hmacEntry.tntAddr}`)
+        console.log('INFO : Registration : HMAC Key Found')
         // console.log(`INFO : Registration : Key : ${hmacEntry.hmacKey}`)
         // The HMACKey exists, so read the key and PUT Node info with HMAC to Core
         let hash = crypto.createHmac('sha256', hmacEntry.hmacKey)
@@ -169,15 +170,16 @@ async function registerNodeAsync (nodeURI) {
         }
 
         try {
+          console.log('INFO : Registration : Attempting Core update using ETH/HMAC/IP')
           await coreHosts.coreRequestAsync(putOptions)
         } catch (error) {
           if (error.statusCode === 409) {
             if (error.error && error.error.code && error.error.message) {
-              console.error(`ERROR : Registration update : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
+              console.error(`ERROR : Registration update failed : Exiting : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
             } else if (error.error && error.error.code) {
-              console.error(`ERROR : Registration update : ${nodeURI} : ${error.error.code}`)
+              console.error(`ERROR : Registration update failed : Exiting : ${nodeURI} : ${error.error.code}`)
             } else {
-              console.error(`ERROR : Registration update`)
+              console.error(`ERROR : Registration update failed : Exiting`)
             }
 
             // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
@@ -205,8 +207,18 @@ async function registerNodeAsync (nodeURI) {
           console.log(`INFO : Registration : Public URI : (no public URI)`)
         }
 
+        console.log(`INFO : ***********************************`)
+        console.log(`INFO : Registration : Update OK!`)
+        console.log(`INFO : ***********************************`)
+
         return hmacEntry.hmacKey
       } else {
+        // If this is the first Registration attempt we want to log to the
+        //console that registration requests are starting
+        if (registerAttempts === 1) {
+          console.log(`INFO : Registration : HMAC Auth Key Not Found : Attempting Registration...`)
+        }
+
         // the HMACKey doesn't exist, so POST Node info to Core and store resulting HMAC key
         let postObject = {
           tnt_addr: env.NODE_TNT_ADDRESS,
@@ -240,11 +252,15 @@ async function registerNodeAsync (nodeURI) {
               throw new Error(`Unable to confirm authentication key with read after write.`)
             }
           } catch (error) {
-            console.error(`ERROR : Registration : Auth key write and confirm failed.`)
+            console.error(`ERROR : Registration : HMAC Auth key write and confirm failed.`)
             // Exit 1 : this is a recoverable error that might be resolved on container restart.
             process.exit(1)
           }
-          console.log(`INFO : Registration : Auth key saved!`)
+          console.log(`INFO : Registration : HMAC Auth key saved!`)
+
+          console.log(`INFO : ***********************************`)
+          console.log(`INFO : Registration : New Registration OK!`)
+          console.log(`INFO : ***********************************`)
 
           return response.hmac_key
         } catch (error) {
@@ -291,6 +307,9 @@ async function registerNodeAsync (nodeURI) {
         // We've retried with no success
         // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
         // won't force a restart since this situation will not resolve itself.
+        console.error(`ERROR : ********************************************`)
+        console.error(`ERROR : Registration : Failed : Max Retries Reached!`)
+        console.error(`ERROR : ********************************************`)
         process.exit(0)
       }
 
@@ -352,7 +371,7 @@ async function startAsync () {
     console.log('INFO : Calendar : Starting Sync...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
-    console.log('INFO : App : Startup completed!')
+    console.log('INFO : Calendar : Sync completed!')
     scheduleRestifyRestart()
   } catch (err) {
     console.error(`ERROR : App : Startup : ${err}`)
@@ -371,9 +390,9 @@ function scheduleRestifyRestart () {
   let minMS = 60 * 60 * 12 * 1000 // 12 hours
   let maxMS = 60 * 60 * 24 * 1000 // 24 hours
   let randomMS = utils.randomIntFromInterval(minMS, maxMS)
-  console.log(`INFO : App : Next auto-restart scheduled for ${moment().add(randomMS, 'ms').format()}`)
+  console.log(`INFO : App : auto-restart scheduled for ${moment().add(randomMS, 'ms').format()}`)
   setTimeout(async () => {
-    console.log('INFO : App : Performing daily Auto-restart of API server to update Firewall.')
+    console.log('INFO : App : Performing scheduled daily auto-restart.')
     await apiServer.restartRestifyAsync()
     // schedule the next restart
     scheduleRestifyRestart()

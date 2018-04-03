@@ -96,7 +96,7 @@ The following `curl` samples have been 'prettified' with [jq](https://stedolan.g
 Submit a single hash, or an Array of them at once.
 
 ```
-curl -s -X POST "http://35.188.224.112/hashes" -H "accept: application/json" -H "content-type: application/json" -d "{ \"hashes\": [ \"1957db7fe23e4be1740ddeb941ddda7ae0a6b782e536a9e00b5aa82db1e84547\" ]}" | jq
+curl -s -X POST "http://35.230.179.171/hashes" -H "accept: application/json" -H "content-type: application/json" -d "{ \"hashes\": [ \"1957db7fe23e4be1740ddeb941ddda7ae0a6b782e536a9e00b5aa82db1e84547\" ]}" | jq
 
 {
   "meta": {
@@ -116,7 +116,7 @@ curl -s -X POST "http://35.188.224.112/hashes" -H "accept: application/json" -H 
 }
 ```
 
-#### Retrieve a Proof 
+#### Retrieve a Proof
 
 Pass in the `hash_id_node` value from the previous step.
 
@@ -127,7 +127,7 @@ Binary
 
 ```
 ...
--H 'Accept: application/vnd.chainpoint.api.v1.base64+json'
+-H 'Accept: application/vnd.chainpoint.json+base64'
 ...
 ```
 
@@ -142,7 +142,7 @@ JSON
 Example:
 
 ```
-curl -s -X GET "http://35.188.224.112/proofs/e0dab610-f553-11e7-963e-01d98c837763" -H "accept: application/vnd.chainpoint.ld+json" | jq
+curl -s -X GET "http://35.230.179.171/proofs/e0dab610-f553-11e7-963e-01d98c837763" -H "accept: application/vnd.chainpoint.ld+json" | jq
 
 [
   {
@@ -221,17 +221,17 @@ Pass in the proof output from the previous step.
 Pro Tip: You can extract just the proof from that previous command using `jq`. There are more examples of how to use `jq` [here](https://stedolan.github.io/jq/tutorial/).
 
 ```
-curl -s -X GET "http://35.188.224.112/proofs/e0dab610-f553-11e7-963e-01d98c837763" -H "accept: application/vnd.chainpoint.ld+json" | jq '.[0].proof'
+curl -s -X GET "http://35.230.179.171/proofs/e0dab610-f553-11e7-963e-01d98c837763" -H "accept: application/vnd.chainpoint.ld+json" | jq '.[0].proof'
 ```
 
 Submit that proof as part of the `proofs` Array to verify it:
 
 ```
 curl -s -X POST \
-  http://35.188.224.112/verify \
+  http://35.230.179.171/verify \
   -H 'cache-control: no-cache' \
   -H 'content-type: application/json' \
-  -d '{"proofs": [ 
+  -d '{"proofs": [
 {
   "@context": "https://w3id.org/chainpoint/v3",
   "type": "Chainpoint",
