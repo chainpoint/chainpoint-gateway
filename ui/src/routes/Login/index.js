@@ -4,6 +4,7 @@ import { submitLogin } from '../../reducers/appReducer'
 
 const mapStateToProps = (state, ownProps) => {
   return {
+    app: state.app,
     nodeConfig: state.app.node,
     node: state.node,
     auth: state.node.auth,

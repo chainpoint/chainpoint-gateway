@@ -23,7 +23,10 @@ class Login extends Component {
   }
 
   _handleLogin () {
-    this.props.submitLogin(this.state.value).then(() => {
+    this.props.submitLogin(this.state.value).then((res) => {
+      console.log('====================================')
+      console.log('inside handle login()', res)
+      console.log('====================================')
       this.props.history.push('/')
     })
   }
@@ -44,7 +47,7 @@ class Login extends Component {
                     onChange={this.handleChange} />
                   <FormControl.Feedback />
 
-                  {(this.props.node.status.error && this.props.node.status.event === 'AUTH_LOGIN_ERROR') && (<HelpBlock><span className='firebrick-text'>Invalid Login. Please try again.</span></HelpBlock>)}
+                  {(this.props.app.status && this.props.app.status.error && this.props.app.status.event === 'AUTH_LOGIN_ERROR') && (<HelpBlock><span className='firebrick-text'>Invalid Login. Please try again.</span></HelpBlock>)}
 
                   <div className='add-top'>
                     <ButtonGroup vertical block>

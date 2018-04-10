@@ -12,6 +12,16 @@ export function submitLogin (accessToken) {
 
       dispatch({ type: AUTH_LOGIN_SUCCESSFUL, payload: accessToken })
 
+      let headers = { auth: accessToken || '' }
+      let url = new URL('http://0.0.0.0:9090/stats') // eslint-disable-line
+      let params = Object.assign({}, {filter: 'last_1_days'}, { verbose: true })
+      Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
+      let result = await fetch(url, { headers }).then(res => { // eslint-disable-line
+        if (res.status === 401) throw new Error(401)
+
+        return res.json()
+      })
+
       return Promise.resolve(accessToken)
     } catch (error) {
       dispatch({ type: AUTH_LOGIN_ERROR, payload: error.message })
