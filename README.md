@@ -69,6 +69,16 @@ Type "help" for help.
 chainpoint=#
 ```
 
+### Connect to Node Dashboard
+
+Navigate to http://<node_ip_address> in a web browser. Your Node's Dashboard can be password protected if desired. By default you will need to supply the valid Ethereum Address you have used to register the particular node you are connecting to in order to authenticate successfully.
+
+Node Dashboard Password Scenarios:
+1. Default: Password is initially set to your Ethereum Address
+2. Using a Custom Password: If you wish to specify your own password. Edit the '.env' file and add a new environment variable named 'CHAINPOINT_NODE_UI_PASSWORD' with the value of your new password assigned to it (ex. CHAINPOINT_NODE_UI_PASSWORD=password1)
+3. PUBLIC Dashboard: You can optionally make your Node's Dashboard public to the web. Simply set 'CHAINPOINT_NODE_UI_PASSWORD=false'
+
+
 ## Node Public API
 
 A Chainpoint Node exposes a public HTTP API that can:
