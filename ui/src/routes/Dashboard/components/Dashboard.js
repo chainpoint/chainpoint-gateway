@@ -79,7 +79,7 @@ class Dashboard extends Component {
   }
 
   _mapHashesReceivedToday (hashes = []) {
-    return hashes.map(currVal => ({ hash_id_node: currVal.split('|')[0], created_at: currVal.split('|')[1] }))
+    return hashes.map(currVal => ({ hash_id_node: currVal.split('|')[0], hash: currVal.split('|')[1], created_at: currVal.split('|')[2] }))
   }
 
   componentWillUnmount () {

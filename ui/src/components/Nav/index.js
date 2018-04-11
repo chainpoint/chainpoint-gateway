@@ -39,7 +39,7 @@ class TopNav extends Component {
                 <img className='nav-logo add-top-padding' src={`${process.env.PUBLIC_URL}/images/chainpoint_logo@2x.png`} alt='Chainpoint' />
               </Col>
               <Col xs={9}>
-                <div className='pull-right' style={{'paddingTop': '10px'}}>
+                <div className='pull-right' style={{'paddingTop': '20px'}}>
                   <span className='pull-left add-right add-top-padding-less'><FontAwesome name='circle' className='greentea-text' /></span>
                   <span className='pull-right curosr' onClick={this._handleOpenMenu}><FontAwesome size='2x' name='bars' className='platinum-text' /></span>
                 </div>
