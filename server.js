@@ -214,7 +214,7 @@ async function registerNodeAsync (nodeURI) {
         return hmacEntry.hmacKey
       } else {
         // If this is the first Registration attempt we want to log to the
-        //console that registration requests are starting
+        // console that registration requests are starting
         if (registerAttempts === 1) {
           console.log(`INFO : Registration : HMAC Auth Key Not Found : Attempting Registration...`)
         }
@@ -387,9 +387,17 @@ startAsync()
 function scheduleRestifyRestart () {
   // schedule restart for a random time within the next 12-24 hours
   // this prevents all Nodes from restarting at the same time
+  // additionally prevent scheduling near audit periods
   let minMS = 60 * 60 * 12 * 1000 // 12 hours
   let maxMS = 60 * 60 * 24 * 1000 // 24 hours
-  let randomMS = utils.randomIntFromInterval(minMS, maxMS)
+  let randomMS
+  let inAuditRange
+  do {
+    randomMS = utils.randomIntFromInterval(minMS, maxMS)
+    let targetMinute = moment().add(randomMS, 'ms').minute()
+    inAuditRange = ((targetMinute >= 14) && (targetMinute < 20)) || ((targetMinute >= 44) && (targetMinute < 50))
+  } while (inAuditRange)
+
   console.log(`INFO : App : auto-restart scheduled for ${moment().add(randomMS, 'ms').format()}`)
   setTimeout(async () => {
     console.log('INFO : App : Performing scheduled daily auto-restart.')
