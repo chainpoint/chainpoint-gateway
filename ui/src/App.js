@@ -26,7 +26,7 @@ class App extends Component {
             <TopNav />
             <Switch>
               <Route exact path='/' component={(props) => <Dashboard {...props} />} />
-              <Route exact path='/status' component={(props) => <NodeStatus {...props} />} />
+              <Route exact path='/about' component={(props) => <NodeStatus {...props} />} />
               <Route exact path='/login' component={(props) => <Login {...props} />} />
             </Switch>
           </section>
