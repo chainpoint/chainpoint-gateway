@@ -20,7 +20,7 @@ export function getNodeConfig (query) {
   return async (dispatch, getState) => {
     dispatch({ type: GET_NODE_CONFIG, payload: null })
     try {
-      let result = await fetch('http://0.0.0.0:9090/config').then(res => res.json()) // eslint-disable-line
+      let result = await fetch(`${window.location.origin}/config`).then(res => res.json()) // eslint-disable-line
       dispatch({ type: GET_NODE_CONFIG_SUCCESSFUL, payload: Object.assign({}, result, { ip: '127.0.0.1' }) })
 
       return result
@@ -52,7 +52,7 @@ export function getNodeStats (query = 'last_1_days') {
     dispatch({ type: GET_NODE_STATS, payload: { query } })
     try {
       let headers = { auth: getState().app.auth.access_token || '' }
-      let url = new URL('http://0.0.0.0:9090/stats') // eslint-disable-line
+      let url = new URL(`${window.location.origin}/stats`) // eslint-disable-line
       let params = Object.assign({}, {filter: query}, {
         ...(query === 'last_1_days') ? { verbose: true } : {}
       })
