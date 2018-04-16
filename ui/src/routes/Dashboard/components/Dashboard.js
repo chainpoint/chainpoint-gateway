@@ -46,7 +46,11 @@ const columns = [
         }
       }
     },
-    Cell: props => <span className='number right-align'>{moment(props.value).format('YYYY-MM-DD HH:MM:SS')}</span>
+    Cell: props => {
+      return (
+        <span className='number right-align'>{moment(props.value).format('YYYY-MM-DD hh:mm:ss')}</span>
+      )
+    }
   }
 ]
 

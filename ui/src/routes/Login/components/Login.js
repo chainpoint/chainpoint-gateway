@@ -24,11 +24,8 @@ class Login extends Component {
 
   _handleLogin () {
     this.props.submitLogin(this.state.value).then((res) => {
-      console.log('====================================')
-      console.log('inside handle login()', res)
-      console.log('====================================')
       this.props.history.push('/')
-    })
+    }, () => {})
   }
 
   render () {
