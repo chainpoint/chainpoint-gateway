@@ -42,7 +42,7 @@ class TopNav extends Component {
                 </Col>
                 <Col xs={9}>
                   <div className='pull-right' style={{'paddingTop': '20px'}}>
-                    <span className='pull-left add-right add-top-padding-less'><FontAwesome name='circle' className='greentea-text' /></span>
+                    {/* <span className='pull-left add-right add-top-padding-less'><FontAwesome name='circle' className='greentea-text' /></span> */}
                     <span className='pull-right curosr' onClick={this._handleOpenMenu}><FontAwesome size='2x' name='bars' className='platinum-text' /></span>
                   </div>
                 </Col>
