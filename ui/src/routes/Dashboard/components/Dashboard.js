@@ -111,7 +111,7 @@ class Dashboard extends Component {
           <Grid>
             <Row className='add-top add-bottom'>
               <Col xs={12} className='add-top add-bottom'>
-                <ReactTable data={this.props.node.stats.last_1_days ? this._mapHashesReceivedToday(this.props.node.stats.last_1_days.hashesReceivedToday) : []} columns={columns} defaultPageSize={25} showPagination={false} showPaginationBottom />
+                <ReactTable sortable={false} data={this.props.node.stats.last_1_days ? this._mapHashesReceivedToday(this.props.node.stats.last_1_days.hashesReceivedToday) : []} columns={columns} defaultPageSize={25} showPagination={false} showPaginationBottom />
               </Col>
             </Row>
           </Grid>

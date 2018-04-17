@@ -6,6 +6,7 @@ import { withRouter } from 'react-router-dom'
 import moment from 'moment'
 import FontAwesome from 'react-fontawesome'
 import SideNav from '../SideNav'
+import { signOut } from '../../reducers/appReducer'
 
 class TopNav extends Component {
   constructor (props) {
@@ -47,7 +48,7 @@ class TopNav extends Component {
             </Row>
           </Grid>
         </div>
-        <SideNav menuOpen={this.state.menuOpen} closeMenu={() => this._handleOpenMenu()} />
+        <SideNav app={this.props.app} signOut={this.props.signOut} menuOpen={this.state.menuOpen} closeMenu={() => this._handleOpenMenu()} />
         <div className='clearfix' />
       </section>
     )
@@ -65,4 +66,12 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-export default connect(mapStateToProps)(withRouter(TopNav))
+const mapDispatchToProps = (dispatch, ownProps) => {
+  return {
+    signOut: () => {
+      dispatch(signOut())
+    }
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(TopNav))
