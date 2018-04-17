@@ -13,6 +13,7 @@ const columns = [
         style: {
           'textAlign': 'left',
           'color': 'white',
+          'fontSize': '16px',
           'fontWeight': 'bold',
           'padding': '25px',
           'border': 'none',
@@ -39,6 +40,7 @@ const columns = [
         style: {
           'textAlign': 'right',
           'color': 'white',
+          'fontSize': '16px',
           'fontWeight': 'bold',
           'padding': '25px',
           'border': 'none',
