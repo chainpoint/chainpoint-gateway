@@ -1,7 +1,7 @@
 {
   "name": "chainpoint-node",
   "description": "A Tierion Network Node is a key part of Tierion's scalable solution for anchoring data to public blockchains.",
-  "version": "1.3.7",
+  "version": "1.4.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
