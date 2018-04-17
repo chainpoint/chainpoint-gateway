@@ -18,9 +18,15 @@ body {
   height: 70px;
 }
 
+/* .dashboard-view-wrapper .ReactTable .rt-tbody .rt-tr-group {
+  padding: 
+} */
+
 .ReactTable {
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
+  font-family: Lato;
+  color: #E7E5DF;
 }
 
 .hero-wrapper {

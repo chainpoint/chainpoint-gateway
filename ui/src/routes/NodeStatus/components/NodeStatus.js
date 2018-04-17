@@ -17,9 +17,9 @@ class NodeStatus extends Component {
   render () {
     return (
       <section>
-        <Grid>
+        <Grid fluid>
           <Row className='add-top'>
-            <Col xs={10} xsOffset={2} className='add-top'>
+            <Col xs={10} xsOffset={1} className='add-top'>
               <FormGroup controlId='formBasicText'>
                 <ControlLabel>Node Version</ControlLabel>
                 <FormControl type='text' value={this.props.nodeConfig.version} placeholder='Node Version' disabled />

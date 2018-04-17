@@ -2,29 +2,36 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Row, Col } from 'react-bootstrap'
 import { isUndefined as _isUndefined, isNumber as _isNumber, toNumber as _toNumber } from 'lodash'
-import moment from 'moment'
 import CountTile from '../../../components/CountTile'
 import ReactTable from 'react-table'
 
 const columns = [
   {
-    Header: () => <span className='left align'>Hash ID</span>,
+    Header: () => <span className='left align'>HASH ID</span>,
     getHeaderProps: (state, rowInfo, column) => {
       return {
         style: {
           'textAlign': 'left',
           'color': 'white',
-          'padding': '15px',
+          'fontWeight': 'bold',
+          'padding': '25px',
           'border': 'none',
           'borderTopLeftRadius': '8px',
           'backgroundColor': '#B2BEC4'
         }
       }
     },
+    getProps: (state, rowInfo, column) => {
+      return {
+        style: {
+          'color': '#90a4ae'
+        }
+      }
+    },
     accessor: 'hash_id_node'
   },
   {
-    Header: 'Received',
+    Header: 'RECEIVED',
     accessor: 'created_at',
     maxWidth: 240,
     getHeaderProps: (state, rowInfo, column) => {
@@ -32,7 +39,8 @@ const columns = [
         style: {
           'textAlign': 'right',
           'color': 'white',
-          'padding': '15px',
+          'fontWeight': 'bold',
+          'padding': '25px',
           'border': 'none',
           'borderTopRightRadius': '8px',
           'backgroundColor': '#B2BEC4'
@@ -42,13 +50,14 @@ const columns = [
     getProps: (state, rowInfo, column) => {
       return {
         style: {
-          'textAlign': 'right'
+          'textAlign': 'right',
+          'color': '#90a4ae'
         }
       }
     },
     Cell: props => {
       return (
-        <span className='number right-align'>{moment(props.value).format('YYYY-MM-DD hh:mm:ss')}</span>
+        <span className='right-align'>{props.value}</span>
       )
     }
   }
@@ -94,24 +103,45 @@ class Dashboard extends Component {
     return (
       <section>
         <div className='dashboard-view-wrapper hero-wrapper'>
-          <Grid>
+          <Grid fluid>
             <Row className='add-bottom-padding'>
-              <Col xs={2}>
-                <h3 className='lightgray-text add-bottom'>Activity</h3>
-              </Col>
-              <Col xs={10}>
-                <CountTile count={this.props.node.stats.last_1_days ? this.props.node.stats.last_1_days.hour : null} size={4} title='Hashes Received' subTitle='Current Hour' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' />
-                <CountTile count={this.props.node.stats.last_1_days ? this.props.node.stats.last_1_days.last24Hrs : null} size={4} title='Hashes Received' subTitle='Past 24 Hours' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' />
-                <CountTile count={(this.props.nodeConfig && this.props.nodeConfig.calendar) ? this.props.nodeConfig.calendar.height : null} size={4} title='Calendar Height' subTitle='Current' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' extraClasses='no-padding-right' />
+              <Col xs={12}>
+                <Col xs={2} className='add-top add-bottom'>
+                  <h3 className='lightgray-text add-bottom'>ACTIVITY</h3>
+                </Col>
+                <Col xs={10} className='add-top add-bottom'>
+                  <CountTile count={this.props.node.stats.last_1_days ? this.props.node.stats.last_1_days.hour : null} size={4} title='Hashes Received' subTitle='Current Hour' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' />
+                  <CountTile count={this.props.node.stats.last_1_days ? this.props.node.stats.last_1_days.last24Hrs : null} size={4} title='Hashes Received' subTitle='Past 24 Hours' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' />
+                  <CountTile count={(this.props.nodeConfig && this.props.nodeConfig.calendar) ? this.props.nodeConfig.calendar.height : null} size={4} title='Calendar Height' subTitle='Current' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' extraClasses='no-padding-right' />
+                </Col>
               </Col>
             </Row>
           </Grid>
         </div>
         <div>
-          <Grid>
+          <Grid fluid>
             <Row className='add-top add-bottom'>
               <Col xs={12} className='add-top add-bottom'>
-                <ReactTable sortable={false} data={this.props.node.stats.last_1_days ? this._mapHashesReceivedToday(this.props.node.stats.last_1_days.hashesReceivedToday) : []} columns={columns} defaultPageSize={25} showPagination={false} showPaginationBottom />
+                <Col xs={12}>
+                  <ReactTable
+                    getTrProps={(state, rowInfo, column) => {
+                      return {
+                        style: {
+                          'background': '#FFFFFF',
+                          'paddingLeft': '18px',
+                          'paddingRight': '18px',
+                          'paddingTop': '10px',
+                          'paddingBottom': '10px',
+                          'fontSize': '16px'
+                        }
+                      }
+                    }}
+                    sortable={false}
+                    data={this.props.node.stats.last_1_days ? this._mapHashesReceivedToday(this.props.node.stats.last_1_days.hashesReceivedToday) : []}
+                    columns={columns}
+                    defaultPageSize={25}
+                    showPagination={false} />
+                </Col>
               </Col>
             </Row>
           </Grid>

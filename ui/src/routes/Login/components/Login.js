@@ -31,7 +31,7 @@ class Login extends Component {
   render () {
     return (
       <section>
-        <Grid>
+        <Grid fluid>
           <Row className='add-top'>
             <Col xs={8} xsOffset={2}>
               <Well>

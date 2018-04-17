@@ -46,6 +46,14 @@
   color: #E7E5DF;
 }
 
+.darkgray {
+  background-color: #90a4ae;
+}
+
+.darkgray-text {
+  color: #90a4ae;
+}
+
 .darkskyblue {
   background-color: #92AFD7;
 }

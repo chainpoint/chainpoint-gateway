@@ -34,16 +34,18 @@ class TopNav extends Component {
     return (
       <section className='chainpoint-client-nav'>
         <div className='chp-navbar'>
-          <Grid>
+          <Grid fluid>
             <Row>
-              <Col xs={3}>
-                <img className='nav-logo add-top-padding' src={`${process.env.PUBLIC_URL}/images/chainpoint_logo@2x.png`} alt='Chainpoint' />
-              </Col>
-              <Col xs={9}>
-                <div className='pull-right' style={{'paddingTop': '20px'}}>
-                  {/* <span className='pull-left add-right add-top-padding-less'><FontAwesome name='circle' className='greentea-text' /></span> */}
-                  <span className='pull-right curosr' onClick={this._handleOpenMenu}><FontAwesome size='2x' name='bars' className='platinum-text' /></span>
-                </div>
+              <Col xs={12}>
+                <Col xs={3}>
+                  <img className='nav-logo add-top-padding' src={`${process.env.PUBLIC_URL}/images/chainpoint_logo@2x.png`} alt='Chainpoint' />
+                </Col>
+                <Col xs={9}>
+                  <div className='pull-right' style={{'paddingTop': '20px'}}>
+                    <span className='pull-left add-right add-top-padding-less'><FontAwesome name='circle' className='greentea-text' /></span>
+                    <span className='pull-right curosr' onClick={this._handleOpenMenu}><FontAwesome size='2x' name='bars' className='platinum-text' /></span>
+                  </div>
+                </Col>
               </Col>
             </Row>
           </Grid>
