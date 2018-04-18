@@ -38,3 +38,7 @@ body {
   background-image: -webkit-linear-gradient(#1a237e,#0284CD);
   background-image: linear-gradient(#1a237e,#0284CD)
 }
+
+.cursor {
+  cursor: pointer;
+}

@@ -4,7 +4,6 @@ import PropTypes from 'prop-types'
 import { Grid, Row, Col } from 'react-bootstrap'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import FontAwesome from 'react-fontawesome'
 import SideNav from '../SideNav'
 import { signOut } from '../../reducers/appReducer'
 
@@ -43,7 +42,7 @@ class TopNav extends Component {
                 <Col xs={9}>
                   <div className='pull-right' style={{'paddingTop': '40px'}}>
                     {/* <span className='pull-left add-right add-top-padding-less'><FontAwesome name='circle' className='greentea-text' /></span> */}
-                    <img className='pull-right cursor' width='30' height='20' src={`${process.env.PUBLIC_URL}/images/menu-icon@2x.png`} alt='Menu' />
+                    <img onClick={this._handleOpenMenu} className='pull-right cursor' width='30' height='20' src={`${process.env.PUBLIC_URL}/images/menu-icon@2x.png`} alt='Menu' />
                   </div>
                 </Col>
               </Col>
