@@ -8,6 +8,10 @@ export const AUTH_LOGIN_ERROR = 'AUTH_LOGIN_ERROR'
 export const AUTH_REQUIRED_ERROR = 'AUTH_REQUIRED_ERROR'
 export const AUTH_SIGN_OUT = 'AUTH_SIGN_OUT'
 
+const getApiUrl = () => {
+  return (process.env.NODE_ENV === 'development') ? 'http://localhost:9090' : window.location.origin
+}
+
 export function submitLogin (accessToken = '') {
   return async (dispatch, getState) => {
     try {
@@ -17,7 +21,7 @@ export function submitLogin (accessToken = '') {
       dispatch({ type: AUTH_LOGIN_SUCCESSFUL, payload: accessTokenLowered })
 
       let headers = { auth: accessTokenLowered || '' }
-      let url = new URL(`${window.location.origin}/stats`) // eslint-disable-line
+      let url = new URL(`${getApiUrl()}/stats`) // eslint-disable-line
       let params = Object.assign({}, {filter: 'last_1_days'}, { verbose: true })
       Object.keys(params).forEach(key => url.searchParams.append(key, params[key]))
       let result = await fetch(url, { headers }).then(res => { // eslint-disable-line
