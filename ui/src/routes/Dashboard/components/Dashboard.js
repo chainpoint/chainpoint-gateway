@@ -108,13 +108,13 @@ class Dashboard extends Component {
           <Grid fluid>
             <Row className='add-bottom-padding'>
               <Col xs={12}>
-                <Col xs={2} className='add-top add-bottom'>
-                  <h3 className='lightgray-text add-bottom'>ACTIVITY</h3>
+                <Col xs={12} sm={2} className='add-top add-bottom'>
+                  <h3 className='title lightgray-text add-bottom'>ACTIVITY</h3>
                 </Col>
-                <Col xs={10} className='add-top add-bottom'>
+                <Col xs={12} sm={10} className='add-top add-bottom'>
                   <CountTile count={this.props.node.stats.last_1_days ? this.props.node.stats.last_1_days.hour : null} size={4} title='Hashes Received' subTitle='Current Hour' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' />
                   <CountTile count={this.props.node.stats.last_1_days ? this.props.node.stats.last_1_days.last24Hrs : null} size={4} title='Hashes Received' subTitle='Past 24 Hours' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' />
-                  <CountTile count={(this.props.nodeConfig && this.props.nodeConfig.calendar) ? this.props.nodeConfig.calendar.height : null} size={4} title='Calendar Height' subTitle='Current' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' extraClasses='no-padding-right' />
+                  <CountTile count={(this.props.nodeConfig && this.props.nodeConfig.calendar) ? this.props.nodeConfig.calendar.height : null} size={4} title='Calendar Height' subTitle='Current' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' extraClasses='last-tile no-padding-right' />
                 </Col>
               </Col>
             </Row>
