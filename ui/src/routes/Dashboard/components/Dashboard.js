@@ -134,7 +134,8 @@ class Dashboard extends Component {
                           'paddingRight': '18px',
                           'paddingTop': '10px',
                           'paddingBottom': '10px',
-                          'fontSize': '16px'
+                          'fontSize': '16px',
+                          'fontWeight': '300'
                         }
                       }
                     }}
