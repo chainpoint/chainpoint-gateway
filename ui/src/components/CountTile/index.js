@@ -13,14 +13,14 @@ class CountTile extends Component {
 
   render () {
     return (
-      <Col xs={this.props.size} className={classnames('add-top', this.props.extraClasses)}>
+      <Col xs={12} sm={this.props.size} className={classnames('add-top', this.props.extraClasses)}>
         <Col xs={12} style={{ opacity: this.props.opacity || 1 }} className={classnames('count-tile', this.props.color && this.props.color, this.props.txtcolor && `${this.props.txtcolor}-text`)}>
           <div>
-            <h5 className='lightgray-text'>{this.props.subTitle}</h5>
+            <h5 className='upper-title'>{this.props.subTitle}</h5>
 
             {(this.props.count === null) ? (<FontAwesome className='tierion-tealblue-text' name='gear' spin size='4x' />) : (<NumberFormat value={this.props.count} displayType={'text'} thousandSeparator renderText={value => <span className='count tierion-tealblue-text'>{value}</span>} />) }
 
-            <h4 className='platinum-text'>{this.props.title}</h4>
+            <h4 className='lower-title platinum-text'>{this.props.title}</h4>
           </div>
         </Col>
       </Col>

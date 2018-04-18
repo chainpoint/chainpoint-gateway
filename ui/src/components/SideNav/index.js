@@ -22,10 +22,10 @@ class SideNav extends Component {
   render () {
     return (
       <div className='sidenav' style={{ width: this.props.menuOpen ? '300px' : '0px' }}>
-        <span className='closebtn lightgray-text curosr' onClick={this.props.closeMenu}><FontAwesome className='lightgray-text' name='times' /></span>
-        <Link to='/' onClick={this.props.closeMenu}><FontAwesome className='lightgray-text' name='signal' />&nbsp;&nbsp;Activity</Link>
-        <Link to='/about' onClick={this.props.closeMenu}><FontAwesome className='lightgray-text' name='list' />&nbsp;&nbsp;About</Link>
-        {(this.props.app && this.props.app.auth && this.props.app.auth.access_token) && <Link to='/login' onClick={this._handleSignOut}><FontAwesome className='lightgray-text' name='sign-out' />&nbsp;&nbsp;Logout</Link>}
+        <span className='closebtn cursor add-top' onClick={this.props.closeMenu}><FontAwesome className='lightpurple-text' name='times' /></span>
+        <Link to='/' onClick={this.props.closeMenu}><FontAwesome className='lightpurple-text' name='signal' />&nbsp;&nbsp;Activity</Link>
+        <Link to='/about' onClick={this.props.closeMenu}><FontAwesome className='lightpurple-text' name='list' />&nbsp;&nbsp;About</Link>
+        {(this.props.app && this.props.app.auth && this.props.app.auth.access_token) && <Link to='/login' onClick={this._handleSignOut}><FontAwesome className='lightpurple-text' name='sign-out' />&nbsp;&nbsp;Logout</Link>}
       </div>
     )
   }
