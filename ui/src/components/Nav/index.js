@@ -37,7 +37,7 @@ class TopNav extends Component {
             <Row>
               <Col xs={12}>
                 <Col xs={3}>
-                  <img className='nav-logo add-top-padding' src={`${process.env.PUBLIC_URL}/images/chainpoint_logo@2x.png`} alt='Chainpoint' />
+                  <img className='nav-logo add-top-padding' src={`${process.env.PUBLIC_URL}/images/chainpoint_logo@2x.png`} alt='Chainpoint' />&nbsp;&nbsp;&nbsp;&nbsp;<span style={{color: '#757575', position: 'relative', top: '20px'}}>PREVIEW RELEASE</span>
                 </Col>
                 <Col xs={9}>
                   <div className='pull-right' style={{'paddingTop': '40px'}}>
