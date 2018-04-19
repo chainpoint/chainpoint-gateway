@@ -120,14 +120,6 @@ auth-keys:
 	@sleep 6
 	@docker exec -it postgres-node-src psql -U chainpoint -c 'SELECT * FROM hmackeys;'
 
-## auth-key-update : Update HMAC auth key with `KEY` (hex string) var. Example `make auth-key-update KEY=mysecrethexkey`
-.PHONY : auth-key-update
-auth-key-update: guard-KEY
-	@docker-compose up -d postgres
-	@sleep 6
-	@source .env && docker exec -it postgres-node-src psql -U chainpoint -c "INSERT INTO hmackeys (tnt_addr, hmac_key, version, created_at, updated_at) VALUES (LOWER('$$NODE_TNT_ADDRESS'), LOWER('$(KEY)'), 1, clock_timestamp(), clock_timestamp()) ON CONFLICT (tnt_addr) DO UPDATE SET hmac_key = LOWER('$(KEY)'), version = 1, updated_at = clock_timestamp()"
-	make restart
-
 ## auth-key-delete : Delete HMAC auth key with `NODE_TNT_ADDRESS` var. Example `make auth-key-delete NODE_TNT_ADDRESS=0xmyethaddress`
 .PHONY : auth-key-delete
 auth-key-delete: guard-NODE_TNT_ADDRESS

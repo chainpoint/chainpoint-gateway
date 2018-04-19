@@ -17,6 +17,7 @@ const validator = require('validator')
 // load environment variables
 const env = require('./lib/parse-env.js')
 
+const fs = require('fs')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const publicKey = require('./lib/models/PublicKey.js')
@@ -119,6 +120,46 @@ async function openStorageConnectionAsync () {
       }
       retryCount += 1
       await utils.sleepAsync(5000)
+    }
+  }
+}
+
+// Registering HMAC KEY from .key file
+async function authKeysUpdate () {
+  // Read files in current directory and filter out any file that does NOT end with a .key extension
+  let keys = fs.readdirSync('.').filter((currVal) => {
+    return (/^.*\.(key)$/).test(currVal) && currVal.split('.')[0] === env.NODE_TNT_ADDRESS
+  })
+
+  if (keys.length) {
+    let isHMAC = (k) => {
+      return /^[0-9a-fA-F]{64}$/i.test(k)
+    }
+    let keyFile = keys[0]
+    let keyFileContent = fs.readFileSync(`./${keyFile}`, 'utf8')
+
+    if (isHMAC(keyFileContent)) {
+      // Write HMAC key to postgres
+      try {
+        await HMACKey
+                .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
+                .spread((hmac, created) => {
+                  if (!created) {
+                    return hmac.update({
+                      hmacKey: keyFileContent,
+                      version: hmac.version + 1
+                    })
+                  }
+                })
+
+        console.log(`INFO : Registration : Auth key saved to postgres`)
+      } catch (err) {
+        console.error(`ERROR : Registration : Error inserting/updating auth key in postgres`)
+        process.exit(1)
+      }
+    } else {
+      console.error(`ERROR : Registration : Unable to load auth key because it is not a valid HMAC key`)
+      process.exit(1)
     }
   }
 }
@@ -358,6 +399,8 @@ async function startAsync () {
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     await openStorageConnectionAsync()
+    // Register HMAC Key
+    await authKeysUpdate()
     let hmacKey = await registerNodeAsync(nodeUri)
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
