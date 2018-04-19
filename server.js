@@ -139,7 +139,8 @@ async function authKeysUpdate () {
     let keyFileContent = fs.readFileSync(`./${keyFile}`, 'utf8')
 
     if (isHMAC(keyFileContent)) {
-      // Write HMAC key to postgres
+      // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with
+      // the new hmac key, if not, create a new record in the table.
       try {
         await HMACKey
                 .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
