@@ -2,6 +2,7 @@
 .DS_Store
 node_modules/
 ui/node_modules/
+keys/
 .data/
 npm-debug.log*
 yarn-debug.log*

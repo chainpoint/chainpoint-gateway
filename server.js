@@ -127,7 +127,7 @@ async function openStorageConnectionAsync () {
 // Registering HMAC KEY from .key file
 async function authKeysUpdate () {
   // Read files in current directory and filter out any file that does NOT end with a .key extension
-  let keys = fs.readdirSync('.').filter((currVal) => {
+  let keys = fs.readdirSync('./keys').filter((currVal) => {
     return (/^.*\.(key)$/).test(currVal) && currVal.split('.')[0] === env.NODE_TNT_ADDRESS
   })
 
@@ -136,7 +136,7 @@ async function authKeysUpdate () {
       return /^[0-9a-fA-F]{64}$/i.test(k)
     }
     let keyFile = keys[0]
-    let keyFileContent = fs.readFileSync(`./${keyFile}`, 'utf8')
+    let keyFileContent = fs.readFileSync(`./keys/${keyFile}`, 'utf8')
 
     if (isHMAC(keyFileContent)) {
       // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with

@@ -42,7 +42,10 @@ COPY ./lib/endpoints/*.js /home/node/app/lib/endpoints/
 RUN mkdir -p /home/node/app/lib/models
 COPY ./lib/models/*.js /home/node/app/lib/models/
 
-COPY ./tor-exit-nodes.txt ./*.key /home/node/app/
+COPY ./tor-exit-nodes.txt /home/node/app/
+
+RUN mkdir -p /home/node/app/keys
+RUN mkdir -p /home/node/app/keys/backups
 
 EXPOSE 8080
 
