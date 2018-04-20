@@ -25,13 +25,15 @@ const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
 const publicKeys = require('./lib/public-keys.js')
 const coreHosts = require('./lib/core-hosts.js')
-const r = require('redis')
 const crypto = require('crypto')
 const moment = require('moment')
 const ip = require('ip')
 const bluebird = require('bluebird')
 const url = require('url')
 const { version } = require('./package.json')
+
+const r = require('redis')
+bluebird.promisifyAll(r.Multi.prototype)
 
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 300
