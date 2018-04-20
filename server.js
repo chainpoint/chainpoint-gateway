@@ -128,40 +128,48 @@ async function openStorageConnectionAsync () {
 async function authKeysUpdate () {
   // Read files in current directory and filter out any file that does NOT end with a .key extension
   let keys = fs.readdirSync('./keys').filter((currVal) => {
-    return (/^.*\.(key)$/).test(currVal) && currVal.split('.')[0] === env.NODE_TNT_ADDRESS
+    // We have two different naming conventions when it comes to .key files. We have to parse the filenames different based on a different string delimination
+    // 1) /keys/0xabc.key which refers to a key file that contains a valid hmac key. The filename must match env.NODE_TNT_ADDRESS
+    // 2) /keys/backups/0xabc-<timestamp>.key which is a backup .key file and contains a timestamp to prevent filename collisions
+    let fileName = (currVal.split('-').length === 1) ? currVal.split('.')[0] : currVal.split('-')[0]
+
+    return (/^.*\.(key)$/).test(currVal) && fileName === env.NODE_TNT_ADDRESS
   })
 
   if (keys.length) {
-    let isHMAC = (k) => {
-      return /^[0-9a-fA-F]{64}$/i.test(k)
-    }
-    let keyFile = keys[0]
-    let keyFileContent = fs.readFileSync(`./keys/${keyFile}`, 'utf8')
+    // Iterate through all key files found and write hmac key to postgres
+    keys.forEach(async (key) => {
+      let isHMAC = (k) => {
+        return /^[0-9a-fA-F]{64}$/i.test(k)
+      }
+      let keyFile = key
+      let keyFileContent = fs.readFileSync(`./keys/${keyFile}`, 'utf8')
 
-    if (isHMAC(keyFileContent)) {
-      // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with
-      // the new hmac key, if not, create a new record in the table.
-      try {
-        await HMACKey
-                .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
-                .spread((hmac, created) => {
-                  if (!created) {
-                    return hmac.update({
-                      hmacKey: keyFileContent,
-                      version: hmac.version + 1
-                    })
-                  }
-                })
+      if (isHMAC(keyFileContent)) {
+        // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with
+        // the new hmac key, if not, create a new record in the table.
+        try {
+          await HMACKey
+                  .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
+                  .spread((hmac, created) => {
+                    if (!created) {
+                      return hmac.update({
+                        hmacKey: keyFileContent,
+                        version: hmac.version + 1
+                      })
+                    }
+                  })
 
-        console.log(`INFO : Registration : Auth key saved to postgres`)
-      } catch (err) {
-        console.error(`ERROR : Registration : Error inserting/updating auth key in postgres`)
+          console.log(`INFO : Registration : Auth key saved to postgres`)
+        } catch (err) {
+          console.error(`ERROR : Registration : Error inserting/updating auth key in postgres`)
+          process.exit(1)
+        }
+      } else {
+        console.error(`ERROR : Registration : Unable to load auth key because it is not a valid HMAC key`)
         process.exit(1)
       }
-    } else {
-      console.error(`ERROR : Registration : Unable to load auth key because it is not a valid HMAC key`)
-      process.exit(1)
-    }
+    })
   }
 }
 
