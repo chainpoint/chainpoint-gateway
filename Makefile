@@ -59,7 +59,7 @@ ps:
 .PHONY : build
 build: tor-exit-nodes
 	docker build -t chainpoint-node .
-	docker tag chainpoint-node gcr.io/chainpoint-registry/chainpoint-node
+	docker tag chainpoint-node gcr.io/chainpoint-registry/github-chainpoint-chainpoint-ntpd
 	docker container prune -f
 	docker-compose build
 
@@ -69,11 +69,6 @@ build-config:
 	@[ ! -f ./.env ] && \
 	cp .env.sample .env && \
 	echo 'Copied config .env.sample to .env' || true
-
-## push            : Push Docker images to public google container registry
-.PHONY : push
-push:
-	gcloud docker -- push gcr.io/chainpoint-registry/chainpoint-node
 
 ## pull            : Pull Docker images
 .PHONY : pull
