@@ -131,7 +131,7 @@ async function authKeysUpdate () {
     // We have two different naming conventions when it comes to .key files. We have to parse the filenames different based on a different string delimination
     // 1) /keys/0xabc.key which refers to a key file that contains a valid hmac key. The filename must match env.NODE_TNT_ADDRESS
     // 2) /keys/backups/0xabc-<timestamp>.key which is a backup .key file and contains a timestamp to prevent filename collisions
-    let fileName = (currVal.split('-').length === 1) ? currVal.split('.')[0] : currVal.split('-')[0]
+    let fileName = currVal.split(/\.|-/)[0]
 
     return (/^.*\.(key)$/).test(currVal) && fileName === env.NODE_TNT_ADDRESS
   })
