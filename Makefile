@@ -113,21 +113,6 @@ redis:
 	@sleep 2
 	@docker exec -it redis-node-src redis-cli
 
-## auth-keys       : Export HMAC auth keys from PostgreSQL
-.PHONY : auth-keys
-auth-keys:
-	@docker-compose up -d postgres	
-	@sleep 6
-	@docker exec -it postgres-node-src psql -U chainpoint -c 'SELECT * FROM hmackeys;'
-
-## auth-key-delete : Delete HMAC auth key with `NODE_TNT_ADDRESS` var. Example `make auth-key-delete NODE_TNT_ADDRESS=0xmyethaddress`
-.PHONY : auth-key-delete
-auth-key-delete: guard-NODE_TNT_ADDRESS
-	@docker-compose up -d postgres
-	@sleep 6
-	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM hmackeys WHERE tnt_addr = LOWER('$(NODE_TNT_ADDRESS)')"
-	make restart
-
 ## calendar-delete : Delete all calendar data for this Node
 .PHONY : calendar-delete
 calendar-delete: 

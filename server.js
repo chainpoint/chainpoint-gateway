@@ -137,7 +137,7 @@ async function authKeysUpdate () {
   })
 
   if (keys.length) {
-    // Iterate through all key files found and write hmac key to postgres
+    // Iterate through all key files found and write hmac key to PostgreSQL
     keys.forEach(async (key) => {
       let isHMAC = (k) => {
         return /^[0-9a-fA-F]{64}$/i.test(k)
@@ -160,13 +160,13 @@ async function authKeysUpdate () {
                     }
                   })
 
-          console.log(`INFO : Registration : Auth key saved to postgres`)
+          console.log(`INFO : Registration : Auth key saved to PostgreSQL : ${keyFile}`)
         } catch (err) {
-          console.error(`ERROR : Registration : Error inserting/updating auth key in postgres`)
+          console.error(`ERROR : Registration : Error inserting/updating auth key in PostgreSQL : ${keyFile}`)
           process.exit(1)
         }
       } else {
-        console.error(`ERROR : Registration : Unable to load auth key because it is not a valid HMAC key`)
+        console.error(`ERROR : Registration : Invalid HMAC Auth Key : ${keyFile}`)
         process.exit(1)
       }
     })
