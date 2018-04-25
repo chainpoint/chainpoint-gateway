@@ -36,6 +36,7 @@ services:
     restart: on-failure
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
+      - ./keys:/home/node/app/keys
     build: .
     ports:
       - "9090:8080"

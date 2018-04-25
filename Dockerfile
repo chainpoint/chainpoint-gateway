@@ -44,6 +44,9 @@ COPY ./lib/models/*.js /home/node/app/lib/models/
 
 COPY ./tor-exit-nodes.txt /home/node/app/
 
+RUN mkdir -p /home/node/app/keys
+RUN mkdir -p /home/node/app/keys/backups
+
 EXPOSE 8080
 
 ENTRYPOINT ["su-exec", "node:node", "/sbin/tini", "--"]

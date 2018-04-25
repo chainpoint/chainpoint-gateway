@@ -17,6 +17,7 @@ const validator = require('validator')
 // load environment variables
 const env = require('./lib/parse-env.js')
 
+const fs = require('fs')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const publicKey = require('./lib/models/PublicKey.js')
@@ -122,6 +123,55 @@ async function openStorageConnectionAsync () {
       retryCount += 1
       await utils.sleepAsync(5000)
     }
+  }
+}
+
+// Registering HMAC KEY from .key file
+async function authKeysUpdate () {
+  // Read files in current directory and filter out any file that does NOT end with a .key extension
+  let keys = fs.readdirSync('./keys').filter((currVal) => {
+    // We have two different naming conventions when it comes to .key files. We have to parse the filenames different based on a different string delimination
+    // 1) /keys/0xabc.key which refers to a key file that contains a valid hmac key. The filename must match env.NODE_TNT_ADDRESS
+    // 2) /keys/backups/0xabc-<timestamp>.key which is a backup .key file and contains a timestamp to prevent filename collisions
+    let fileName = currVal.split(/\.|-/)[0]
+
+    return (/^.*\.(key)$/).test(currVal) && fileName === env.NODE_TNT_ADDRESS
+  })
+
+  if (keys.length) {
+    // Iterate through all key files found and write hmac key to PostgreSQL
+    keys.forEach(async (key) => {
+      let isHMAC = (k) => {
+        return /^[0-9a-fA-F]{64}$/i.test(k)
+      }
+      let keyFile = key
+      let keyFileContent = fs.readFileSync(`./keys/${keyFile}`, 'utf8')
+
+      if (isHMAC(keyFileContent)) {
+        // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with
+        // the new hmac key, if not, create a new record in the table.
+        try {
+          await HMACKey
+                  .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
+                  .spread((hmac, created) => {
+                    if (!created) {
+                      return hmac.update({
+                        hmacKey: keyFileContent,
+                        version: hmac.version + 1
+                      })
+                    }
+                  })
+
+          console.log(`INFO : Registration : Auth key saved to PostgreSQL : ${keyFile}`)
+        } catch (err) {
+          console.error(`ERROR : Registration : Error inserting/updating auth key in PostgreSQL : ${keyFile}`)
+          process.exit(1)
+        }
+      } else {
+        console.error(`ERROR : Registration : Invalid HMAC Auth Key : ${keyFile}`)
+        process.exit(1)
+      }
+    })
   }
 }
 
@@ -360,6 +410,8 @@ async function startAsync () {
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     await openStorageConnectionAsync()
+    // Register HMAC Key
+    await authKeysUpdate()
     let hmacKey = await registerNodeAsync(nodeUri)
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
