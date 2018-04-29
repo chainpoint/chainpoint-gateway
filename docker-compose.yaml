@@ -19,7 +19,7 @@ services:
       - chainpoint-node
 
   redis:
-    image: redis:4.0.2-alpine
+    image: redis:4.0.9-alpine
     container_name: redis-node-src
     restart: always
     volumes:
