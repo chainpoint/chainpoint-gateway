@@ -111,7 +111,7 @@ redis:
 ## backup-auth-keys              : Backup all auth keys to the keys/backups dir
 .PHONY : backup-auth-keys
 backup-auth-keys:
-	@curl -i -X POST http://127.0.0.1:9090/backup-auth-keys
+	@docker exec -it chainpointnodesrc_chainpoint-node_1 node auth-keys-backup-script.js
 
 ## calendar-delete : Delete all calendar data for this Node
 .PHONY : calendar-delete
