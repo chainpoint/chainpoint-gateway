@@ -35,7 +35,7 @@ async function openStorageConnectionAsync () {
  * @param {*} next
  */
 async function backupAuthKeys (req, res, next) {
-  console.log(`INFO : AuthKeys : Backing up Auth Key(s).`)
+  console.log(`INFO : BackupAuthKeys : Starting Auth key backups...`)
   try {
     let result = await HMACKey.findAll().then((keys) => {
       return keys.map((currVal) => {
@@ -43,14 +43,14 @@ async function backupAuthKeys (req, res, next) {
 
         fs.writeFileSync(`${path.resolve('./keys/backups')}/${key.tntAddr}-${Date.now()}.key`, key.hmacKey)
 
-        return `${key.tntAddr} hmac key has been backed up`
+        return `${key.tntAddr} Auth key has been backed up`
       })
     })
     res.send(200, result)
 
     return next()
   } catch (err) {
-    console.error(`ERROR : BackupAuthKeys : Unable to generate backups for Auth Keys.`)
+    console.error(`ERROR : BackupAuthKeys : Unable to complete Auth key backup(s)`)
     res.send(500, 'Unable to generate backups for Auth Keys.')
   }
 }
@@ -63,7 +63,7 @@ async function main () {
     const res = {
       send: (status, message) => {
         if (status === 200) {
-          console.log(`INFO : BackupAuthKeys : Successfully backed up the following Auth Key(s) - ${message.map(currVal => currVal.split(' ')[0]).join(', ')}`)
+          console.log(`INFO : BackupAuthKeys : Key backup(s) complete for TNT addresses - ${message.map(currVal => currVal.split(' ')[0]).join(', ')}`)
           process.exit(0)
         } else if (status === 500) {
           throw new Error()
@@ -73,7 +73,7 @@ async function main () {
 
     await backupAuthKeys(req, res, () => {})
   } catch (error) {
-    console.error(`ERROR : BackupAuthKeys : AuthKeysBackup Script was unable to generate backups for Auth Keys.`)
+    console.error(`ERROR : BackupAuthKeys : Unable to complete key backup(s)`)
     process.exit(1)
   }
 }
