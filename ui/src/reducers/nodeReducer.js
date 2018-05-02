@@ -1,5 +1,6 @@
 import deepAssign from 'deep-assign'
 import { AUTH_LOGIN_ERROR } from './appReducer'
+import { unset as _unset } from 'lodash'
 // ------------------------------------
 // Constants
 // ------------------------------------
@@ -67,7 +68,7 @@ export function getNodeStats (query = 'last_1_days') {
 
         return res.json()
       })
-      dispatch({ type: GET_NODE_STATS_SUCCESSFUL, payload: { data: transformStatsResult(result) } })
+      dispatch({ type: GET_NODE_STATS_SUCCESSFUL, payload: { data: transformStatsResult(result), nodeData: result.nodeData } })
 
       return result
     } catch (error) {
@@ -94,13 +95,12 @@ const ACTION_HANDLERS = {
         successful: false,
         error: false,
         errormsg: null
-      },
-      stats: {
-        ...state.stats
       }
     })
   },
   [GET_NODE_STATS_SUCCESSFUL]: (state, action) => {
+    _unset(action, 'payload.data.nodeData')
+
     return Object.assign({}, state, {
       status: {
         event: GET_NODE_STATS,

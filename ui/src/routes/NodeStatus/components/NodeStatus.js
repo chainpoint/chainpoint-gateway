@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import { isUndefined as _isUndefined, isNull as _isNull, isNumber as _isNumber, isEmpty as _isEmpty } from 'lodash'
+import { isEqual as _isEqual, isUndefined as _isUndefined, isNull as _isNull, isNumber as _isNumber, isEmpty as _isEmpty } from 'lodash'
 import classnames from 'classnames'
 import { Grid, Row, Col, FormGroup, ControlLabel, FormControl } from 'react-bootstrap'
 import semver from 'semver'
@@ -33,10 +33,13 @@ class NodeStatus extends Component {
         node_min_version: res.node_min_version
       })
     })
+    this.props.getNodeConfig()
+    this.props.getNodeStats('last_1_days')
+
     this.statsInterval = setInterval(() => {
       // Provide near real-time information
-      this.props.getNodeConfig()
-    }, 1000)
+      this.props.getNodeStats('last_1_days')
+    }, 60000)
   }
 
   _getRegistrationStatus () {
@@ -139,6 +142,14 @@ class NodeStatus extends Component {
         return ''
       }
     })()
+
+    if (this.props.node.status.event === 'GET_NODE_STATS' && this.props.node.status.fetching) {
+      return (
+        <div className='add-top center-align'>
+          <h2 className='add-top add-top-padding darkgray-text'>Loading...</h2>
+        </div>
+      )
+    }
 
     return (
       <section className='about-view-wrapper'>
