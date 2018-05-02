@@ -9,6 +9,7 @@ import semver from 'semver'
 class NodeStatus extends Component {
   constructor (props) {
     super(props)
+    this._getRegistrationStatus = this._getRegistrationStatus.bind(this)
     this._calculateAuditStatus = this._calculateAuditStatus.bind(this)
     this._calculateValidNPMVersion = this._calculateValidNPMVersion.bind(this)
     this._getNodeETHAddress = this._getNodeETHAddress.bind(this)
@@ -25,17 +26,35 @@ class NodeStatus extends Component {
   }
 
   componentDidMount () {
-    this.props.getNodeConfig()
+    this.statsInterval = setInterval(() => {
+      // Provide near real-time information
+      this.props.getNodeConfig()
+    }, 1000)
+  }
+
+  _getRegistrationStatus () {
+    return this.props.nodeConfig.node_registered
+  }
+
+  _getRegistrationStatusText (status, publicUri) {
+    if (status === false) return 'Unregistered'
+    else if (status === true && publicUri !== null) return 'Registered'
+    else if (status === true && publicUri === null) return 'Private'
+    else return 'Unregistered'
   }
 
   _calculateAuditStatus () {
+    if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return ''
+
     let passed = (this.props.nodeConfig.audits && this.props.nodeConfig.audits.length && this.props.nodeConfig.audits[0].audit_passed)
 
     return (passed) ? 'PASSED' : 'FAILED'
   }
 
   _calculateValidNPMVersion () {
-    let version = (this.props.nodeConfig.audits && this.props.nodeConfig.audits.length) ? this.props.nodeConfig.audits[0].node_version : null
+    if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return ''
+
+    let version = (this.props.nodeConfig.audits && this.props.nodeConfig.audits.length) ? this.props.nodeConfig.audits[0].node_version : ''
 
     try {
       let result = semver.gte(this.props.nodeConfig.version, version)
@@ -51,7 +70,7 @@ class NodeStatus extends Component {
   }
 
   _getNodePublicUri () {
-    if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return false
+    if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return ''
 
     if (_isNull(this.props.nodeConfig.audits[0].public_uri)) {
       return 'Private'
@@ -65,7 +84,7 @@ class NodeStatus extends Component {
       let val = (this.props.nodeConfig.audits[0].node_ms_delta) ? this.props.nodeConfig.audits[0].node_ms_delta : 0
       return [`${val}ms`, this.props.nodeConfig.audits[0].time_pass]
     } else {
-      return []
+      return ['', '']
     }
   }
 
@@ -96,6 +115,8 @@ class NodeStatus extends Component {
   }
 
   render () {
+    let registrationStatus = this._getRegistrationStatus()
+    let registrationStatusText = this._getRegistrationStatusText(registrationStatus, publicUri)
     let auditStatus = this._calculateAuditStatus()
     let npmVersion = this._calculateValidNPMVersion()
     let publicUri = this._getNodePublicUri()
@@ -104,6 +125,7 @@ class NodeStatus extends Component {
     let [totalAuditsPassed, totalAuditsFailed] = this._getTotalAuditsPassedAndFailed()
     let [consecutiveAuditsPassed, consecutiveAuditsFailed] = this._getConsecutiveAuditsPassedAndFailed()
     let totalNodes = this._getTotalNodes()
+    let nodeIsPrivate = (registrationStatus && publicUri === null)
     let dataFromCoreLastReceived = (() => { // eslint-disable-line
       if (this.props.nodeConfig && this.props.nodeConfig.dataFromCoreLastReceived) {
         return moment(parseInt(this.props.nodeConfig.dataFromCoreLastReceived, 10)).utc().format()
@@ -117,53 +139,53 @@ class NodeStatus extends Component {
         <Grid fluid>
           <Row className='add-top add-bottom'>
             <Col xs={10} xsOffset={1} className='add-top'>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: this.props.nodeConfig.node_registered === ''})} controlId='formBasicText'>
                 <ControlLabel>Registration Status</ControlLabel>
-                <FormControl type='text' value={this.props.nodeConfig.version} placeholder='Registration Status' disabled />
+                <FormControl className={classnames({'green-text-important': registrationStatus, 'red-text-important': !registrationStatus})} type='text' value={registrationStatusText} placeholder='Registration Status' disabled />
               </FormGroup>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: nodeIsPrivate || auditStatus === ''})} controlId='formBasicText'>
                 <ControlLabel>Audit Status</ControlLabel>
                 <FormControl className={classnames({ 'green-text-important': auditStatus === 'PASSED', 'red-text-important': auditStatus === 'FAILED' })} type='text' value={(auditStatus === 'PASSED') ? 'Passed Last Audit' : 'Failed Last Audit'} placeholder='Audit Status' disabled />
               </FormGroup>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: npmVersion === ''})} controlId='formBasicText'>
                 <ControlLabel>Node Version</ControlLabel>
                 <FormControl className={classnames({'green-text-important': npmVersion, 'red-text-important': !npmVersion})} type='text' value={(npmVersion) ? this.props.nodeConfig.version : `${this.props.nodeConfig.version} - upgrade available`} placeholder='Node Version' disabled />
               </FormGroup>
-              {(publicUri !== false) && (<FormGroup controlId='formBasicText'>
+              {(publicUri !== '' && !nodeIsPrivate) && (<FormGroup controlId='formBasicText'>
                 <ControlLabel>Node Public URI</ControlLabel>
                 <FormControl type='text' value={publicUri} placeholder='Node Public URI' disabled />
               </FormGroup>)}
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: tnt_addr === ''})} controlId='formBasicText'>
                 <ControlLabel>Node TNT Address</ControlLabel>
                 <FormControl type='text' value={tnt_addr} placeholder='Node TNT Address' disabled />
               </FormGroup>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: nodeIsPrivate || ntpDeltaVal === ''})} controlId='formBasicText'>
                 <ControlLabel>NTP Time Delta</ControlLabel>
                 <FormControl className={classnames({'green-text-important': ntpDeltaBool, 'red-text-important': !ntpDeltaBool})} type='text' value={ntpDeltaVal} placeholder='NTP Time Delta' disabled />
               </FormGroup>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: nodeIsPrivate || totalAuditsPassed === ''})} controlId='formBasicText'>
                 <ControlLabel>Total Audits Passed</ControlLabel>
                 <FormControl type='text' value={totalAuditsPassed} placeholder='Total Audits Passed' disabled />
               </FormGroup>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: nodeIsPrivate || totalAuditsFailed === ''})} controlId='formBasicText'>
                 <ControlLabel>Total Audits Failed</ControlLabel>
                 <FormControl type='text' value={totalAuditsFailed} placeholder='Total Audits Failed' disabled />
               </FormGroup>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: nodeIsPrivate || consecutiveAuditsPassed === ''})} controlId='formBasicText'>
                 <ControlLabel>Consecutive Audits Passed</ControlLabel>
                 <FormControl type='text' value={consecutiveAuditsPassed} placeholder='Consecutive Audits Passed' disabled />
               </FormGroup>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: nodeIsPrivate || consecutiveAuditsFailed === ''})} controlId='formBasicText'>
                 <ControlLabel>Consecutive Audits Failed</ControlLabel>
                 <FormControl type='text' value={consecutiveAuditsFailed} placeholder='Consecutive Audits Failed' disabled />
               </FormGroup>
-              <FormGroup controlId='formBasicText'>
+              <FormGroup className={classnames({hide: nodeIsPrivate || totalNodes === ''})} controlId='formBasicText'>
                 <ControlLabel>Total Nodes</ControlLabel>
                 <FormControl type='text' value={totalNodes} placeholder='Total Nodes' disabled />
               </FormGroup>
             </Col>
             <Col className='center-align add-top add-bottom' xs={12}>
-              <span className='add-top add-bottom darkgray-text'>Last Updated: {dataFromCoreLastReceived}</span>
+              {(dataFromCoreLastReceived) && (<span className='add-top add-bottom darkgray-text'>Last Updated: {dataFromCoreLastReceived}</span>)}
             </Col>
           </Row>
         </Grid>

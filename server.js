@@ -252,6 +252,7 @@ async function registerNodeAsync (nodeURI) {
         }
 
         isRegistered = true
+        apiServer.setRegistration(true)
 
         if (nodeURI) {
           console.log(`INFO : Registration : Public URI : ${nodeURI}`)
@@ -292,6 +293,7 @@ async function registerNodeAsync (nodeURI) {
         try {
           let response = await coreHosts.coreRequestAsync(postOptions)
           isRegistered = true
+          apiServer.setRegistration(true)
 
           try {
             // write new hmac entry
