@@ -39,7 +39,7 @@ class NodeStatus extends Component {
     this.statsInterval = setInterval(() => {
       // Provide near real-time information
       this.props.getNodeStats('last_1_days')
-    }, 60000)
+    }, 1000)
   }
 
   _getRegistrationStatus () {
@@ -142,14 +142,6 @@ class NodeStatus extends Component {
         return ''
       }
     })()
-
-    if (this.props.node.status.event === 'GET_NODE_STATS' && this.props.node.status.fetching) {
-      return (
-        <div className='add-top center-align'>
-          <h2 className='add-top add-top-padding darkgray-text'>Loading...</h2>
-        </div>
-      )
-    }
 
     return (
       <section className='about-view-wrapper'>

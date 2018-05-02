@@ -1,5 +1,6 @@
 .about-view-wrapper label.control-label {
   color: #90a4ae;
+  -webkit-text-fill-color: #90a4ae;
   font-weight: 500;
 }
 
@@ -8,4 +9,5 @@
   padding: 10px;
   height: 55px;
   color: #90a4ae;
+  -webkit-text-fill-color: #90a4ae;
 }

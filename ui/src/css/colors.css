@@ -28,10 +28,12 @@
 
 .green-text {
   color: #388E3C;
+  -webkit-text-fill-color: #388E3C;
 }
 
 .green-text-important {
   color: #388E3C !important;
+  -webkit-text-fill-color: #388E3C !important;
 }
 
 .mustard {
@@ -136,10 +138,13 @@
 
 .red-text {
   color: #a94442;
+  -webkit-text-fill-color: #a94442;
+  
 }
 
 .red-text-important {
   color: #a94442 !important;
+  -webkit-text-fill-color: #a94442 !important;
 }
 
 .white-text {
