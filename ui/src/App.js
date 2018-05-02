@@ -13,6 +13,7 @@ import './css/colors.css'
 import './css/utils.css'
 import './css/tiles.css'
 import './css/sidemenu.css'
+import './css/about.css'
 import 'react-table/react-table.css'
 
 const syncedHistory = syncHistoryWithStore(history, store)

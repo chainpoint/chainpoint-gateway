@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import { isUndefined as _isUndefined, isNull as _isNull, isNumber as _isNumber } from 'lodash'
+import { isUndefined as _isUndefined, isNull as _isNull, isNumber as _isNumber, isEmpty as _isEmpty } from 'lodash'
 import classnames from 'classnames'
 import { Grid, Row, Col, FormGroup, ControlLabel, FormControl } from 'react-bootstrap'
 import semver from 'semver'
@@ -17,6 +17,8 @@ class NodeStatus extends Component {
     this._getTotalAuditsPassedAndFailed = this._getTotalAuditsPassedAndFailed.bind(this)
     this._getConsecutiveAuditsPassedAndFailed = this._getConsecutiveAuditsPassedAndFailed.bind(this)
     this._getTotalNodes = this._getTotalNodes.bind(this)
+
+    this.state = { node_min_version: null }
   }
 
   componentWillMount () {
@@ -26,6 +28,11 @@ class NodeStatus extends Component {
   }
 
   componentDidMount () {
+    fetch('https://a.chainpoint.org/config').then(res => res.json()).then((res) => { // eslint-disable-line
+      this.setState({
+        node_min_version: res.node_min_version
+      })
+    })
     this.statsInterval = setInterval(() => {
       // Provide near real-time information
       this.props.getNodeConfig()
@@ -38,8 +45,8 @@ class NodeStatus extends Component {
 
   _getRegistrationStatusText (status, publicUri) {
     if (status === false) return 'Unregistered'
+    else if (status === true && (_isEmpty(publicUri) || publicUri === 'http://0.0.0.0')) return 'Private'
     else if (status === true && publicUri !== null) return 'Registered'
-    else if (status === true && publicUri === null) return 'Private'
     else return 'Unregistered'
   }
 
@@ -52,12 +59,10 @@ class NodeStatus extends Component {
   }
 
   _calculateValidNPMVersion () {
-    if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return ''
-
-    let version = (this.props.nodeConfig.audits && this.props.nodeConfig.audits.length) ? this.props.nodeConfig.audits[0].node_version : ''
+    if (!(this.props.nodeConfig.version && this.state.node_min_version)) return ''
 
     try {
-      let result = semver.gte(this.props.nodeConfig.version, version)
+      let result = semver.gte(this.props.nodeConfig.version, this.state.node_min_version)
 
       return result
     } catch (_) {
@@ -66,11 +71,12 @@ class NodeStatus extends Component {
   }
 
   _getNodeETHAddress () {
-    return (this.props.nodeConfig && this.props.nodeConfig.node && this.props.nodeConfig.node.tnt_addr) ? this.props.nodeConfig.node.tnt_addr : ''
+    return (this.props.nodeConfig && this.props.nodeConfig.node_tnt_addr) ? this.props.nodeConfig.node_tnt_addr : ''
   }
 
   _getNodePublicUri () {
-    if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return ''
+    if (_isEmpty(this.props.nodeConfig.node_public_uri)) return 'Private'
+    else if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return ''
 
     if (_isNull(this.props.nodeConfig.audits[0].public_uri)) {
       return 'Private'
@@ -116,7 +122,6 @@ class NodeStatus extends Component {
 
   render () {
     let registrationStatus = this._getRegistrationStatus()
-    let registrationStatusText = this._getRegistrationStatusText(registrationStatus, publicUri)
     let auditStatus = this._calculateAuditStatus()
     let npmVersion = this._calculateValidNPMVersion()
     let publicUri = this._getNodePublicUri()
@@ -125,7 +130,8 @@ class NodeStatus extends Component {
     let [totalAuditsPassed, totalAuditsFailed] = this._getTotalAuditsPassedAndFailed()
     let [consecutiveAuditsPassed, consecutiveAuditsFailed] = this._getConsecutiveAuditsPassedAndFailed()
     let totalNodes = this._getTotalNodes()
-    let nodeIsPrivate = (registrationStatus && publicUri === null)
+    let registrationStatusText = this._getRegistrationStatusText(registrationStatus, this.props.nodeConfig.node_public_uri)
+    let nodeIsPrivate = (registrationStatus && (_isEmpty(this.props.nodeConfig.node_public_uri) || this.props.nodeConfig.node_public_uri === 'http://0.0.0.0'))
     let dataFromCoreLastReceived = (() => { // eslint-disable-line
       if (this.props.nodeConfig && this.props.nodeConfig.dataFromCoreLastReceived) {
         return moment(parseInt(this.props.nodeConfig.dataFromCoreLastReceived, 10)).utc().format()
@@ -135,7 +141,7 @@ class NodeStatus extends Component {
     })()
 
     return (
-      <section>
+      <section className='about-view-wrapper'>
         <Grid fluid>
           <Row className='add-top add-bottom'>
             <Col xs={10} xsOffset={1} className='add-top'>

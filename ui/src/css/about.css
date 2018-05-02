@@ -1,0 +1,11 @@
+.about-view-wrapper label.control-label {
+  color: #90a4ae;
+  font-weight: 500;
+}
+
+.about-view-wrapper input[type=text] {
+  background: white;
+  padding: 10px;
+  height: 55px;
+  color: #90a4ae;
+}
