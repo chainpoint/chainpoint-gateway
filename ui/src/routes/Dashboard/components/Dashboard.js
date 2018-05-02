@@ -90,7 +90,7 @@ class Dashboard extends Component {
       // Provide near real-time information
       this.props.getNodeConfig()
       this.props.getNodeStats('last_1_days')
-    }, 5000)
+    }, 1000)
   }
 
   _mapHashesReceivedToday (hashes = []) {

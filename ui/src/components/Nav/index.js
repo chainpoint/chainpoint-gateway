@@ -36,10 +36,10 @@ class TopNav extends Component {
           <Grid fluid>
             <Row>
               <Col xs={12}>
-                <Col xs={3}>
-                  <img className='nav-logo add-top-padding' src={`${process.env.PUBLIC_URL}/images/chainpoint_logo@2x.png`} alt='Chainpoint' />&nbsp;&nbsp;&nbsp;&nbsp;<span style={{color: '#757575', position: 'relative', top: '22px'}}>PREVIEW RELEASE</span>
-                </Col>
                 <Col xs={9}>
+                  <img className='nav-logo add-top-padding' src={`${process.env.PUBLIC_URL}/images/chainpoint_logo@2x.png`} alt='Chainpoint' />&nbsp;&nbsp;&nbsp;&nbsp;<span style={{color: '#757575', position: 'relative', top: '22px'}}>PREVIEW&nbsp;RELEASE</span>
+                </Col>
+                <Col xs={3}>
                   <div className='pull-right' style={{'paddingTop': '40px'}}>
                     {/* <span className='pull-left add-right add-top-padding-less'><FontAwesome name='circle' className='greentea-text' /></span> */}
                     <img onClick={this._handleOpenMenu} className='pull-right cursor' width='30' height='20' src={`${process.env.PUBLIC_URL}/images/menu-icon@2x.png`} alt='Menu' />

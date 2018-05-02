@@ -1,6 +1,7 @@
-import { toLower as _toLower, startsWith as _startsWith } from 'lodash'
+import { toLower as _toLower, startsWith as _startsWith, get as _get } from 'lodash'
+import deepAssign from 'deep-assign'
 
-import { GET_NODE_CONFIG_SUCCESSFUL, GET_NODE_CONFIG_ERROR } from './nodeReducer'
+import { GET_NODE_CONFIG_SUCCESSFUL, GET_NODE_CONFIG_ERROR, GET_NODE_STATS_SUCCESSFUL } from './nodeReducer'
 
 export const AUTH_LOGIN = 'AUTH_LOGIN'
 export const AUTH_LOGIN_SUCCESSFUL = 'AUTH_LOGIN_SUCCESSFUL'
@@ -52,7 +53,7 @@ export function signOut () {
 // ------------------------------------
 const ACTION_HANDLERS = {
   [GET_NODE_CONFIG_SUCCESSFUL]: (state, action) => {
-    return Object.assign({}, state, {
+    return deepAssign({}, state, {
       status: {
         event: GET_NODE_CONFIG_SUCCESSFUL,
         fetching: false,
@@ -62,6 +63,13 @@ const ACTION_HANDLERS = {
         errormsg: null
       },
       node: action.payload
+    })
+  },
+  [GET_NODE_STATS_SUCCESSFUL]: (state, action) => {
+    let result = _get(action, 'payload.nodeData', {})
+
+    return deepAssign({}, state, {
+      node: result
     })
   },
   [GET_NODE_CONFIG_ERROR]: (state, action) => {
