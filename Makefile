@@ -59,7 +59,7 @@ ps:
 .PHONY : build
 build: tor-exit-nodes
 	docker build -t chainpoint-node .
-	docker tag chainpoint-node gcr.io/chainpoint-registry/chainpoint-node
+	docker tag chainpoint-node gcr.io/chainpoint-registry/github-chainpoint-chainpoint-ntpd
 	docker container prune -f
 	docker-compose build
 
@@ -69,11 +69,6 @@ build-config:
 	@[ ! -f ./.env ] && \
 	cp .env.sample .env && \
 	echo 'Copied config .env.sample to .env' || true
-
-## push            : Push Docker images to public google container registry
-.PHONY : push
-push:
-	gcloud docker -- push gcr.io/chainpoint-registry/chainpoint-node
 
 ## pull            : Pull Docker images
 .PHONY : pull
@@ -113,28 +108,10 @@ redis:
 	@sleep 2
 	@docker exec -it redis-node-src redis-cli
 
-## auth-keys       : Export HMAC auth keys from PostgreSQL
-.PHONY : auth-keys
-auth-keys:
-	@docker-compose up -d postgres	
-	@sleep 6
-	@docker exec -it postgres-node-src psql -U chainpoint -c 'SELECT * FROM hmackeys;'
-
-## auth-key-update : Update HMAC auth key with `KEY` (hex string) var. Example `make auth-key-update KEY=mysecrethexkey`
-.PHONY : auth-key-update
-auth-key-update: guard-KEY
-	@docker-compose up -d postgres
-	@sleep 6
-	@source .env && docker exec -it postgres-node-src psql -U chainpoint -c "INSERT INTO hmackeys (tnt_addr, hmac_key, version, created_at, updated_at) VALUES (LOWER('$$NODE_TNT_ADDRESS'), LOWER('$(KEY)'), 1, clock_timestamp(), clock_timestamp()) ON CONFLICT (tnt_addr) DO UPDATE SET hmac_key = LOWER('$(KEY)'), version = 1, updated_at = clock_timestamp()"
-	make restart
-
-## auth-key-delete : Delete HMAC auth key with `NODE_TNT_ADDRESS` var. Example `make auth-key-delete NODE_TNT_ADDRESS=0xmyethaddress`
-.PHONY : auth-key-delete
-auth-key-delete: guard-NODE_TNT_ADDRESS
-	@docker-compose up -d postgres
-	@sleep 6
-	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM hmackeys WHERE tnt_addr = LOWER('$(NODE_TNT_ADDRESS)')"
-	make restart
+## backup-auth-keys              : Backup all auth keys to the keys/backups dir
+.PHONY : backup-auth-keys
+backup-auth-keys:
+	@docker exec -it chainpointnodesrc_chainpoint-node_1 node auth-keys-backup-script.js
 
 ## calendar-delete : Delete all calendar data for this Node
 .PHONY : calendar-delete
