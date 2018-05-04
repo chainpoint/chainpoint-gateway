@@ -136,7 +136,7 @@ async function authKeysUpdate () {
     // 2) /keys/backups/0xabc-<timestamp>.key which is a backup .key file and contains a timestamp to prevent filename collisions
     let fileName = currVal.split(/\.|-/)[0]
 
-    return (/^.*\.(key)$/).test(currVal) && _.toLower(fileName) === _.toLower(env.NODE_TNT_ADDRESS)
+    return (/^.*\.(key)$/).test(currVal) && _.toLower(fileName) === env.NODE_TNT_ADDRESS
   })
 
   if (keys.length) {
@@ -153,7 +153,7 @@ async function authKeysUpdate () {
         // the new hmac key, if not, create a new record in the table.
         try {
           await HMACKey
-                  .findOrCreate({where: {tntAddr: _.toLower(env.NODE_TNT_ADDRESS)}, defaults: { tntAddr: _.toLower(env.NODE_TNT_ADDRESS), hmacKey: keyFileContent, version: 1 }})
+                  .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
                   .spread((hmac, created) => {
                     if (!created) {
                       return hmac.update({
