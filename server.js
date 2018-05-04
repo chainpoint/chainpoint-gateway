@@ -415,10 +415,12 @@ async function nodeHeartbeat (nodeUri) {
       resolveWithFullResponse: true
     })
 
-    if (response.statusCode === 200) return Promise.resolve()
-    else throw new Error()
+    if (response.statusCode === 200) {
+      console.log(`INFO : Node URI Health Check OK for URI : ${nodeUri}`)
+      return Promise.resolve()
+    } else { throw new Error() }
   } catch (error) {
-    return Promise.reject(new Error(`Node URI provided (${nodeUri}) has failed health check GET /config.`))
+    return Promise.reject(new Error(`Node URI Health Check Failed for URI : ${nodeUri}`))
   }
 }
 
