@@ -18,6 +18,7 @@ const validator = require('validator')
 const env = require('./lib/parse-env.js')
 
 const fs = require('fs')
+const { exec } = require('child_process')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
 const publicKey = require('./lib/models/PublicKey.js')
@@ -316,6 +317,15 @@ async function registerNodeAsync (nodeURI) {
           console.log(`INFO : ***********************************`)
           console.log(`INFO : Registration : New Registration OK!`)
           console.log(`INFO : ***********************************`)
+
+          // New Registration Succeeded. Perform Automatic Auth Key Backup for newly saved hmac key
+          try {
+            exec('node auth-keys-backup-script.js', (err, stdout, stderr) => {
+              if (err) console.error(`ERROR : BackupAuthKeys : Unable to complete key backup(s)`)
+            })
+          } catch (error) {
+            console.log(`ERROR : Registration : AuthKeyBackup : ${error}`)
+          }
 
           return response.hmac_key
         } catch (error) {
