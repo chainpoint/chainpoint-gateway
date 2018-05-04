@@ -31,6 +31,7 @@ const moment = require('moment')
 const ip = require('ip')
 const bluebird = require('bluebird')
 const url = require('url')
+const rp = require('request-promise-native')
 const { version } = require('./package.json')
 
 const r = require('redis')
@@ -404,6 +405,23 @@ function startIntervals (coreConfig) {
   calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
 }
 
+async function nodeHeartbeat (nodeUri) {
+  try {
+    let response = await rp({
+      method: 'GET',
+      uri: `${nodeUri}/config`,
+      json: true,
+      gzip: true,
+      resolveWithFullResponse: true
+    })
+
+    if (response.statusCode === 200) return Promise.resolve()
+    else throw new Error()
+  } catch (error) {
+    return Promise.reject(new Error(`Node URI provided (${nodeUri}) has failed health check GET /config.`))
+  }
+}
+
 // process all steps need to start the application
 async function startAsync () {
   try {
@@ -424,10 +442,15 @@ async function startAsync () {
     apiServer.startAggInterval()
     apiServer.setPublicKeySet(pubKeys)
     await calendar.initNodeTopBlockAsync()
+
+    // Perform Heartbeat check on /config to make sure node is operational and is capable of passing audits
+    nodeUri && (await nodeHeartbeat(nodeUri))
+
     console.log('INFO : Calendar : Starting Sync...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
     console.log('INFO : Calendar : Sync completed!')
+
     scheduleRestifyRestart()
   } catch (err) {
     console.error(`ERROR : App : Startup : ${err}`)
