@@ -7,6 +7,7 @@ import TopNav from './components/Nav'
 import Dashboard from './routes/Dashboard'
 import NodeStatus from './routes/NodeStatus'
 import Login from './routes/Login'
+import 'url-polyfill'
 
 import './css/index.css'
 import './css/colors.css'

@@ -416,7 +416,7 @@ async function nodeHeartbeat (nodeUri) {
     })
 
     if (response.statusCode === 200) {
-      console.log(`INFO : Node URI Health Check OK for URI : ${nodeUri}`)
+      console.log(`INFO : App : Node URI Health Check OK for URI : ${nodeUri}`)
       return Promise.resolve()
     } else { throw new Error() }
   } catch (error) {
