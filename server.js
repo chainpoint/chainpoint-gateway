@@ -104,6 +104,8 @@ async function validateUriAsync (nodeUri) {
 
   if (isValidURI && uriHasValidIPHost && !ip.isPrivate(parsedURIHost)) {
     return nodeUri
+  } else if (isValidURI && uriHasValidIPHost && ip.isPrivate(parsedURIHost)) {
+    throw new Error(`RFC1918 Private IP Addresses like "${parsedURIHost}" cannot be specified as CHAINPOINT_NODE_PUBLIC_URI`)
   } else {
     return null
   }
