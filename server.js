@@ -149,7 +149,7 @@ async function authKeysUpdate () {
       }
       let keyFile = key
       let keyFileContent = fs.readFileSync(`./keys/${keyFile}`, 'utf8')
-      keyFileContent = keyFileContent.split(os.EOL)[0]
+      keyFileContent = _.head(keyFileContent.split(os.EOL).map(_.trim).filter(isHMAC))
 
       if (isHMAC(keyFileContent)) {
         // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with
