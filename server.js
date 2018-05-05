@@ -18,6 +18,7 @@ const validator = require('validator')
 const env = require('./lib/parse-env.js')
 
 const fs = require('fs')
+const os = require('os')
 const { exec } = require('child_process')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
@@ -148,6 +149,7 @@ async function authKeysUpdate () {
       }
       let keyFile = key
       let keyFileContent = fs.readFileSync(`./keys/${keyFile}`, 'utf8')
+      keyFileContent = keyFileContent.split(os.EOL)[0]
 
       if (isHMAC(keyFileContent)) {
         // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with
@@ -167,11 +169,11 @@ async function authKeysUpdate () {
           console.log(`INFO : Registration : Auth key saved to PostgreSQL : ${keyFile}`)
         } catch (err) {
           console.error(`ERROR : Registration : Error inserting/updating auth key in PostgreSQL : ${keyFile}`)
-          process.exit(1)
+          process.exit(0)
         }
       } else {
         console.error(`ERROR : Registration : Invalid HMAC Auth Key : ${keyFile}`)
-        process.exit(1)
+        process.exit(0)
       }
     })
   }
@@ -423,7 +425,8 @@ async function nodeHeartbeat (nodeUri) {
       uri: `${nodeUri}/config`,
       json: true,
       gzip: true,
-      resolveWithFullResponse: true
+      resolveWithFullResponse: true,
+      timeout: 5000
     })
 
     if (response.statusCode === 200) {
@@ -457,7 +460,9 @@ async function startAsync () {
     await calendar.initNodeTopBlockAsync()
 
     // Perform Heartbeat check on /config to make sure node is operational and is capable of passing audits
-    nodeUri && (await nodeHeartbeat(nodeUri))
+    if (nodeUri) {
+      await nodeHeartbeat(nodeUri)
+    }
 
     console.log('INFO : Calendar : Starting Sync...')
     await syncNodeCalendarAsync(coreConfig, pubKeys)
