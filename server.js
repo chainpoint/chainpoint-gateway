@@ -177,7 +177,7 @@ async function authKeysUpdate () {
         console.error(`ERROR : Registration : Invalid HMAC Auth Key : ${keyFile}`)
         process.exit(0)
       }
-    })
+    }
   }
 }
 
