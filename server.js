@@ -145,7 +145,7 @@ async function authKeysUpdate () {
 
   if (keys.length) {
     // Iterate through all key files found and write hmac key to PostgreSQL
-    keys.forEach(async (key) => {
+    for (let key of keys) {
       let isHMAC = (k) => {
         return /^[0-9a-fA-F]{64}$/i.test(k)
       }
