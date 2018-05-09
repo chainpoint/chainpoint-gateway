@@ -195,8 +195,9 @@ async function registerNodeAsync (nodeURI) {
         hmacEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
       } catch (error) {
         console.error(`ERROR : Registration : Unable to load auth key`)
-        // Exit 1 : this is a recoverable error that might be resolved on container restart.
-        process.exit(1)
+        // We are no longer exiting this process. Simply set registration state to 'false' which
+        // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
+        apiServer.setRegistration(false)
       }
 
       if (hmacEntry) {
@@ -240,10 +241,9 @@ async function registerNodeAsync (nodeURI) {
               console.error(`ERROR : Registration update failed : Exiting`)
             }
 
-            // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
-            // so Docker Compose `on-failure` policy won't force a restart since this
-            // situation will not resolve itself.
-            process.exit(0)
+            // We are no longer exiting this process. Simply set registration state to 'false' which
+            // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
+            apiServer.setRegistration(false)
           }
 
           if (error.statusCode) {
@@ -313,8 +313,9 @@ async function registerNodeAsync (nodeURI) {
             }
           } catch (error) {
             console.error(`ERROR : Registration : HMAC Auth key write and confirm failed.`)
-            // Exit 1 : this is a recoverable error that might be resolved on container restart.
-            process.exit(1)
+            // We are no longer exiting this process. Simply set registration state to 'false' which
+            // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
+            apiServer.setRegistration(false)
           }
           console.log(`INFO : Registration : HMAC Auth key saved!`)
 
@@ -343,10 +344,9 @@ async function registerNodeAsync (nodeURI) {
               console.error(`ERROR : Registration`)
             }
 
-            // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
-            // so Docker Compose `on-failure` policy won't force a restart since this
-            // situation will not resolve itself.
-            process.exit(0)
+            // We are no longer exiting this process. Simply set registration state to 'false' which
+            // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
+            apiServer.setRegistration(false)
           }
 
           if (error.statusCode) {
@@ -380,7 +380,7 @@ async function registerNodeAsync (nodeURI) {
         console.error(`ERROR : ********************************************`)
         console.error(`ERROR : Registration : Failed : Max Retries Reached!`)
         console.error(`ERROR : ********************************************`)
-        process.exit(0)
+        apiServer.setRegistration(false)
       }
 
       await utils.sleepAsync(retryWaitTimeMs)
