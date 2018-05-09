@@ -381,6 +381,8 @@ async function registerNodeAsync (nodeURI) {
         console.error(`ERROR : Registration : Failed : Max Retries Reached!`)
         console.error(`ERROR : ********************************************`)
         apiServer.setRegistration(false)
+
+        return
       }
 
       await utils.sleepAsync(retryWaitTimeMs)
