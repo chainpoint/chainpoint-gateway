@@ -30,7 +30,7 @@ WORKDIR /home/node/app
 
 ENV NODE_ENV production
 
-COPY package.json yarn.lock auth-keys-backup-script.js server.js /home/node/app/
+COPY package.json yarn.lock auth-keys-backup.js auth-keys-print.js server.js /home/node/app/
 RUN yarn
 
 RUN mkdir -p /home/node/app/lib
