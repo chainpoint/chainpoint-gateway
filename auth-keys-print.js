@@ -2,7 +2,6 @@
 
 const fs = require('fs')
 const path = require('path')
-const os = require('os')
 
 function main() {
   const path = "./keys/backups/";
@@ -11,7 +10,6 @@ function main() {
   console.log('***************************************')
   console.log('Chainpoint Node Auth Keys (HMAC) Backup')
   console.log('Created:', backupDate.toISOString())
-  console.log('Hostname:', os.hostname())
   console.log('***************************************\n')
 
   fs.readdir(path, function (err, items) {
