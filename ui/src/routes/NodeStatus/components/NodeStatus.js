@@ -89,8 +89,8 @@ class NodeStatus extends Component {
   }
 
   _calculateNTPDelta () {
-    if (this.props.nodeConfig.audits && this.props.nodeConfig.audits.length) {
-      let val = (this.props.nodeConfig.audits[0].node_ms_delta) ? this.props.nodeConfig.audits[0].node_ms_delta : 0
+    if (this.props.nodeConfig.audits && this.props.nodeConfig.audits.length && _isNumber(this.props.nodeConfig.audits[0].node_ms_delta)) {
+      let val = this.props.nodeConfig.audits[0].node_ms_delta
       return [`${val}ms`, this.props.nodeConfig.audits[0].time_pass]
     } else {
       return ['', '']
@@ -170,7 +170,7 @@ class NodeStatus extends Component {
               </FormGroup>
               <FormGroup className={classnames({hide: nodeIsPrivate || ntpDeltaVal === ''})} controlId='formBasicText'>
                 <ControlLabel>NTP Time Delta</ControlLabel>
-                <FormControl className={classnames({'green-text-important': ntpDeltaBool, 'red-text-important': !ntpDeltaBool})} type='text' value={ntpDeltaVal} placeholder='NTP Time Delta' disabled />
+                <FormControl className={classnames({'green-text-important': ntpDeltaBool, 'red-text-important': (!ntpDeltaBool || (ntpDeltaVal.split('ms')[0] > 5000 || ntpDeltaVal.split('ms')[0] < -5000))})} type='text' value={ntpDeltaVal} placeholder='NTP Time Delta' disabled />
               </FormGroup>
               <FormGroup className={classnames({hide: nodeIsPrivate || totalAuditsPassed === ''})} controlId='formBasicText'>
                 <ControlLabel>Total Audits Passed</ControlLabel>
