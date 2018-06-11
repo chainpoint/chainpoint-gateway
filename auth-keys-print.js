@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
 const fs = require('fs')
-const path = require('path')
 
-function main() {
-  const path = "./keys/backups/";
+function main () {
+  const path = './keys/backups/'
   let backupDate = new Date()
 
   console.log('***************************************')
@@ -13,13 +12,16 @@ function main() {
   console.log('***************************************\n')
 
   fs.readdir(path, function (err, items) {
-    let sortedItems = items.sort
+    if (err) {
+      console.error(`Could not read from ${path} : ${err}`)
+      return
+    }
 
     for (var i = 0; i < items.length; i++) {
-      var match = new RegExp(/\.(key)/g);
+      var match = new RegExp(/\.(key)/g)
       if (match.test(items[i])) {
         console.log(items[i])
-        var buffer = new Buffer(fs.readFileSync(path + items[i], 'utf8'))
+        var buffer = Buffer.from(fs.readFileSync(path + items[i], 'utf8'))
         console.log(buffer.toString() + '\n')
       }
     }
