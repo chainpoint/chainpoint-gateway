@@ -459,7 +459,7 @@ async function startAsync () {
 
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
-    apiServer.startAggInterval()
+    apiServer.startAggInterval(coreConfig.node_aggregation_period)
     apiServer.setPublicKeySet(pubKeys)
     await calendar.initNodeTopBlockAsync()
 
