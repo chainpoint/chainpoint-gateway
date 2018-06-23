@@ -126,8 +126,8 @@ chainpoint-binary@^4.0.0, chainpoint-binary@^4.0.1:
     pako "^1.0.5"
 
 chainpoint-parse@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-3.0.1.tgz#bd8aac62c6ecf859563a67080a9cdbd368c00ed1"
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-3.1.1.tgz#813fd865ea221a6bf2ef482500af0e170be12481"
   dependencies:
     chainpoint-binary "^4.0.0"
     chainpoint-proof-json-schema "^1.0.0"
@@ -431,8 +431,8 @@ http-signature@~1.2.0:
     sshpk "^1.7.0"
 
 ieee754@^1.1.8:
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.8.tgz#be33d40ac10ef1926701f6f08a2d86fbfd1ad3e4"
+  version "1.1.12"
+  resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.12.tgz#50bf24e5b9c8bb98af4964c941cdb0918da7b60b"
 
 inflection@1.12.0:
   version "1.12.0"
@@ -450,8 +450,8 @@ inherits@2, inherits@^2.0.1, inherits@~2.0.3:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.3.tgz#633c2c83e3da42a502f52466022480f4208261de"
 
 int64-buffer@^0.1.9:
-  version "0.1.9"
-  resolved "https://registry.yarnpkg.com/int64-buffer/-/int64-buffer-0.1.9.tgz#9e039da043b24f78b196b283e04653ef5e990f61"
+  version "0.1.10"
+  resolved "https://registry.yarnpkg.com/int64-buffer/-/int64-buffer-0.1.10.tgz#277b228a87d95ad777d07c13832022406a473423"
 
 ip@^1.0.2, ip@^1.1.5:
   version "1.1.5"
@@ -461,12 +461,17 @@ is-bluebird@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/is-bluebird/-/is-bluebird-1.0.2.tgz#096439060f4aa411abee19143a84d6a55346d6e2"
 
+is-my-ip-valid@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/is-my-ip-valid/-/is-my-ip-valid-1.0.0.tgz#7b351b8e8edd4d3995d4d066680e664d94696824"
+
 is-my-json-valid@^2.16.0:
-  version "2.16.1"
-  resolved "https://registry.yarnpkg.com/is-my-json-valid/-/is-my-json-valid-2.16.1.tgz#5a846777e2c2620d1e69104e5d3a03b1f6088f11"
+  version "2.17.2"
+  resolved "https://registry.yarnpkg.com/is-my-json-valid/-/is-my-json-valid-2.17.2.tgz#6b2103a288e94ef3de5cf15d29dd85fc4b78d65c"
   dependencies:
     generate-function "^2.0.0"
     generate-object-property "^1.1.0"
+    is-my-ip-valid "^1.0.0"
     jsonpointer "^4.0.0"
     xtend "^4.0.0"
 
@@ -583,8 +588,8 @@ meant@1.0.0:
   resolved "https://registry.yarnpkg.com/meant/-/meant-1.0.0.tgz#cb6286e3b7af9315f16118fdc224726ed38074bb"
 
 merkle-tools@^1.3.2:
-  version "1.3.2"
-  resolved "https://registry.yarnpkg.com/merkle-tools/-/merkle-tools-1.3.2.tgz#d745defa5425d937d59019704a09c9b45a023353"
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/merkle-tools/-/merkle-tools-1.4.0.tgz#6c1d3eb74b130b30873e043454fa98afef42fb06"
   dependencies:
     js-sha3 "^0.5.7"
 
