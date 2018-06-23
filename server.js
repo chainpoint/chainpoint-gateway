@@ -158,15 +158,15 @@ async function authKeysUpdate () {
         // the new hmac key, if not, create a new record in the table.
         try {
           await HMACKey
-                  .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
-                  .spread((hmac, created) => {
-                    if (!created) {
-                      return hmac.update({
-                        hmacKey: keyFileContent,
-                        version: hmac.version + 1
-                      })
-                    }
-                  })
+            .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
+            .spread((hmac, created) => {
+              if (!created) {
+                return hmac.update({
+                  hmacKey: keyFileContent,
+                  version: hmac.version + 1
+                })
+              }
+            })
 
           console.log(`INFO : Registration : Auth key saved to PostgreSQL : ${keyFile}`)
         } catch (err) {
