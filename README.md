@@ -6,9 +6,9 @@
 
 ## About
 
-Chainpoint Nodes are a critical component of the Tierion Network. Nodes
+Chainpoint Nodes are a critical component of the Chainpoint Network. Nodes
 allows anyone to run a server that accepts hashes, anchor them to public
-blockchains, verify proofs, and participate in the Tierion Network
+blockchains, verify proofs, and participate in the Chainpoint Network
 Token (TNT) ecosystem.
 
 This repository contains the source code for the Chainpoint Node
@@ -329,7 +329,7 @@ curl -s -X POST \
 
 [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0)
 
-```
+```text
 Copyright (C) 2017-2018 Tierion
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -344,5 +344,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
-
