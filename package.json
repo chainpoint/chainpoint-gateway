@@ -1,7 +1,7 @@
 {
   "name": "chainpoint-node",
-  "version": "1.4.2",
   "description": "A Chainpoint Network Node is a key part of a scalable solution for anchoring data to public blockchains.",
+  "version": "1.5.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
