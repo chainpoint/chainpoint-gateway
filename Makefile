@@ -108,12 +108,12 @@ redis:
 	@sleep 2
 	@docker exec -it redis-node-src redis-cli
 
-## backup-auth-keys          : Backup HMAC Auth keys to the 'keys/backups' dir
+## backup-auth-keys: Backup HMAC Auth keys to the 'keys/backups' dir
 .PHONY : backup-auth-keys
 backup-auth-keys: up
 	@docker exec -it chainpoint-node-src_chainpoint-node_1 node auth-keys-backup.js
 
-## print-auth-keys           : Print to console the name and contents of auth key (HMAC) backups
+## print-auth-keys : Print to console the name and contents of auth key (HMAC) backups
 .PHONY : print-auth-keys
 print-auth-keys: up
 	@docker exec -it chainpoint-node-src_chainpoint-node_1 node auth-keys-print.js
