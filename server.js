@@ -184,7 +184,7 @@ async function authKeysUpdate () {
 async function registerNodeAsync (nodeURI) {
   let isRegistered = false
   let registerAttempts = 1
-  const maxRegisterAttempts = 12
+  const maxRegisterAttempts = 3
   const retryWaitTimeMs = 5 * 1000
 
   while (!isRegistered) {
