@@ -373,7 +373,7 @@ async function registerNodeAsync (nodeURI) {
       }
 
       registerAttempts += 1
-      if (registerAttempts >= maxRegisterAttempts) {
+      if (registerAttempts > maxRegisterAttempts) {
         // We've retried with no success
         // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
         // won't force a restart since this situation will not resolve itself.
