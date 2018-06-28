@@ -1,6 +1,7 @@
 import { connect } from 'react-redux'
 import Login from './components/Login'
 import { submitLogin } from '../../reducers/appReducer'
+import { getNodeStats } from '../../reducers/nodeReducer'
 
 const mapStateToProps = (state, ownProps) => {
   return {
@@ -14,7 +15,8 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    submitLogin: (accessToken) => dispatch(submitLogin(accessToken))
+    submitLogin: (accessToken) => dispatch(submitLogin(accessToken)),
+    getNodeStats: (query) => dispatch(getNodeStats(query))
   }
 }
 

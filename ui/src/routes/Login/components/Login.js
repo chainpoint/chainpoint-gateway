@@ -11,6 +11,14 @@ class Login extends Component {
     this._handleLogin = this._handleLogin.bind(this)
   }
 
+  componentDidMount () {
+    this.props.submitLogin(this.state.value).then(() => {
+      return this.props.getNodeStats('last_1_days').then(() => {
+        return this.props.history.push('/')
+      }, (err) => { console.log(err, 'err') })
+    })
+  }
+
   getValidationState () {
     const length = this.state.value.length
     if (length > 0) return 'success'
