@@ -244,6 +244,7 @@ async function registerNodeAsync (nodeURI) {
             // We are no longer exiting this process. Simply set registration state to 'false' which
             // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
             apiServer.setRegistration(false)
+            process.exit(0) // Currently, node-api-service will only throw a 409 if either of the following conditions are true: 1) etheruem address is already registered, 2) public URI is already registered
           }
 
           if (error.statusCode) {
@@ -347,6 +348,7 @@ async function registerNodeAsync (nodeURI) {
             // We are no longer exiting this process. Simply set registration state to 'false' which
             // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
             apiServer.setRegistration(false)
+            process.exit(0) // Currently, node-api-service will only throw a 409 if either of the following conditions are true: 1) etheruem address is already registered, 2) public URI is already registered
           }
 
           if (error.statusCode) {
