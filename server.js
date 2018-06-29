@@ -241,9 +241,6 @@ async function registerNodeAsync (nodeURI) {
               console.error(`ERROR : Registration update failed : Exiting`)
             }
 
-            // We are no longer exiting this process. Simply set registration state to 'false' which
-            // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
-            apiServer.setRegistration(false)
             process.exit(0) // Currently, node-api-service will only throw a 409 if either of the following conditions are true: 1) etheruem address is already registered, 2) public URI is already registered
           } else if (error.statusCode === 426) {
             if (error.error && error.error.code && error.error.message) {
@@ -253,7 +250,6 @@ async function registerNodeAsync (nodeURI) {
             } else {
               console.error(`ERROR : Registration update failed (min node version not met) : Exiting`)
             }
-            apiServer.setRegistration(false)
             process.exit(0)
           }
 
@@ -355,9 +351,6 @@ async function registerNodeAsync (nodeURI) {
               console.error(`ERROR : Registration`)
             }
 
-            // We are no longer exiting this process. Simply set registration state to 'false' which
-            // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
-            apiServer.setRegistration(false)
             process.exit(0) // Currently, node-api-service will only throw a 409 if either of the following conditions are true: 1) etheruem address is already registered, 2) public URI is already registered
           }
 
