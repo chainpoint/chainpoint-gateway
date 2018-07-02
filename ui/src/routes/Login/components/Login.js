@@ -57,7 +57,7 @@ class Login extends Component {
                     <FormControl.Feedback />
 
                     {(this.props.app.status && this.props.app.status.error && this.props.app.status.event === 'AUTH_LOGIN_ERROR' && this.state.submitted) && (<HelpBlock><span className='firebrick-text'>Invalid Login. Please try again.</span></HelpBlock>)}
-                    { console.log(this.props.app.status.error) }
+
                     <div className='add-top'>
                       <ButtonGroup vertical block>
                         <Button bsStyle='primary' type='submit' onClick={this._handleLogin} onSubmit={ this._handleLogin }>Login</Button>
