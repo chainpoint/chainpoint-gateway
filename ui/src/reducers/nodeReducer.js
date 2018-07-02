@@ -101,7 +101,7 @@ const ACTION_HANDLERS = {
   [GET_NODE_STATS_SUCCESSFUL]: (state, action) => {
     _unset(action, 'payload.data.nodeData')
 
-    return Object.assign({}, state, {
+    return deepAssign({}, state, {
       status: {
         event: GET_NODE_STATS,
         fetching: false,
@@ -120,6 +120,31 @@ const ACTION_HANDLERS = {
     return Object.assign({}, state, {
       status: {
         event: GET_NODE_STATS,
+        fetching: false,
+        processing: false,
+        successful: false,
+        error: true,
+        errormsg: action.payload
+      }
+    })
+  },
+  [GET_NODE_CONFIG_SUCCESSFUL]: (state, action) => {
+    return deepAssign({}, state, {
+      status: {
+        event: GET_NODE_CONFIG_SUCCESSFUL,
+        fetching: false,
+        processing: false,
+        successful: true,
+        error: false,
+        errormsg: null
+      },
+      config: action.payload
+    })
+  },
+  [GET_NODE_CONFIG_ERROR]: (state, action) => {
+    return Object.assign({}, state, {
+      status: {
+        event: GET_NODE_CONFIG_ERROR,
         fetching: false,
         processing: false,
         successful: false,

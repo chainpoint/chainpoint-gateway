@@ -4,7 +4,7 @@ import { getNodeConfig, getNodeStats } from '../../reducers/nodeReducer'
 
 const mapStateToProps = (state, ownProps) => {
   return {
-    nodeConfig: state.app.node,
+    nodeConfig: state.node.config,
     node: state.node,
     auth: state.app.auth,
     routing: state.routing

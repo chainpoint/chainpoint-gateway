@@ -52,38 +52,6 @@ export function signOut () {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  [GET_NODE_CONFIG_SUCCESSFUL]: (state, action) => {
-    return deepAssign({}, state, {
-      status: {
-        event: GET_NODE_CONFIG_SUCCESSFUL,
-        fetching: false,
-        processing: false,
-        successful: true,
-        error: false,
-        errormsg: null
-      },
-      node: action.payload
-    })
-  },
-  [GET_NODE_STATS_SUCCESSFUL]: (state, action) => {
-    let result = _get(action, 'payload.nodeData', {})
-
-    return deepAssign({}, state, {
-      node: result
-    })
-  },
-  [GET_NODE_CONFIG_ERROR]: (state, action) => {
-    return Object.assign({}, state, {
-      status: {
-        event: GET_NODE_CONFIG_ERROR,
-        fetching: false,
-        processing: false,
-        successful: false,
-        error: true,
-        errormsg: action.payload
-      }
-    })
-  },
   [AUTH_LOGIN]: (state, action) => {
     return Object.assign({}, state, {
       status: {
@@ -157,7 +125,7 @@ const ACTION_HANDLERS = {
 // ------------------------------------
 const initialState = {
   status: {
-    event: GET_NODE_CONFIG_ERROR,
+    event: null,
     fetching: false,
     processing: false,
     successful: false,

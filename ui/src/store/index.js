@@ -31,7 +31,6 @@ if (process.env.NODE_ENV === 'development') {
     enhancers.push(devToolsExtension())
   }
 }
-
 // Manually remove 'redux' key from LocalStorage which was previously managed by redux-localstorage package
 window.localStorage.removeItem('redux')
 
