@@ -6,8 +6,9 @@ class Login extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { value: '' }
-    this.handleChange = this.handleChange.bind(this)
+    this.state = { value: '', edited: false }
+    this._onFocus = this._onFocus.bind(this)
+    this._handleChange = this._handleChange.bind(this)
     this._handleLogin = this._handleLogin.bind(this)
   }
 
@@ -26,7 +27,11 @@ class Login extends Component {
     return null
   }
 
-  handleChange (e) {
+  _onFocus () {
+    this.setState({ edited: true })
+  }
+
+  _handleChange (e) {
     this.setState({ value: e.target.value })
   }
 
@@ -49,10 +54,11 @@ class Login extends Component {
                     type='password'
                     value={this.state.value}
                     placeholder='Enter Password...'
-                    onChange={this.handleChange} />
+                    onFocus={this._onFocus}
+                    onChange={this._handleChange} />
                   <FormControl.Feedback />
 
-                  {(this.props.app.status && this.props.app.status.error && this.props.app.status.event === 'AUTH_LOGIN_ERROR') && (<HelpBlock><span className='firebrick-text'>Invalid Login. Please try again.</span></HelpBlock>)}
+                  {(this.props.app.status && this.props.app.status.error && this.props.app.status.event === 'AUTH_LOGIN_ERROR' && this.state.edited) && (<HelpBlock><span className='firebrick-text'>Invalid Login. Please try again.</span></HelpBlock>)}
 
                   <div className='add-top'>
                     <ButtonGroup vertical block>
