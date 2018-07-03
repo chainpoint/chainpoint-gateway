@@ -158,15 +158,15 @@ async function authKeysUpdate () {
         // the new hmac key, if not, create a new record in the table.
         try {
           await HMACKey
-                  .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
-                  .spread((hmac, created) => {
-                    if (!created) {
-                      return hmac.update({
-                        hmacKey: keyFileContent,
-                        version: hmac.version + 1
-                      })
-                    }
-                  })
+            .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
+            .spread((hmac, created) => {
+              if (!created) {
+                return hmac.update({
+                  hmacKey: keyFileContent,
+                  version: hmac.version + 1
+                })
+              }
+            })
 
           console.log(`INFO : Registration : Auth key saved to PostgreSQL : ${keyFile}`)
         } catch (err) {
@@ -184,7 +184,7 @@ async function authKeysUpdate () {
 async function registerNodeAsync (nodeURI) {
   let isRegistered = false
   let registerAttempts = 1
-  const maxRegisterAttempts = 12
+  const maxRegisterAttempts = 3
   const retryWaitTimeMs = 5 * 1000
 
   while (!isRegistered) {
@@ -195,8 +195,9 @@ async function registerNodeAsync (nodeURI) {
         hmacEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
       } catch (error) {
         console.error(`ERROR : Registration : Unable to load auth key`)
-        // Exit 1 : this is a recoverable error that might be resolved on container restart.
-        process.exit(1)
+        // We are no longer exiting this process. Simply set registration state to 'false' which
+        // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
+        apiServer.setRegistration(false)
       }
 
       if (hmacEntry) {
@@ -240,9 +241,15 @@ async function registerNodeAsync (nodeURI) {
               console.error(`ERROR : Registration update failed : Exiting`)
             }
 
-            // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
-            // so Docker Compose `on-failure` policy won't force a restart since this
-            // situation will not resolve itself.
+            process.exit(0) // Currently, node-api-service will only throw a 409 if either of the following conditions are true: 1) etheruem address is already registered, 2) public URI is already registered
+          } else if (error.statusCode === 426) {
+            if (error.error && error.error.code && error.error.message) {
+              console.error(`ERROR : Registration update failed : Exiting : ${nodeURI} : ${error.error.code} : ${error.error.message}`)
+            } else if (error.error && error.error.code) {
+              console.error(`ERROR : Registration update failed (min node version not met) : Exiting : ${nodeURI} : ${error.error.code}`)
+            } else {
+              console.error(`ERROR : Registration update failed (min node version not met) : Exiting`)
+            }
             process.exit(0)
           }
 
@@ -313,8 +320,9 @@ async function registerNodeAsync (nodeURI) {
             }
           } catch (error) {
             console.error(`ERROR : Registration : HMAC Auth key write and confirm failed.`)
-            // Exit 1 : this is a recoverable error that might be resolved on container restart.
-            process.exit(1)
+            // We are no longer exiting this process. Simply set registration state to 'false' which
+            // will allow the Node UI to be operational and thus display a failed registration state to the node operator.
+            apiServer.setRegistration(false)
           }
           console.log(`INFO : Registration : HMAC Auth key saved!`)
 
@@ -324,7 +332,7 @@ async function registerNodeAsync (nodeURI) {
 
           // New Registration Succeeded. Perform Automatic Auth Key Backup for newly saved hmac key
           try {
-            exec('node auth-keys-backup-script.js', (err, stdout, stderr) => {
+            exec('node auth-keys-backup.js', (err, stdout, stderr) => {
               if (err) console.error(`ERROR : Registration : BackupAuthKeys : Unable to complete key backup(s)`)
               else console.log(stdout)
             })
@@ -343,10 +351,7 @@ async function registerNodeAsync (nodeURI) {
               console.error(`ERROR : Registration`)
             }
 
-            // A 409 InvalidArgumentError or ConflictError is an unrecoverable Error : Exit cleanly (!)
-            // so Docker Compose `on-failure` policy won't force a restart since this
-            // situation will not resolve itself.
-            process.exit(0)
+            process.exit(0) // Currently, node-api-service will only throw a 409 if either of the following conditions are true: 1) etheruem address is already registered, 2) public URI is already registered
           }
 
           if (error.statusCode) {
@@ -373,14 +378,16 @@ async function registerNodeAsync (nodeURI) {
       }
 
       registerAttempts += 1
-      if (registerAttempts >= maxRegisterAttempts) {
+      if (registerAttempts > maxRegisterAttempts) {
         // We've retried with no success
         // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
         // won't force a restart since this situation will not resolve itself.
         console.error(`ERROR : ********************************************`)
         console.error(`ERROR : Registration : Failed : Max Retries Reached!`)
         console.error(`ERROR : ********************************************`)
-        process.exit(0)
+        apiServer.setRegistration(false)
+
+        return
       }
 
       await utils.sleepAsync(retryWaitTimeMs)
@@ -457,7 +464,7 @@ async function startAsync () {
 
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
-    apiServer.startAggInterval()
+    apiServer.startAggInterval(coreConfig.node_aggregation_interval_seconds)
     apiServer.setPublicKeySet(pubKeys)
     await calendar.initNodeTopBlockAsync()
 
@@ -470,8 +477,6 @@ async function startAsync () {
     await syncNodeCalendarAsync(coreConfig, pubKeys)
     startIntervals(coreConfig)
     console.log('INFO : Calendar : Sync completed!')
-
-    scheduleRestifyRestart()
   } catch (err) {
     console.error(`ERROR : App : Startup : ${err}`)
     // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
@@ -482,26 +487,3 @@ async function startAsync () {
 
 // get the whole show started
 startAsync()
-
-function scheduleRestifyRestart () {
-  // schedule restart for a random time within the next 12-24 hours
-  // this prevents all Nodes from restarting at the same time
-  // additionally prevent scheduling near audit periods
-  let minMS = 60 * 60 * 12 * 1000 // 12 hours
-  let maxMS = 60 * 60 * 24 * 1000 // 24 hours
-  let randomMS
-  let inAuditRange
-  do {
-    randomMS = utils.randomIntFromInterval(minMS, maxMS)
-    let targetMinute = moment().add(randomMS, 'ms').minute()
-    inAuditRange = ((targetMinute >= 14) && (targetMinute < 20)) || ((targetMinute >= 44) && (targetMinute < 50))
-  } while (inAuditRange)
-
-  console.log(`INFO : App : auto-restart scheduled for ${moment().add(randomMS, 'ms').format()}`)
-  setTimeout(async () => {
-    console.log('INFO : App : Performing scheduled daily auto-restart.')
-    await apiServer.restartRestifyAsync()
-    // schedule the next restart
-    scheduleRestifyRestart()
-  }, randomMS)
-}

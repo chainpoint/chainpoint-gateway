@@ -6,9 +6,17 @@ class Login extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { value: '' }
-    this.handleChange = this.handleChange.bind(this)
+    this.state = { value: '', edited: false }
+    this._handleChange = this._handleChange.bind(this)
     this._handleLogin = this._handleLogin.bind(this)
+  }
+
+  componentDidMount () {
+    this.props.submitLogin(this.state.value).then(() => {
+      return this.props.getNodeStats('last_1_days').then(() => {
+        return this.props.history.push('/')
+      }, (err) => { console.log(err, 'err') })
+    })
   }
 
   getValidationState () {
@@ -18,11 +26,14 @@ class Login extends Component {
     return null
   }
 
-  handleChange (e) {
-    this.setState({ value: e.target.value })
+  _handleChange (e) {
+    this.setState({ value: e.target.value, submitted: false })
   }
 
-  _handleLogin () {
+  _handleLogin (e) {
+    e.preventDefault()
+    this.setState({ submitted: true })
+
     this.props.submitLogin(this.state.value).then((res) => {
       this.props.history.push('/')
     }, () => {})
@@ -35,23 +46,25 @@ class Login extends Component {
           <Row className='add-top'>
             <Col xs={8} xsOffset={2}>
               <Well>
-                <FormGroup controlId='accessToken'>
-                  <ControlLabel>Password:</ControlLabel>
-                  <FormControl
-                    type='password'
-                    value={this.state.value}
-                    placeholder='Enter Password...'
-                    onChange={this.handleChange} />
-                  <FormControl.Feedback />
+                <form onSubmit={this._handleLogin}>
+                  <FormGroup controlId='accessToken'>
+                    <ControlLabel>Password:</ControlLabel>
+                    <FormControl
+                      type='password'
+                      value={this.state.value}
+                      placeholder='Enter Password...'
+                      onChange={this._handleChange} />
+                    <FormControl.Feedback />
 
-                  {(this.props.app.status && this.props.app.status.error && this.props.app.status.event === 'AUTH_LOGIN_ERROR') && (<HelpBlock><span className='firebrick-text'>Invalid Login. Please try again.</span></HelpBlock>)}
+                    {(this.props.app.status && this.props.app.status.error && this.props.app.status.event === 'AUTH_LOGIN_ERROR' && this.state.submitted) && (<HelpBlock><span className='firebrick-text'>Invalid Login. Please try again.</span></HelpBlock>)}
 
-                  <div className='add-top'>
-                    <ButtonGroup vertical block>
-                      <Button bsStyle='primary' onClick={this._handleLogin}>Login</Button>
-                    </ButtonGroup>
-                  </div>
-                </FormGroup>
+                    <div className='add-top'>
+                      <ButtonGroup vertical block>
+                        <Button bsStyle='primary' type='submit' onClick={this._handleLogin} onSubmit={this._handleLogin}>Login</Button>
+                      </ButtonGroup>
+                    </div>
+                  </FormGroup>
+                </form>
               </Well>
             </Col>
           </Row>

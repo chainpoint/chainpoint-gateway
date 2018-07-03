@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import { Provider } from 'react-redux'
+import { PersistGate } from 'redux-persist/integration/react'
 import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import store, { history } from './store'
+import { store, persistor, history } from './store'
 import { syncHistoryWithStore } from 'react-router-redux'
 import TopNav from './components/Nav'
 import Dashboard from './routes/Dashboard'
@@ -23,16 +24,18 @@ class App extends Component {
   render () {
     return (
       <Provider store={store}>
-        <BrowserRouter history={syncedHistory}>
-          <section className='app'>
-            <TopNav />
-            <Switch>
-              <Route exact path='/' component={(props) => <Dashboard {...props} />} />
-              <Route exact path='/about' component={(props) => <NodeStatus {...props} />} />
-              <Route exact path='/login' component={(props) => <Login {...props} />} />
-            </Switch>
-          </section>
-        </BrowserRouter>
+        <PersistGate loading={null} persistor={persistor}>
+          <BrowserRouter history={syncedHistory}>
+            <section className='app'>
+              <TopNav />
+              <Switch>
+                <Route exact path='/' component={(props) => <Dashboard {...props} />} />
+                <Route exact path='/about' component={(props) => <NodeStatus {...props} />} />
+                <Route exact path='/login' component={(props) => <Login {...props} />} />
+              </Switch>
+            </section>
+          </BrowserRouter>
+        </PersistGate>
       </Provider>
     )
   }

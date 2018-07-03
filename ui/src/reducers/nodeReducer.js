@@ -1,6 +1,6 @@
 import deepAssign from 'deep-assign'
 import { AUTH_LOGIN_ERROR } from './appReducer'
-import { unset as _unset } from 'lodash'
+import { unset as _unset, get as _get } from 'lodash'
 // ------------------------------------
 // Constants
 // ------------------------------------
@@ -99,9 +99,10 @@ const ACTION_HANDLERS = {
     })
   },
   [GET_NODE_STATS_SUCCESSFUL]: (state, action) => {
-    _unset(action, 'payload.data.nodeData')
+    let nodeData = _get(action, 'payload.nodeData', {})
+    _unset(action, 'payload.nodeData')
 
-    return Object.assign({}, state, {
+    return deepAssign({}, state, {
       status: {
         event: GET_NODE_STATS,
         fetching: false,
@@ -113,13 +114,39 @@ const ACTION_HANDLERS = {
       stats: {
         ...state.stats,
         ...action.payload.data
-      }
+      },
+      nodeData
     })
   },
   [GET_NODE_STATS_ERROR]: (state, action) => {
     return Object.assign({}, state, {
       status: {
         event: GET_NODE_STATS,
+        fetching: false,
+        processing: false,
+        successful: false,
+        error: true,
+        errormsg: action.payload
+      }
+    })
+  },
+  [GET_NODE_CONFIG_SUCCESSFUL]: (state, action) => {
+    return deepAssign({}, state, {
+      status: {
+        event: GET_NODE_CONFIG_SUCCESSFUL,
+        fetching: false,
+        processing: false,
+        successful: true,
+        error: false,
+        errormsg: null
+      },
+      config: action.payload
+    })
+  },
+  [GET_NODE_CONFIG_ERROR]: (state, action) => {
+    return Object.assign({}, state, {
+      status: {
+        event: GET_NODE_CONFIG_ERROR,
         fetching: false,
         processing: false,
         successful: false,
@@ -142,7 +169,9 @@ const initialState = {
     error: false,
     errormsg: null
   },
-  stats: {}
+  stats: {},
+  config: {},
+  nodeData: {}
 }
 export default function nodeReducer (state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]

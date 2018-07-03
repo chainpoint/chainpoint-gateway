@@ -2,6 +2,12 @@
 .DS_Store
 node_modules/
 .data/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+.*
+*.yaml
+*.log*
+Makefile
+
+# exclude all node_modules dirs under root dir or a sub-directory
+# If not excluded this has very negative performance on docker-compose build
+node_modules*
+*/node_modules*
