@@ -46,7 +46,7 @@ class Login extends Component {
           <Row className='add-top'>
             <Col xs={8} xsOffset={2}>
               <Well>
-                <form onSubmit={ this._handleLogin }>
+                <form onSubmit={this._handleLogin}>
                   <FormGroup controlId='accessToken'>
                     <ControlLabel>Password:</ControlLabel>
                     <FormControl
@@ -60,7 +60,7 @@ class Login extends Component {
 
                     <div className='add-top'>
                       <ButtonGroup vertical block>
-                        <Button bsStyle='primary' type='submit' onClick={this._handleLogin} onSubmit={ this._handleLogin }>Login</Button>
+                        <Button bsStyle='primary' type='submit' onClick={this._handleLogin} onSubmit={this._handleLogin}>Login</Button>
                       </ButtonGroup>
                     </div>
                   </FormGroup>
