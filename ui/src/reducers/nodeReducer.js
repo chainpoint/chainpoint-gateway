@@ -1,6 +1,6 @@
 import deepAssign from 'deep-assign'
 import { AUTH_LOGIN_ERROR } from './appReducer'
-import { unset as _unset } from 'lodash'
+import { unset as _unset, get as _get } from 'lodash'
 // ------------------------------------
 // Constants
 // ------------------------------------
@@ -99,7 +99,8 @@ const ACTION_HANDLERS = {
     })
   },
   [GET_NODE_STATS_SUCCESSFUL]: (state, action) => {
-    _unset(action, 'payload.data.nodeData')
+    let nodeData = _get(action, 'payload.nodeData', {})
+    _unset(action, 'payload.nodeData')
 
     return deepAssign({}, state, {
       status: {
@@ -113,7 +114,8 @@ const ACTION_HANDLERS = {
       stats: {
         ...state.stats,
         ...action.payload.data
-      }
+      },
+      nodeData
     })
   },
   [GET_NODE_STATS_ERROR]: (state, action) => {
@@ -167,7 +169,9 @@ const initialState = {
     error: false,
     errormsg: null
   },
-  stats: {}
+  stats: {},
+  config: {},
+  nodeData: {}
 }
 export default function nodeReducer (state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]

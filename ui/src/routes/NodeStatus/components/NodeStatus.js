@@ -43,7 +43,7 @@ class NodeStatus extends Component {
   }
 
   _getRegistrationStatus () {
-    return this.props.nodeConfig.node_registered
+    return this.props.nodeData.node_registered
   }
 
   _getRegistrationStatusText (status, publicUri) {
@@ -54,9 +54,9 @@ class NodeStatus extends Component {
   }
 
   _calculateAuditStatus () {
-    if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return ''
+    if (!(this.props.nodeData.audits && this.props.nodeData.audits.length)) return ''
 
-    let passed = (this.props.nodeConfig.audits && this.props.nodeConfig.audits.length && this.props.nodeConfig.audits[0].audit_passed)
+    let passed = (this.props.nodeData.audits && this.props.nodeData.audits.length && this.props.nodeData.audits[0].audit_passed)
 
     return (passed) ? 'PASSED' : 'FAILED'
   }
@@ -74,33 +74,33 @@ class NodeStatus extends Component {
   }
 
   _getNodeETHAddress () {
-    return (this.props.nodeConfig && this.props.nodeConfig.node_tnt_addr) ? this.props.nodeConfig.node_tnt_addr : ''
+    return (this.props.nodeData && this.props.nodeData.node && this.props.nodeData.node.node_tnt_addr) ? this.props.nodeData.node.node_tnt_addr : ''
   }
 
   _getNodePublicUri () {
-    if (_isEmpty(this.props.nodeConfig.node_public_uri)) return 'Private'
-    else if (!(this.props.nodeConfig.audits && this.props.nodeConfig.audits.length)) return ''
+    if (_isEmpty(this.props.nodeData.node_public_uri)) return 'Private'
+    else if (!(this.props.nodeData.audits && this.props.nodeData.audits.length)) return ''
 
-    if (_isNull(this.props.nodeConfig.audits[0].public_uri)) {
+    if (_isNull(this.props.nodeData.audits[0].public_uri)) {
       return 'Private'
     } else {
-      return this.props.nodeConfig.audits[0].public_uri
+      return this.props.nodeData.audits[0].public_uri
     }
   }
 
   _calculateNTPDelta () {
-    if (this.props.nodeConfig.audits && this.props.nodeConfig.audits.length && _isNumber(this.props.nodeConfig.audits[0].node_ms_delta)) {
-      let val = this.props.nodeConfig.audits[0].node_ms_delta
-      return [`${val}ms`, this.props.nodeConfig.audits[0].time_pass]
+    if (this.props.nodeData.audits && this.props.nodeData.audits.length && _isNumber(this.props.nodeData.audits[0].node_ms_delta)) {
+      let val = this.props.nodeData.audits[0].node_ms_delta
+      return [`${val}ms`, this.props.nodeData.audits[0].time_pass]
     } else {
       return ['', '']
     }
   }
 
   _getTotalAuditsPassedAndFailed () {
-    if (this.props.nodeConfig && this.props.nodeConfig.node) {
-      let passed = (_isNumber(this.props.nodeConfig.node.pass_count)) ? this.props.nodeConfig.node.pass_count : ''
-      let failed = (_isNumber(this.props.nodeConfig.node.fail_count)) ? this.props.nodeConfig.node.fail_count : ''
+    if (this.props.nodeData && this.props.nodeData.node) {
+      let passed = (_isNumber(this.props.nodeData.node.pass_count)) ? this.props.nodeData.node.pass_count : ''
+      let failed = (_isNumber(this.props.nodeData.node.fail_count)) ? this.props.nodeData.node.fail_count : ''
 
       return [passed, failed]
     } else {
@@ -109,9 +109,9 @@ class NodeStatus extends Component {
   }
 
   _getConsecutiveAuditsPassedAndFailed () {
-    if (this.props.nodeConfig && this.props.nodeConfig.node) {
-      let passed = (_isNumber(this.props.nodeConfig.node.consecutive_passes)) ? this.props.nodeConfig.node.consecutive_passes : ''
-      let failed = (_isNumber(this.props.nodeConfig.node.consecutive_fails)) ? this.props.nodeConfig.node.consecutive_fails : ''
+    if (this.props.nodeData && this.props.nodeData.node) {
+      let passed = (_isNumber(this.props.nodeData.node.consecutive_passes)) ? this.props.nodeData.node.consecutive_passes : ''
+      let failed = (_isNumber(this.props.nodeData.node.consecutive_fails)) ? this.props.nodeData.node.consecutive_fails : ''
 
       return [passed, failed]
     } else {
@@ -120,7 +120,7 @@ class NodeStatus extends Component {
   }
 
   _getTotalNodes () {
-    return (this.props.nodeConfig && this.props.nodeConfig.core) ? this.props.nodeConfig.core.total_active_nodes : ''
+    return (this.props.nodeData && this.props.nodeData.core) ? this.props.nodeData.core.total_active_nodes : ''
   }
 
   render () {
@@ -133,11 +133,11 @@ class NodeStatus extends Component {
     let [totalAuditsPassed, totalAuditsFailed] = this._getTotalAuditsPassedAndFailed()
     let [consecutiveAuditsPassed, consecutiveAuditsFailed] = this._getConsecutiveAuditsPassedAndFailed()
     let totalNodes = this._getTotalNodes()
-    let registrationStatusText = this._getRegistrationStatusText(registrationStatus, this.props.nodeConfig.node_public_uri)
-    let nodeIsPrivate = (registrationStatus && (_isEmpty(this.props.nodeConfig.node_public_uri) || this.props.nodeConfig.node_public_uri === 'http://0.0.0.0'))
+    let registrationStatusText = this._getRegistrationStatusText(registrationStatus, this.props.nodeData.node_public_uri)
+    let nodeIsPrivate = (registrationStatus && (_isEmpty(this.props.nodeData.node_public_uri) || this.props.nodeData.node_public_uri === 'http://0.0.0.0'))
     let dataFromCoreLastReceived = (() => { // eslint-disable-line
-      if (this.props.nodeConfig && this.props.nodeConfig.dataFromCoreLastReceived) {
-        return moment(parseInt(this.props.nodeConfig.dataFromCoreLastReceived, 10)).utc().format()
+      if (this.props.nodeData && this.props.nodeData.dataFromCoreLastReceived) {
+        return moment(parseInt(this.props.nodeData.dataFromCoreLastReceived, 10)).utc().format()
       } else {
         return ''
       }
@@ -148,7 +148,7 @@ class NodeStatus extends Component {
         <Grid fluid>
           <Row className='add-top add-bottom'>
             <Col xs={10} xsOffset={1} className='add-top'>
-              <FormGroup className={classnames({hide: this.props.nodeConfig.node_registered === ''})} controlId='formBasicText'>
+              <FormGroup className={classnames({hide: this.props.nodeData.node_registered === ''})} controlId='formBasicText'>
                 <ControlLabel>Registration Status</ControlLabel>
                 <FormControl className={classnames({'green-text-important': registrationStatus, 'red-text-important': !registrationStatus})} type='text' value={registrationStatusText} placeholder='Registration Status' disabled />
               </FormGroup>
@@ -211,6 +211,7 @@ NodeStatus.propTypes = {
 
 NodeStatus.defaultProps = {
   nodeConfig: {},
+  nodeData: {},
   auth: {}
 }
 
