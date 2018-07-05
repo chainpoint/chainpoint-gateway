@@ -6,7 +6,7 @@ class Login extends Component {
   constructor (props) {
     super(props)
 
-    this.state = { value: '', edited: false }
+    this.state = { value: '', edited: false, persistenceEnabled: true }
     this._handleChange = this._handleChange.bind(this)
     this._handleLogin = this._handleLogin.bind(this)
   }
@@ -17,6 +17,15 @@ class Login extends Component {
         return this.props.history.push('/')
       }, (err) => { console.log(err, 'err') })
     })
+
+    try {
+      const storage = window['localStorage']
+      const x = '__storage_test__'
+      storage.setItem(x, x)
+      storage.removeItem(x)
+    } catch (e) {
+      this.setState({ persistenceEnabled: false })
+    }
   }
 
   getValidationState () {
@@ -43,6 +52,15 @@ class Login extends Component {
     return (
       <section>
         <Grid fluid>
+          {
+            !this.state.persistenceEnabled ? (
+              <Row className='add-top'>
+                <Col xs={8} xsOffset={2}>
+                  We've detected that you have cookies disabled. This application requires the use of browser local storage. Enabling cookies for your Node’s address will allow persisting your login.
+                </Col>
+              </Row>
+            ) : ''
+          }
           <Row className='add-top'>
             <Col xs={8} xsOffset={2}>
               <Well>
