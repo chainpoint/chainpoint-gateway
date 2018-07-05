@@ -54,7 +54,7 @@ class Login extends Component {
             !this.state.persistenceEnabled ? (
               <Row className='add-top'>
                 <Col xs={8} xsOffset={2}>
-                  We've detected that you have cookies disabled. To avoid logging in after every page refresh, please enable cookies for this domain.
+                  We've detected that you have cookies disabled. This application requires the use of browser local storage. Enabling cookies for your Node’s address will allow persisting your login.
                 </Col>
               </Row>
             ) : ''
