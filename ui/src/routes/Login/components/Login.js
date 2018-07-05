@@ -19,11 +19,13 @@ class Login extends Component {
     })
 
     try {
-      localStorage in window
-    } catch(e) {
+      const storage = window['localStorage']
+      const x = '__storage_test__'
+      storage.setItem(x, x)
+      storage.removeItem(x)
+    } catch (e) {
       this.setState({ persistenceEnabled: false })
     }
-
   }
 
   getValidationState () {
