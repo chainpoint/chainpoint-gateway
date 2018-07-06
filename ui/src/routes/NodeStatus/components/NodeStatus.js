@@ -33,6 +33,7 @@ class NodeStatus extends Component {
         node_min_version: res.node_min_version
       })
     })
+
     this.props.getNodeConfig()
     this.props.getNodeStats('last_1_days')
 
@@ -40,6 +41,10 @@ class NodeStatus extends Component {
       // Provide near real-time information
       this.props.getNodeStats('last_1_days')
     }, 1000)
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.statsInterval)
   }
 
   _getRegistrationStatus () {
