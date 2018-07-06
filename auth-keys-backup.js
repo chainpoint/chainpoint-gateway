@@ -41,6 +41,13 @@ async function backupAuthKeys (req, res, next) {
       return keys.map((currVal) => {
         let key = currVal.get({plain: true})
 
+        // Check to see if backup keys dir exists
+        if (!fs.existsSync(`${path.resolve('./keys')}`)) {
+          fs.mkdirSync(`${path.resolve('./keys')}`)
+        } else if (!fs.existsSync(`${path.resolve('./keys/backups')}`)) {
+          fs.mkdirSync(`${path.resolve('./keys/backups')}`)
+        }
+
         fs.writeFileSync(`${path.resolve('./keys/backups')}/${key.tntAddr}-${Date.now()}.key`, key.hmacKey)
 
         return `${key.tntAddr} Auth key has been backed up`
