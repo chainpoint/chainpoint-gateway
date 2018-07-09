@@ -16,7 +16,7 @@ class Login extends Component {
       return this.props.getNodeStats('last_1_days').then(() => {
         return this.props.history.push('/')
       }, (err) => { console.log(err, 'err') })
-    })
+    }).catch(e => {})
 
     try {
       const storage = window['localStorage']
