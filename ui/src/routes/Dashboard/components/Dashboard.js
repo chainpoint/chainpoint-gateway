@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Grid, Row, Col } from 'react-bootstrap'
-import { isUndefined as _isUndefined, isNumber as _isNumber, toNumber as _toNumber } from 'lodash'
+import { isNumber as _isNumber, toNumber as _toNumber } from 'lodash'
 import CountTile from '../../../components/CountTile'
 import ReactTable from 'react-table'
 
@@ -70,12 +70,6 @@ class Dashboard extends Component {
     super(props)
 
     this._mapHashesReceivedToday = this._mapHashesReceivedToday.bind(this)
-  }
-
-  componentWillMount () {
-    if (_isUndefined(this.props.auth.access_token)) {
-      this.props.history.push('/login')
-    }
   }
 
   componentDidMount () {

@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Switch } from 'react-router-dom'
 import { store, persistor, history } from './store'
 import { syncHistoryWithStore } from 'react-router-redux'
 import TopNav from './components/Nav'
+import PrivateRoute from './components/PrivateRoute'
 import Dashboard from './routes/Dashboard'
 import NodeStatus from './routes/NodeStatus'
 import Login from './routes/Login'
@@ -29,8 +30,8 @@ class App extends Component {
             <section className='app'>
               <TopNav />
               <Switch>
-                <Route exact path='/' component={(props) => <Dashboard {...props} />} />
-                <Route exact path='/about' component={(props) => <NodeStatus {...props} />} />
+                <PrivateRoute exact path='/' component={(props) => <Dashboard {...props} />} />
+                <PrivateRoute exact path='/about' component={(props) => <NodeStatus {...props} />} />
                 <Route exact path='/login' component={(props) => <Login {...props} />} />
               </Switch>
             </section>

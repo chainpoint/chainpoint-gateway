@@ -1,7 +1,4 @@
-import { toLower as _toLower, startsWith as _startsWith, get as _get } from 'lodash'
-import deepAssign from 'deep-assign'
-
-import { GET_NODE_CONFIG_SUCCESSFUL, GET_NODE_CONFIG_ERROR, GET_NODE_STATS_SUCCESSFUL } from './nodeReducer'
+import { toLower as _toLower, startsWith as _startsWith } from 'lodash'
 
 export const AUTH_LOGIN = 'AUTH_LOGIN'
 export const AUTH_LOGIN_SUCCESSFUL = 'AUTH_LOGIN_SUCCESSFUL'

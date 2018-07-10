@@ -21,12 +21,6 @@ class NodeStatus extends Component {
     this.state = { node_min_version: null }
   }
 
-  componentWillMount () {
-    if (_isUndefined(this.props.auth.access_token)) {
-      this.props.history.push('/login')
-    }
-  }
-
   componentDidMount () {
     fetch('https://a.chainpoint.org/config').then(res => res.json()).then((res) => { // eslint-disable-line
       this.setState({
