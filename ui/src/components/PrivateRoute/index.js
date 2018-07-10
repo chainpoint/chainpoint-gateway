@@ -5,7 +5,6 @@ import { isUndefined as _isUndefined } from 'lodash'
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
   const {auth} = rest.app
-  console.log(auth)
   return (
     <Route {...rest}
       render={props => !_isUndefined(auth) && !_isUndefined(auth.access_token)
