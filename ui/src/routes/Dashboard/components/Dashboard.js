@@ -72,12 +72,6 @@ class Dashboard extends Component {
     this._mapHashesReceivedToday = this._mapHashesReceivedToday.bind(this)
   }
 
-  componentWillMount () {
-    if (_isUndefined(this.props.auth.access_token)) {
-      this.props.history.push('/login')
-    }
-  }
-
   componentDidMount () {
     // Fetch Node Config Details like version, calendar block height, etc.
     this.props.getNodeConfig()
