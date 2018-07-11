@@ -1,20 +1,19 @@
-# Node.js LTS on Alpine Linux
+# Node.js 8.x LTS on Debian Stretch Linux
 # see: https://github.com/nodejs/LTS
 # see: https://hub.docker.com/_/node/
-# see: https://alpinelinux.org/
-FROM node:8.9.0-alpine
+FROM node:8.11.3-stretch
 
 LABEL MAINTAINER="Glenn Rempe <glenn@tierion.com>"
 
-RUN apk update && \
-    apk upgrade && \
-    rm -rf /var/cache/apk/*
+# gosu : https://github.com/tianon/gosu
+RUN apt-get update && apt-get install -y git gosu
 
-RUN apk add --update git tini su-exec --no-cache
-
-# Needed to load native node modules
-# See : https://github.com/grpc/grpc/issues/8528
-RUN apk add libc6-compat --no-cache
+# Tini : https://github.com/krallin/tini
+ENV TINI_VERSION v0.18.0
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini.asc /tini.asc
+RUN gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 && gpg --verify /tini.asc
+RUN chown root:root /tini && chmod 755 /tini
 
 # The `node` user and its home dir is provided by
 # the base image. Create a subdir where app code lives.
@@ -23,8 +22,6 @@ RUN mkdir /home/node/app/ui
 
 # Copy Build Artifacts Node Stats UI
 COPY ./ui/build /home/node/app/ui
-
-RUN ls -la /home/node/app/ui
 
 WORKDIR /home/node/app
 
@@ -49,6 +46,6 @@ RUN mkdir -p /home/node/app/keys/backups
 
 EXPOSE 8080
 
-ENTRYPOINT ["su-exec", "node:node", "/sbin/tini", "--"]
+ENTRYPOINT ["gosu", "node:node", "/tini", "--"]
 
 CMD ["yarn", "start"]
