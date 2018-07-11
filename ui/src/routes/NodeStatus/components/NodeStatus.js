@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import { isEqual as _isEqual, isUndefined as _isUndefined, isNull as _isNull, isNumber as _isNumber, isEmpty as _isEmpty } from 'lodash'
+import { isNull as _isNull, isNumber as _isNumber, isEmpty as _isEmpty } from 'lodash'
 import classnames from 'classnames'
 import { Grid, Row, Col, FormGroup, ControlLabel, FormControl } from 'react-bootstrap'
 import semver from 'semver'
