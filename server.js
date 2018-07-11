@@ -230,7 +230,17 @@ async function registerNodeAsync (nodeURI) {
 
         try {
           console.log('INFO : Registration : Attempting Core update using ETH/HMAC/IP')
-          await coreHosts.coreRequestAsync(putOptions)
+          // Check PUT /nodes Core Request payload, if the payload equals the last payload sent to coreRequest simply skip the call
+          let lastCoreRequestPayload = await redis.getAsync('lastCoreRequestPayload')
+
+          // Skip Core Request if the payload is the same as the previous one sent to PUT /nodes/:tntAddr
+          if (lastCoreRequestPayload !== `${putObject.tnt_addr}|${putObject.public_uri}`) {
+            await coreHosts.coreRequestAsync(putOptions)
+
+            // PUT request to coreRequest returned a 2xx go ahead and persist put payload into Redis
+            await redis.setAsync('lastCoreRequestPayload', `${putObject.tnt_addr}|${putObject.public_uri}`)
+            await redis.setAsync('lastCoreRequestPayloadDate', Date.now())
+          }
         } catch (error) {
           if (error.statusCode === 409) {
             if (error.error && error.error.code && error.error.message) {
