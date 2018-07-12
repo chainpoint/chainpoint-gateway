@@ -43,8 +43,7 @@ COPY ./tor-exit-nodes.txt /home/node/app/
 
 RUN mkdir -p /home/node/app/keys
 RUN mkdir -p /home/node/app/keys/backups
-
-RUN mkdir -p /home/node/app/nodedb
+RUN mkdir -p /home/node/app/rocksdb
 
 EXPOSE 8080
 

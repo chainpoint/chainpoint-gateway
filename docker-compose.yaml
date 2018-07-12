@@ -37,7 +37,7 @@ services:
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ./keys:/home/node/app/keys
-      - ./.nodedb:/home/node/app/nodedb
+      - ./.data/rocksdb:/home/node/app/rocksdb
     build: .
     ports:
       - "9090:8080"
