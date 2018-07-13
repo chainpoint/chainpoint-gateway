@@ -434,7 +434,7 @@ function startIntervals (coreConfig) {
   calendar.startValidateRecentNodeAsync(CALENDAR_VALIDATE_RECENT_SECONDS * 1000)
   calendar.startValidateFullNodeAsync(CALENDAR_VALIDATE_ALL_SECONDS * 1000)
   // start the interval processes for calculating the solution to the Core audit challenge
-  calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
+  // calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
 }
 
 async function nodeHeartbeat (nodeUri) {
