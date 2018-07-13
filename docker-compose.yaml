@@ -7,7 +7,7 @@ networks:
 services:
 
   postgres:
-    image: postgres:9.6.5-alpine
+    image: postgres:9.6.9-alpine
     container_name: postgres-node-src
     restart: always
     volumes:
@@ -19,7 +19,7 @@ services:
       - chainpoint-node
 
   redis:
-    image: redis:4.0.9-alpine
+    image: redis:4.0.10-alpine
     container_name: redis-node-src
     restart: always
     volumes:
