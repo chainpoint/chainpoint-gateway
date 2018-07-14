@@ -57,6 +57,8 @@ let sequelizePubKey = publicKey.sequelize
 let sequelizeHMACKey = hmacKey.sequelize
 let HMACKey = hmacKey.HMACKey
 
+let IS_PRIVATE_NODE = false
+
 // The redis connection used for all redis communication
 // This value is set once the connection has been established
 let redis = null
@@ -434,7 +436,7 @@ function startIntervals (coreConfig) {
   calendar.startValidateRecentNodeAsync(CALENDAR_VALIDATE_RECENT_SECONDS * 1000)
   calendar.startValidateFullNodeAsync(CALENDAR_VALIDATE_ALL_SECONDS * 1000)
   // start the interval processes for calculating the solution to the Core audit challenge
-  calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
+  calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS, IS_PRIVATE_NODE)
 }
 
 async function nodeHeartbeat (nodeUri) {
@@ -464,6 +466,7 @@ async function startAsync () {
     openRedisConnection(env.REDIS_CONNECT_URI)
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
+    IS_PRIVATE_NODE = (nodeUri === null)
     await openStorageConnectionAsync()
     // Register HMAC Key
     await authKeysUpdate()
