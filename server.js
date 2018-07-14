@@ -35,6 +35,7 @@ const bluebird = require('bluebird')
 const url = require('url')
 const rp = require('request-promise-native')
 const { version } = require('./package.json')
+const eventMetrics = require('./lib/event-metrics.js')
 
 const r = require('redis')
 bluebird.promisifyAll(r.Multi.prototype)
@@ -72,6 +73,7 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(redis)
     calendar.setRedis(redis)
     coreHosts.setRedis(redis)
+    eventMetrics.setRedis(redis)
   })
 
   redis.on('error', async () => {
@@ -80,6 +82,7 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(null)
     calendar.setRedis(null)
     coreHosts.setRedis(null)
+    eventMetrics.setRedis(null)
     console.error('Redis : not available. Will retry in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
