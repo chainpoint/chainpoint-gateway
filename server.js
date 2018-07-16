@@ -163,7 +163,7 @@ async function authKeysUpdate () {
         // the new hmac key, if not, create a new record in the table.
         try {
           await HMACKey
-            .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
+            .findOrCreate({ where: { tntAddr: env.NODE_TNT_ADDRESS }, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 } })
             .spread((hmac, created) => {
               if (!created) {
                 return hmac.update({
@@ -436,8 +436,10 @@ function startIntervals (coreConfig) {
   // start the interval process for keeping the calendar data up to date
   calendar.startPeriodicUpdateAsync(coreConfig, CALENDAR_UPDATE_SECONDS * 1000)
   // start the interval processes for validating Node calendar data
-  calendar.startValidateRecentNodeAsync(CALENDAR_VALIDATE_RECENT_SECONDS * 1000)
-  calendar.startValidateFullNodeAsync(CALENDAR_VALIDATE_ALL_SECONDS * 1000)
+  let validateRecentIntervalMS = CALENDAR_VALIDATE_RECENT_SECONDS * 1000
+  let validateAllIntervalMS = CALENDAR_VALIDATE_ALL_SECONDS * 1000
+  setTimeout(() => { calendar.startValidateRecentNodeAsync(validateRecentIntervalMS) }, validateRecentIntervalMS)
+  setTimeout(() => { calendar.startValidateFullNodeAsync(validateAllIntervalMS) }, validateAllIntervalMS)
   // start the interval processes for calculating the solution to the Core audit challenge
   calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS, IS_PRIVATE_NODE)
 }
