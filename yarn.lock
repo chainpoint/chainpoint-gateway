@@ -658,6 +658,10 @@ jmespath@^0.15.0:
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
 
+js-binary@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/js-binary/-/js-binary-1.2.0.tgz#59ecd73f936183c06a1ed72a811656ce6b84f65c"
+
 js-sha3@^0.5.7:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/js-sha3/-/js-sha3-0.5.7.tgz#0d4ffd8002d5333aabaf4a23eed2f6374c9f28e7"

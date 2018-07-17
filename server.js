@@ -35,6 +35,7 @@ const bluebird = require('bluebird')
 const url = require('url')
 const rp = require('request-promise-native')
 const { version } = require('./package.json')
+const eventMetrics = require('./lib/event-metrics.js')
 
 const r = require('redis')
 bluebird.promisifyAll(r.Multi.prototype)
@@ -57,6 +58,8 @@ let sequelizePubKey = publicKey.sequelize
 let sequelizeHMACKey = hmacKey.sequelize
 let HMACKey = hmacKey.HMACKey
 
+let IS_PRIVATE_NODE = false
+
 // The redis connection used for all redis communication
 // This value is set once the connection has been established
 let redis = null
@@ -70,6 +73,7 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(redis)
     calendar.setRedis(redis)
     coreHosts.setRedis(redis)
+    eventMetrics.setRedis(redis)
   })
 
   redis.on('error', async () => {
@@ -78,6 +82,7 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(null)
     calendar.setRedis(null)
     coreHosts.setRedis(null)
+    eventMetrics.setRedis(null)
     console.error('Redis : not available. Will retry in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
@@ -158,7 +163,7 @@ async function authKeysUpdate () {
         // the new hmac key, if not, create a new record in the table.
         try {
           await HMACKey
-            .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
+            .findOrCreate({ where: { tntAddr: env.NODE_TNT_ADDRESS }, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 } })
             .spread((hmac, created) => {
               if (!created) {
                 return hmac.update({
@@ -431,10 +436,12 @@ function startIntervals (coreConfig) {
   // start the interval process for keeping the calendar data up to date
   calendar.startPeriodicUpdateAsync(coreConfig, CALENDAR_UPDATE_SECONDS * 1000)
   // start the interval processes for validating Node calendar data
-  calendar.startValidateRecentNodeAsync(CALENDAR_VALIDATE_RECENT_SECONDS * 1000)
-  calendar.startValidateFullNodeAsync(CALENDAR_VALIDATE_ALL_SECONDS * 1000)
+  let validateRecentIntervalMS = CALENDAR_VALIDATE_RECENT_SECONDS * 1000
+  let validateAllIntervalMS = CALENDAR_VALIDATE_ALL_SECONDS * 1000
+  setTimeout(() => { calendar.startValidateRecentNodeAsync(validateRecentIntervalMS) }, validateRecentIntervalMS)
+  setTimeout(() => { calendar.startValidateFullNodeAsync(validateAllIntervalMS) }, validateAllIntervalMS)
   // start the interval processes for calculating the solution to the Core audit challenge
-  calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
+  calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS, IS_PRIVATE_NODE)
 }
 
 async function nodeHeartbeat (nodeUri) {
@@ -464,6 +471,7 @@ async function startAsync () {
     openRedisConnection(env.REDIS_CONNECT_URI)
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
+    IS_PRIVATE_NODE = (nodeUri === null)
     await openStorageConnectionAsync()
     // Register HMAC Key
     await authKeysUpdate()
