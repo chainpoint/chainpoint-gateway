@@ -35,6 +35,7 @@ const bluebird = require('bluebird')
 const url = require('url')
 const rp = require('request-promise-native')
 const { version } = require('./package.json')
+const eventMetrics = require('./lib/event-metrics.js')
 
 const r = require('redis')
 bluebird.promisifyAll(r.Multi.prototype)
@@ -476,7 +477,7 @@ async function startAsync () {
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
-
+    await eventMetrics.loadMetricsAsync()
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval(coreConfig.node_aggregation_interval_seconds)
