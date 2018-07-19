@@ -73,7 +73,6 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(redis)
     calendar.setRedis(redis)
     coreHosts.setRedis(redis)
-    eventMetrics.setRedis(redis)
   })
 
   redis.on('error', async () => {
@@ -82,7 +81,6 @@ function openRedisConnection (redisURI) {
     apiServer.setRedis(null)
     calendar.setRedis(null)
     coreHosts.setRedis(null)
-    eventMetrics.setRedis(null)
     console.error('Redis : not available. Will retry in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
@@ -479,7 +477,7 @@ async function startAsync () {
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
-
+    await eventMetrics.loadMetricsAsync()
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval(coreConfig.node_aggregation_interval_seconds)
