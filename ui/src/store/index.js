@@ -32,7 +32,12 @@ if (process.env.NODE_ENV === 'development') {
   }
 }
 // Manually remove 'redux' key from LocalStorage which was previously managed by redux-localstorage package
-window.localStorage.removeItem('redux')
+// try / catch to prevent errors when users have cookies disabled
+try {
+  window.localStorage.removeItem('redux')
+} catch(e) {
+  console.log('cookies and / or localStorage is unavailable.')
+}
 
 const composedEnhancers = compose(
   applyMiddleware(...middleware),

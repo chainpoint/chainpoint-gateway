@@ -3,7 +3,6 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { Grid, Row, Col } from 'react-bootstrap'
 import { withRouter } from 'react-router-dom'
-import moment from 'moment'
 import SideNav from '../SideNav'
 import { signOut } from '../../reducers/appReducer'
 
@@ -12,15 +11,7 @@ class TopNav extends Component {
     super(props)
 
     this._handleOpenMenu = this._handleOpenMenu.bind(this)
-    this.state = { currTime: moment().format('MMMM Do YYYY, hh:mmA'), menuOpen: false }
-  }
-
-  componentDidMount () {
-    setInterval(() => {
-      this.setState({
-        currTime: moment().format('MMMM Do YYYY, hh:mmA')
-      })
-    }, 3000)
+    this.state = { menuOpen: false }
   }
 
   _handleOpenMenu () {

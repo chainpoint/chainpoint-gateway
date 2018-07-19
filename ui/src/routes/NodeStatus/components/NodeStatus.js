@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import { isEqual as _isEqual, isUndefined as _isUndefined, isNull as _isNull, isNumber as _isNumber, isEmpty as _isEmpty } from 'lodash'
+import { isNull as _isNull, isNumber as _isNumber, isEmpty as _isEmpty } from 'lodash'
 import classnames from 'classnames'
 import { Grid, Row, Col, FormGroup, ControlLabel, FormControl } from 'react-bootstrap'
 import semver from 'semver'
@@ -21,18 +21,13 @@ class NodeStatus extends Component {
     this.state = { node_min_version: null }
   }
 
-  componentWillMount () {
-    if (_isUndefined(this.props.auth.access_token)) {
-      this.props.history.push('/login')
-    }
-  }
-
   componentDidMount () {
     fetch('https://a.chainpoint.org/config').then(res => res.json()).then((res) => { // eslint-disable-line
       this.setState({
         node_min_version: res.node_min_version
       })
     })
+
     this.props.getNodeConfig()
     this.props.getNodeStats('last_1_days')
 
@@ -40,6 +35,10 @@ class NodeStatus extends Component {
       // Provide near real-time information
       this.props.getNodeStats('last_1_days')
     }, 1000)
+  }
+
+  componentWillUnmount () {
+    clearInterval(this.statsInterval)
   }
 
   _getRegistrationStatus () {

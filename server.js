@@ -35,6 +35,8 @@ const bluebird = require('bluebird')
 const url = require('url')
 const rp = require('request-promise-native')
 const { version } = require('./package.json')
+const eventMetrics = require('./lib/event-metrics.js')
+const rocksDB = require('./lib/models/RocksDB.js')
 
 const r = require('redis')
 bluebird.promisifyAll(r.Multi.prototype)
@@ -56,6 +58,8 @@ let sequelizeCalBlock = calendarBlock.sequelize
 let sequelizePubKey = publicKey.sequelize
 let sequelizeHMACKey = hmacKey.sequelize
 let HMACKey = hmacKey.HMACKey
+
+let IS_PRIVATE_NODE = false
 
 // The redis connection used for all redis communication
 // This value is set once the connection has been established
@@ -158,7 +162,7 @@ async function authKeysUpdate () {
         // the new hmac key, if not, create a new record in the table.
         try {
           await HMACKey
-            .findOrCreate({where: {tntAddr: env.NODE_TNT_ADDRESS}, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 }})
+            .findOrCreate({ where: { tntAddr: env.NODE_TNT_ADDRESS }, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 } })
             .spread((hmac, created) => {
               if (!created) {
                 return hmac.update({
@@ -230,7 +234,17 @@ async function registerNodeAsync (nodeURI) {
 
         try {
           console.log('INFO : Registration : Attempting Core update using ETH/HMAC/IP')
-          await coreHosts.coreRequestAsync(putOptions)
+          // Check PUT /nodes Core Request payload, if the payload equals the last payload sent to coreRequest simply skip the call
+          let lastCoreRequestPayload = await redis.getAsync('lastCoreRequestPayload')
+
+          // Skip Core Request if the payload is the same as the previous one sent to PUT /nodes/:tntAddr
+          if (lastCoreRequestPayload !== `${putObject.tnt_addr}|${putObject.public_uri}`) {
+            await coreHosts.coreRequestAsync(putOptions)
+
+            // PUT request to coreRequest returned a 2xx go ahead and persist put payload into Redis
+            await redis.setAsync('lastCoreRequestPayload', `${putObject.tnt_addr}|${putObject.public_uri}`)
+            await redis.setAsync('lastCoreRequestPayloadDate', Date.now())
+          }
         } catch (error) {
           if (error.statusCode === 409) {
             if (error.error && error.error.code && error.error.message) {
@@ -421,10 +435,12 @@ function startIntervals (coreConfig) {
   // start the interval process for keeping the calendar data up to date
   calendar.startPeriodicUpdateAsync(coreConfig, CALENDAR_UPDATE_SECONDS * 1000)
   // start the interval processes for validating Node calendar data
-  calendar.startValidateRecentNodeAsync(CALENDAR_VALIDATE_RECENT_SECONDS * 1000)
-  calendar.startValidateFullNodeAsync(CALENDAR_VALIDATE_ALL_SECONDS * 1000)
+  let validateRecentIntervalMS = CALENDAR_VALIDATE_RECENT_SECONDS * 1000
+  let validateAllIntervalMS = CALENDAR_VALIDATE_ALL_SECONDS * 1000
+  setTimeout(() => { calendar.startValidateRecentNodeAsync(validateRecentIntervalMS) }, validateRecentIntervalMS)
+  setTimeout(() => { calendar.startValidateFullNodeAsync(validateAllIntervalMS) }, validateAllIntervalMS)
   // start the interval processes for calculating the solution to the Core audit challenge
-  calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS)
+  calendar.startCalculateChallengeSolutionAsync(SOLVE_CHALLENGE_INTERVAL_MS, IS_PRIVATE_NODE)
 }
 
 async function nodeHeartbeat (nodeUri) {
@@ -447,6 +463,91 @@ async function nodeHeartbeat (nodeUri) {
   }
 }
 
+async function migrateProofStateAsync () {
+  try {
+    // read any existing proof state from redis
+    let readisReady = redis !== null
+    while (!readisReady) {
+      await utils.sleepAsync(1000)
+      readisReady = redis !== null
+    }
+
+    let aggDataKeys, lookupKeys
+    try {
+      aggDataKeys = await redis.keysAsync(`${env.CORE_SUBMISSION_KEY_PREFIX}*`)
+      lookupKeys = await redis.keysAsync(`${env.HASH_NODE_LOOKUP_KEY_PREFIX}*`)
+      if (aggDataKeys.length === 0 || lookupKeys.length === 0) return
+    } catch (error) {
+      let err = `Unable to read keys: ${error.message}`
+      throw err
+    }
+
+    let aggDataItems, lookupItems
+    try {
+      aggDataItems = await redis.mgetAsync(aggDataKeys)
+      lookupItems = await redis.mgetAsync(lookupKeys)
+    } catch (error) {
+      let err = `Unable to get values at keys: ${error.message}`
+      throw err
+    }
+
+    // create proofDataItems from Redis proof state
+    let aggData = aggDataKeys.reduce((result, key, index) => {
+      let hashIdCore = key.split(':')[1]
+      result[hashIdCore] = JSON.parse(aggDataItems[index])
+      return result
+    }, {})
+
+    let nodeProofDataItems = lookupKeys.map((lookupKey, index) => {
+      let hashIdNode = lookupKey.split(':')[1]
+      let hashIdCore = lookupItems[index]
+      let proofDataItem = aggData[hashIdCore].proof_data.find((item) => item.hash_id === hashIdNode)
+      let hash = proofDataItem.hash
+      let proofState = proofDataItem.partial_proof_path.reduce((result, item, index) => {
+        // omit l: 'node_id:{hashIdNode}' which will be added on proof retrievalxs
+        if (index === 0 || index === 1) return result
+        // even number items contain values, odd contain hash operations
+        // assuming sha-256 operations, we are only intersted in the values on even indexes
+        if (index % 2 === 0) {
+          if (item.l) {
+            result.push(Buffer.from('00', 'hex'))
+            result.push(Buffer.from(item.l, 'hex'))
+          } else if (item.r) {
+            result.push(Buffer.from('01', 'hex'))
+            result.push(Buffer.from(item.r, 'hex'))
+          }
+        }
+        return result
+      }, [])
+
+      let nodeProofDataItem = {}
+      nodeProofDataItem.hashIdNode = hashIdNode
+      nodeProofDataItem.hash = hash
+      nodeProofDataItem.proofState = proofState
+      nodeProofDataItem.hashIdCore = hashIdCore
+      return nodeProofDataItem
+    })
+
+    // persist these proofDataItems to storage
+    try {
+      await rocksDB.saveProofStatesBatchAsync(nodeProofDataItems)
+    } catch (error) {
+      let err = `Unable to persist proof state data to disk : ${error.message}`
+      throw err
+    }
+
+    // delete from redis
+    try {
+      await redis.delAsync([...aggDataKeys, ...lookupKeys])
+    } catch (error) {
+      let err = `Unable to delete proof state from Redis : ${error.message}`
+      throw err
+    }
+  } catch (error) {
+    console.error(`ERROR : Unable to migrate proof state : ${error}`)
+  }
+}
+
 // process all steps need to start the application
 async function startAsync () {
   try {
@@ -454,6 +555,7 @@ async function startAsync () {
     openRedisConnection(env.REDIS_CONNECT_URI)
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
+    IS_PRIVATE_NODE = (nodeUri === null)
     await openStorageConnectionAsync()
     // Register HMAC Key
     await authKeysUpdate()
@@ -461,7 +563,8 @@ async function startAsync () {
     apiServer.setHmacKey(hmacKey)
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
-
+    await eventMetrics.loadMetricsAsync()
+    await migrateProofStateAsync()
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval(coreConfig.node_aggregation_interval_seconds)

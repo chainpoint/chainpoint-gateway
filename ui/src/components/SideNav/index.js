@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 import { isEqual } from 'lodash'
 import FontAwesome from 'react-fontawesome'
+import classnames from 'classnames'
 
 class SideNav extends Component {
   constructor (props) {
@@ -20,8 +21,12 @@ class SideNav extends Component {
   }
 
   render () {
+    let className = classnames('sidenav', {
+      'closed': !this.props.menuOpen
+    })
+
     return (
-      <div className='sidenav' style={{ width: this.props.menuOpen ? '300px' : '0px' }}>
+      <div className={className}>
         <span className='closebtn cursor add-top' onClick={this.props.closeMenu}><FontAwesome className='lightpurple-text' name='times' /></span>
         <Link to='/' onClick={this.props.closeMenu}><FontAwesome className='lightpurple-text' name='signal' />&nbsp;&nbsp;Activity</Link>
         <Link to='/about' onClick={this.props.closeMenu}><FontAwesome className='lightpurple-text' name='list' />&nbsp;&nbsp;About</Link>

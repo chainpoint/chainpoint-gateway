@@ -18,7 +18,7 @@ help : Makefile
 
 ## up              : Start Node
 .PHONY : up
-up: build-config yarn build
+up: build-config yarn build build-rocksdb
 	docker-compose up -d --no-build
 
 ## down            : Shutdown Node
@@ -69,6 +69,11 @@ build-config:
 	@[ ! -f ./.env ] && \
 	cp .env.sample .env && \
 	echo 'Copied config .env.sample to .env' || true
+
+## build-rocksdb   : Ensure the RocksDB data dir exists
+.PHONY : build-rocksdb
+build-rocksdb:
+	mkdir -p ./.data/rocksdb && chmod 777 ./.data/rocksdb
 
 ## pull            : Pull Docker images
 .PHONY : pull
