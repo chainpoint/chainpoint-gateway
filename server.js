@@ -497,8 +497,8 @@ async function migrateProofStateAsync () {
     // create proofDataItems from Redis proof state
     let aggData = aggDataKeys.reduce((result, key, index) => {
       let hashIdCore = key.split(':')[1]
-      aggData[hashIdCore] = JSON.parse(aggDataItems[index])
-      return aggData
+      result[hashIdCore] = JSON.parse(aggDataItems[index])
+      return result
     }, {})
 
     let nodeProofDataItems = lookupKeys.map((lookupKey, index) => {
@@ -542,7 +542,7 @@ async function migrateProofStateAsync () {
 
     // delete from redis
     try {
-      await redis.delAsync([...aggDataKeys, ...lookupKeys])
+      // await redis.delAsync([...aggDataKeys, ...lookupKeys])
     } catch (error) {
       let err = `Unable to delete proof state from Redis : ${error.message}`
       throw err
