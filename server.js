@@ -476,10 +476,7 @@ async function migrateProofStateAsync () {
     try {
       aggDataKeys = await redis.keysAsync(`${env.CORE_SUBMISSION_KEY_PREFIX}*`)
       lookupKeys = await redis.keysAsync(`${env.HASH_NODE_LOOKUP_KEY_PREFIX}*`)
-      if (aggDataKeys.length === 0 || lookupKeys.length === 0) {
-        console.log('No data to migrate, skipping.')
-        return
-      }
+      if (aggDataKeys.length === 0 || lookupKeys.length === 0) return
     } catch (error) {
       let err = `Unable to read keys: ${error.message}`
       throw err
@@ -528,7 +525,6 @@ async function migrateProofStateAsync () {
       nodeProofDataItem.hash = hash
       nodeProofDataItem.proofState = proofState
       nodeProofDataItem.hashIdCore = hashIdCore
-      console.log(nodeProofDataItem)
       return nodeProofDataItem
     })
 
@@ -542,13 +538,13 @@ async function migrateProofStateAsync () {
 
     // delete from redis
     try {
-      // await redis.delAsync([...aggDataKeys, ...lookupKeys])
+      await redis.delAsync([...aggDataKeys, ...lookupKeys])
     } catch (error) {
       let err = `Unable to delete proof state from Redis : ${error.message}`
       throw err
     }
   } catch (error) {
-    console.error(`Unable to migrate proof state : ${error}`)
+    console.error(`ERROR : Unable to migrate proof state : ${error}`)
   }
 }
 
