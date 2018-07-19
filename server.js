@@ -539,6 +539,7 @@ async function migrateProofStateAsync () {
     // delete from redis
     try {
       await redis.delAsync([...aggDataKeys, ...lookupKeys])
+      await redis.bgrewriteaofAsync()
     } catch (error) {
       let err = `Unable to delete proof state from Redis : ${error.message}`
       throw err
