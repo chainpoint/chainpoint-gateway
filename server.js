@@ -36,6 +36,7 @@ const url = require('url')
 const rp = require('request-promise-native')
 const { version } = require('./package.json')
 const eventMetrics = require('./lib/event-metrics.js')
+const rocksDB = require('./lib/models/RocksDB.js')
 
 const r = require('redis')
 bluebird.promisifyAll(r.Multi.prototype)
@@ -462,6 +463,95 @@ async function nodeHeartbeat (nodeUri) {
   }
 }
 
+async function migrateProofStateAsync () {
+  try {
+    // read any existing proof state from redis
+    let readisReady = redis !== null
+    while (!readisReady) {
+      await utils.sleepAsync(1000)
+      readisReady = redis !== null
+    }
+
+    let aggDataKeys, lookupKeys
+    try {
+      aggDataKeys = await redis.keysAsync(`${env.CORE_SUBMISSION_KEY_PREFIX}*`)
+      lookupKeys = await redis.keysAsync(`${env.HASH_NODE_LOOKUP_KEY_PREFIX}*`)
+      if (aggDataKeys.length === 0 || lookupKeys.length === 0) {
+        console.log('No data to migrate, skipping.')
+        return
+      }
+    } catch (error) {
+      let err = `Unable to read keys: ${error.message}`
+      throw err
+    }
+
+    let aggDataItems, lookupItems
+    try {
+      aggDataItems = await redis.mgetAsync(aggDataKeys)
+      lookupItems = await redis.mgetAsync(lookupKeys)
+    } catch (error) {
+      let err = `Unable to get values at keys: ${error.message}`
+      throw err
+    }
+
+    // create proofDataItems from Redis proof state
+    let aggData = aggDataKeys.reduce((result, key, index) => {
+      let hashIdCore = key.split(':')[1]
+      aggData[hashIdCore] = JSON.parse(aggDataItems[index])
+      return aggData
+    }, {})
+
+    let nodeProofDataItems = lookupKeys.map((lookupKey, index) => {
+      let hashIdNode = lookupKey.split(':')[1]
+      let hashIdCore = lookupItems[index]
+      let proofDataItem = aggData[hashIdCore].proof_data.find((item) => item.hash_id === hashIdNode)
+      let hash = proofDataItem.hash
+      let proofState = proofDataItem.partial_proof_path.reduce((result, item, index) => {
+        // omit l: 'node_id:{hashIdNode}' which will be added on proof retrievalxs
+        if (index === 0 || index === 1) return result
+        // even number items contain values, odd contain hash operations
+        // assuming sha-256 operations, we are only intersted in the values on even indexes
+        if (index % 2 === 0) {
+          if (item.l) {
+            result.push(Buffer.from('00', 'hex'))
+            result.push(Buffer.from(item.l, 'hex'))
+          } else if (item.r) {
+            result.push(Buffer.from('01', 'hex'))
+            result.push(Buffer.from(item.r, 'hex'))
+          }
+        }
+        return result
+      }, [])
+
+      let nodeProofDataItem = {}
+      nodeProofDataItem.hashIdNode = hashIdNode
+      nodeProofDataItem.hash = hash
+      nodeProofDataItem.proofState = proofState
+      nodeProofDataItem.hashIdCore = hashIdCore
+      console.log(nodeProofDataItem)
+      return nodeProofDataItem
+    })
+
+    // persist these proofDataItems to storage
+    try {
+      await rocksDB.saveProofStatesBatchAsync(nodeProofDataItems)
+    } catch (error) {
+      let err = `Unable to persist proof state data to disk : ${error.message}`
+      throw err
+    }
+
+    // delete from redis
+    try {
+      await redis.delAsync([...aggDataKeys, ...lookupKeys])
+    } catch (error) {
+      let err = `Unable to delete proof state from Redis : ${error.message}`
+      throw err
+    }
+  } catch (error) {
+    console.error(`Unable to migrate proof state : ${error}`)
+  }
+}
+
 // process all steps need to start the application
 async function startAsync () {
   try {
@@ -478,6 +568,7 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await eventMetrics.loadMetricsAsync()
+    await migrateProofStateAsync()
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval(coreConfig.node_aggregation_interval_seconds)
