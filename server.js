@@ -133,6 +133,7 @@ async function openStorageConnectionAsync () {
       await utils.sleepAsync(5000)
     }
   }
+  await rocksDB.openConnectionAsync()
 }
 
 // Registering HMAC KEY from .key file
