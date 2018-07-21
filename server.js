@@ -71,17 +71,11 @@ function openRedisConnection (redisURI) {
 
   redis.on('ready', () => {
     bluebird.promisifyAll(redis)
-    apiServer.setRedis(redis)
-    calendar.setRedis(redis)
-    coreHosts.setRedis(redis)
   })
 
   redis.on('error', async () => {
     redis.quit()
     redis = null
-    apiServer.setRedis(null)
-    calendar.setRedis(null)
-    coreHosts.setRedis(null)
     console.error('Redis : not available. Will retry in 5 seconds...')
     await utils.sleepAsync(5000)
     openRedisConnection(redisURI)
@@ -236,15 +230,15 @@ async function registerNodeAsync (nodeURI) {
         try {
           console.log('INFO : Registration : Attempting Core update using ETH/HMAC/IP')
           // Check PUT /nodes Core Request payload, if the payload equals the last payload sent to coreRequest simply skip the call
-          let lastCoreRequestPayload = await redis.getAsync('lastCoreRequestPayload')
+          let lastCoreRequestPayload = await rocksDB.getAsync('lastCoreRequestPayload')
 
           // Skip Core Request if the payload is the same as the previous one sent to PUT /nodes/:tntAddr
           if (lastCoreRequestPayload !== `${putObject.tnt_addr}|${putObject.public_uri}`) {
             await coreHosts.coreRequestAsync(putOptions)
 
-            // PUT request to coreRequest returned a 2xx go ahead and persist put payload into Redis
-            await redis.setAsync('lastCoreRequestPayload', `${putObject.tnt_addr}|${putObject.public_uri}`)
-            await redis.setAsync('lastCoreRequestPayloadDate', Date.now())
+            // PUT request to coreRequest returned a 2xx go ahead and persist put payload into Rocks
+            await rocksDB.setAsync('lastCoreRequestPayload', `${putObject.tnt_addr}|${putObject.public_uri}`)
+            await rocksDB.setAsync('lastCoreRequestPayloadDate', Date.now())
           }
         } catch (error) {
           if (error.statusCode === 409) {
@@ -550,15 +544,39 @@ async function migrateProofStateAsync () {
   }
 }
 
+async function migrateOtherValuesAsync () {
+  try {
+    let challengeResponse = await redis.getAsync('challenge_response')
+    let dataFromCore = await redis.getAsync('dataFromCore')
+    let dataFromCoreLastReceived = await redis.getAsync('dataFromCoreLastReceived')
+    let lastCoreRequestPayload = await redis.getAsync('lastCoreRequestPayload')
+    let lastCoreRequestPayloadDate = await redis.getAsync('lastCoreRequestPayloadDate')
+    let currentCoreHost = await redis.getAsync('CurrentCoreHost')
+    let coreHostTXT = await redis.smembersAsync('CoreHostTXT')
+
+    if (challengeResponse) await rocksDB.setAsync('challenge_response', challengeResponse)
+    if (dataFromCore) await rocksDB.setAsync('dataFromCore', dataFromCore)
+    if (dataFromCoreLastReceived) await rocksDB.setAsync('dataFromCoreLastReceived', dataFromCoreLastReceived)
+    if (lastCoreRequestPayload) await rocksDB.setAsync('lastCoreRequestPayload', lastCoreRequestPayload)
+    if (lastCoreRequestPayloadDate) await rocksDB.setAsync('lastCoreRequestPayloadDate', lastCoreRequestPayloadDate)
+    if (currentCoreHost) await rocksDB.setAsync('currentCoreHost', currentCoreHost)
+    if (coreHostTXT) await rocksDB.setAsync('coreHostTXT', JSON.stringify({ hosts: coreHostTXT }))
+
+    await redis.delAsync(['challenge_response', 'dataFromCore', 'dataFromCoreLastReceived', 'lastCoreRequestPayload', 'lastCoreRequestPayloadDate', 'currentCoreHost', 'coreHostTXT'])
+  } catch (error) {
+    console.error(`ERROR : Unable to migrate variables : ${error.message}`)
+  }
+}
+
 // process all steps need to start the application
 async function startAsync () {
   try {
     console.log(`INFO : App : Starting : Version ${version}`)
     openRedisConnection(env.REDIS_CONNECT_URI)
+    await openStorageConnectionAsync()
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     IS_PRIVATE_NODE = (nodeUri === null)
-    await openStorageConnectionAsync()
     // Register HMAC Key
     await authKeysUpdate()
     let hmacKey = await registerNodeAsync(nodeUri)
@@ -567,6 +585,7 @@ async function startAsync () {
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await eventMetrics.loadMetricsAsync()
     await migrateProofStateAsync()
+    await migrateOtherValuesAsync()
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval(coreConfig.node_aggregation_interval_seconds)
