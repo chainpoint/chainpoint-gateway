@@ -562,7 +562,7 @@ async function migrateOtherValuesAsync () {
     if (currentCoreHost) await rocksDB.setAsync('currentCoreHost', currentCoreHost)
     if (coreHostTXT) await rocksDB.setAsync('coreHostTXT', JSON.stringify({ hosts: coreHostTXT }))
 
-    await redis.delAsync(['challenge_response', 'dataFromCore', 'dataFromCoreLastReceived', 'lastCoreRequestPayload', 'lastCoreRequestPayloadDate', 'currentCoreHost', 'coreHostTXT'])
+    await redis.delAsync(['challenge_response', 'dataFromCore', 'dataFromCoreLastReceived', 'lastCoreRequestPayload', 'lastCoreRequestPayloadDate', 'CurrentCoreHost', 'CoreHostTXT'])
   } catch (error) {
     console.error(`ERROR : Unable to migrate variables : ${error.message}`)
   }
