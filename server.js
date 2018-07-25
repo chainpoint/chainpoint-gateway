@@ -95,15 +95,19 @@ async function validateUriAsync (nodeUri) {
     host_blacklist: ['0.0.0.0']
   })
 
-  let parsedURIHost = url.parse(nodeUri).hostname
+  let parsedURI = url.parse(nodeUri)
+  let parsedURIHost = parsedURI.hostname
+  let uriHasValidPort = (parsedURI.port === null || parsedURI.port === '80') ? true : false
 
   // Valid IPv4 IP address
   let uriHasValidIPHost = validator.isIP(parsedURIHost, 4)
 
-  if (isValidURI && uriHasValidIPHost && !ip.isPrivate(parsedURIHost)) {
+  if (isValidURI && uriHasValidIPHost && !ip.isPrivate(parsedURIHost) && uriHasValidPort) {
     return nodeUri
   } else if (isValidURI && uriHasValidIPHost && ip.isPrivate(parsedURIHost)) {
     throw new Error(`RFC1918 Private IP Addresses like "${parsedURIHost}" cannot be specified as CHAINPOINT_NODE_PUBLIC_URI`)
+  } else if (!uriHasValidPort) {
+    throw new Error(`CHAINPOINT_NODE_PUBLIC_URI only supports the use of port 80`)
   } else {
     return null
   }
