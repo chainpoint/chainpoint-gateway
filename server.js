@@ -31,15 +31,11 @@ const coreHosts = require('./lib/core-hosts.js')
 const crypto = require('crypto')
 const moment = require('moment')
 const ip = require('ip')
-const bluebird = require('bluebird')
 const url = require('url')
 const rp = require('request-promise-native')
 const { version } = require('./package.json')
 const eventMetrics = require('./lib/event-metrics.js')
 const rocksDB = require('./lib/models/RocksDB.js')
-
-const r = require('redis')
-bluebird.promisifyAll(r.Multi.prototype)
 
 // the interval at which the service queries the calendar for new blocks
 const CALENDAR_UPDATE_SECONDS = 300
@@ -60,27 +56,6 @@ let sequelizeHMACKey = hmacKey.sequelize
 let HMACKey = hmacKey.HMACKey
 
 let IS_PRIVATE_NODE = false
-
-// The redis connection used for all redis communication
-// This value is set once the connection has been established
-let redis = null
-
-// Opens a Redis connection
-function openRedisConnection (redisURI) {
-  redis = r.createClient(redisURI)
-
-  redis.on('ready', () => {
-    bluebird.promisifyAll(redis)
-  })
-
-  redis.on('error', async () => {
-    redis.quit()
-    redis = null
-    console.error('Redis : not available. Will retry in 5 seconds...')
-    await utils.sleepAsync(5000)
-    openRedisConnection(redisURI)
-  })
-}
 
 // Ensure that the URI provided is valid
 // Returns either a valid public URI that can be registered, or null
@@ -462,121 +437,10 @@ async function nodeHeartbeat (nodeUri) {
   }
 }
 
-async function migrateProofStateAsync () {
-  try {
-    // read any existing proof state from redis
-    let readisReady = redis !== null
-    while (!readisReady) {
-      await utils.sleepAsync(1000)
-      readisReady = redis !== null
-    }
-
-    let aggDataKeys, lookupKeys
-    try {
-      aggDataKeys = await redis.keysAsync(`${env.CORE_SUBMISSION_KEY_PREFIX}*`)
-      lookupKeys = await redis.keysAsync(`${env.HASH_NODE_LOOKUP_KEY_PREFIX}*`)
-      if (aggDataKeys.length === 0 || lookupKeys.length === 0) return
-    } catch (error) {
-      let err = `Unable to read keys: ${error.message}`
-      throw err
-    }
-
-    let aggDataItems, lookupItems
-    try {
-      aggDataItems = await redis.mgetAsync(aggDataKeys)
-      lookupItems = await redis.mgetAsync(lookupKeys)
-    } catch (error) {
-      let err = `Unable to get values at keys: ${error.message}`
-      throw err
-    }
-
-    // create proofDataItems from Redis proof state
-    let aggData = aggDataKeys.reduce((result, key, index) => {
-      let hashIdCore = key.split(':')[1]
-      result[hashIdCore] = JSON.parse(aggDataItems[index])
-      return result
-    }, {})
-
-    let nodeProofDataItems = lookupKeys.map((lookupKey, index) => {
-      let hashIdNode = lookupKey.split(':')[1]
-      let hashIdCore = lookupItems[index]
-      let proofDataItem = aggData[hashIdCore].proof_data.find((item) => item.hash_id === hashIdNode)
-      let hash = proofDataItem.hash
-      let proofState = proofDataItem.partial_proof_path.reduce((result, item, index) => {
-        // omit l: 'node_id:{hashIdNode}' which will be added on proof retrievalxs
-        if (index === 0 || index === 1) return result
-        // even number items contain values, odd contain hash operations
-        // assuming sha-256 operations, we are only intersted in the values on even indexes
-        if (index % 2 === 0) {
-          if (item.l) {
-            result.push(Buffer.from('00', 'hex'))
-            result.push(Buffer.from(item.l, 'hex'))
-          } else if (item.r) {
-            result.push(Buffer.from('01', 'hex'))
-            result.push(Buffer.from(item.r, 'hex'))
-          }
-        }
-        return result
-      }, [])
-
-      let nodeProofDataItem = {}
-      nodeProofDataItem.hashIdNode = hashIdNode
-      nodeProofDataItem.hash = hash
-      nodeProofDataItem.proofState = proofState
-      nodeProofDataItem.hashIdCore = hashIdCore
-      return nodeProofDataItem
-    })
-
-    // persist these proofDataItems to storage
-    try {
-      await rocksDB.saveProofStatesBatchAsync(nodeProofDataItems)
-    } catch (error) {
-      let err = `Unable to persist proof state data to disk : ${error.message}`
-      throw err
-    }
-
-    // delete from redis
-    try {
-      await redis.delAsync([...aggDataKeys, ...lookupKeys])
-      await redis.bgrewriteaofAsync()
-    } catch (error) {
-      let err = `Unable to delete proof state from Redis : ${error.message}`
-      throw err
-    }
-  } catch (error) {
-    console.error(`ERROR : Unable to migrate proof state : ${error}`)
-  }
-}
-
-async function migrateOtherValuesAsync () {
-  try {
-    let challengeResponse = await redis.getAsync('challenge_response')
-    let dataFromCore = await redis.getAsync('dataFromCore')
-    let dataFromCoreLastReceived = await redis.getAsync('dataFromCoreLastReceived')
-    let lastCoreRequestPayload = await redis.getAsync('lastCoreRequestPayload')
-    let lastCoreRequestPayloadDate = await redis.getAsync('lastCoreRequestPayloadDate')
-    let currentCoreHost = await redis.getAsync('CurrentCoreHost')
-    let coreHostTXT = await redis.smembersAsync('CoreHostTXT')
-
-    if (challengeResponse) await rocksDB.setAsync('challenge_response', challengeResponse)
-    if (dataFromCore) await rocksDB.setAsync('dataFromCore', dataFromCore)
-    if (dataFromCoreLastReceived) await rocksDB.setAsync('dataFromCoreLastReceived', dataFromCoreLastReceived)
-    if (lastCoreRequestPayload) await rocksDB.setAsync('lastCoreRequestPayload', lastCoreRequestPayload)
-    if (lastCoreRequestPayloadDate) await rocksDB.setAsync('lastCoreRequestPayloadDate', lastCoreRequestPayloadDate)
-    if (currentCoreHost) await rocksDB.setAsync('currentCoreHost', currentCoreHost)
-    if (coreHostTXT) await rocksDB.setAsync('coreHostTXT', JSON.stringify({ hosts: coreHostTXT }))
-
-    await redis.delAsync(['challenge_response', 'dataFromCore', 'dataFromCoreLastReceived', 'lastCoreRequestPayload', 'lastCoreRequestPayloadDate', 'CurrentCoreHost', 'CoreHostTXT'])
-  } catch (error) {
-    console.error(`ERROR : Unable to migrate variables : ${error.message}`)
-  }
-}
-
 // process all steps need to start the application
 async function startAsync () {
   try {
     console.log(`INFO : App : Starting : Version ${version}`)
-    openRedisConnection(env.REDIS_CONNECT_URI)
     await openStorageConnectionAsync()
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
@@ -588,8 +452,6 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await eventMetrics.loadMetricsAsync()
-    await migrateProofStateAsync()
-    await migrateOtherValuesAsync()
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval(coreConfig.node_aggregation_interval_seconds)

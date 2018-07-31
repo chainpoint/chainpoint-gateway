@@ -35,11 +35,6 @@ restart: down up
 logs:
 	docker-compose logs -f -t | grep chainpoint-node
 
-## logs-redis      : Tail Redis logs
-.PHONY : logs-redis
-logs-redis:
-	docker-compose logs -f -t | grep redis
-
 ## logs-postgres   : Tail PostgreSQL logs
 .PHONY : logs-postgres
 logs-postgres:
@@ -105,13 +100,6 @@ postgres:
 	@docker-compose up -d postgres
 	@sleep 6
 	@docker exec -it postgres-node-src psql -U chainpoint
-
-## redis           : Connect to the local Redis with `redis-cli`
-.PHONY : redis
-redis:
-	@docker-compose up -d redis
-	@sleep 2
-	@docker exec -it redis-node-src redis-cli
 
 ## backup-auth-keys: Backup HMAC Auth keys to the 'keys/backups' dir
 .PHONY : backup-auth-keys
