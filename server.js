@@ -154,23 +154,11 @@ async function authKeysUpdate () {
       keyFileContent = _.head(keyFileContent.split(os.EOL).map(_.trim).filter(isHMAC))
 
       if (isHMAC(keyFileContent)) {
-        // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with
-        // the new hmac key, if not, create a new record in the table.
         try {
-          await HMACKey
-            .findOrCreate({ where: { tntAddr: env.NODE_TNT_ADDRESS }, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 } })
-            .spread((hmac, created) => {
-              if (!created) {
-                return hmac.update({
-                  hmacKey: keyFileContent,
-                  version: hmac.version + 1
-                })
-              }
-            })
-
-          console.log(`INFO : Registration : Auth key saved to PostgreSQL : ${keyFile}`)
+          await rocksDB.saveHMACKeyAsync({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 })
+          console.log(`INFO : Registration : Auth key saved to local storage : ${keyFile}`)
         } catch (err) {
-          console.error(`ERROR : Registration : Error inserting/updating auth key in PostgreSQL : ${keyFile}`)
+          console.error(`ERROR : Registration : Error inserting/updating auth key in local storage : ${keyFile}`)
           process.exit(0)
         }
       } else {
@@ -192,7 +180,7 @@ async function registerNodeAsync (nodeURI) {
       // Check if HMAC key for current TNT address already exists
       let hmacEntry
       try {
-        hmacEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+        hmacEntry = await rocksDB.getHMACKeyByTNTAddressAsync(env.NODE_TNT_ADDRESS)
       } catch (error) {
         console.error(`ERROR : Registration : Unable to load auth key`)
         // We are no longer exiting this process. Simply set registration state to 'false' which
@@ -321,9 +309,9 @@ async function registerNodeAsync (nodeURI) {
           try {
             // write new hmac entry
             let writeHMACKey = response.hmac_key
-            await HMACKey.create({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey, version: 1 })
+            await rocksDB.saveHMACKeyAsync({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey, version: 1 })
             // read hmac entry that was just written
-            let newHMACEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+            let newHMACEntry = await rocksDB.getHMACKeyByTNTAddressAsync(env.NODE_TNT_ADDRESS)
             // confirm the two are the same
             if (!newHMACEntry || (newHMACEntry.hmacKey !== writeHMACKey)) {
               throw new Error(`Unable to confirm authentication key with read after write.`)
