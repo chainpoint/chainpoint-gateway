@@ -552,6 +552,17 @@ async function migrateOtherValuesAsync () {
   }
 }
 
+async function migrateHMACKeysAsync () {
+  try {
+    let allHMACKeys = await HMACKey.findAll()
+    for (let key of allHMACKeys) {
+      await rocksDB.saveHMACKeyAsync(key)
+    }
+  } catch (error) {
+    console.error(`ERROR : Unable to migrate HMAC keys : ${error.message}`)
+  }
+}
+
 // process all steps need to start the application
 async function startAsync () {
   try {
@@ -561,6 +572,7 @@ async function startAsync () {
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     IS_PRIVATE_NODE = (nodeUri === null)
+    await migrateHMACKeysAsync()
     // Register HMAC Key
     await authKeysUpdate()
     let hmacKey = await registerNodeAsync(nodeUri)
