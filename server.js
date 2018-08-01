@@ -22,7 +22,6 @@ const os = require('os')
 const { exec } = require('child_process')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
-const publicKey = require('./lib/models/PublicKey.js')
 const hmacKey = require('./lib/models/HMACKey.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
@@ -55,7 +54,6 @@ const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
 
 // pull in variables defined in shared sequelize modules
 let sequelizeCalBlock = calendarBlock.sequelize
-let sequelizePubKey = publicKey.sequelize
 let sequelizeHMACKey = hmacKey.sequelize
 let HMACKey = hmacKey.HMACKey
 
@@ -120,7 +118,6 @@ async function openStorageConnectionAsync () {
   while (!storageConnected) {
     try {
       await sequelizeCalBlock.sync({ logging: false })
-      await sequelizePubKey.sync({ logging: false })
       await sequelizeHMACKey.sync({ logging: false })
       storageConnected = true
     } catch (error) {
@@ -409,14 +406,9 @@ async function registerNodeAsync (nodeURI) {
 }
 
 async function initPublicKeysAsync (coreConfig) {
-  // check to see if public keys exists in database
   try {
+    await publicKeys.storeConfigPubKeyAsync(coreConfig.public_keys)
     let pubKeys = await publicKeys.getLocalPublicKeysAsync()
-    if (!pubKeys) {
-      // if no public keys are present in database, store keys from coreConfig in DB and return them
-      await publicKeys.storeConfigPubKeyAsync(coreConfig.public_keys)
-      pubKeys = await publicKeys.getLocalPublicKeysAsync()
-    }
     return pubKeys
   } catch (error) {
     throw new Error(`Registration : Unable to initialize Core public keys.`)
