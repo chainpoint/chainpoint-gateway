@@ -394,9 +394,14 @@ async function registerNodeAsync (nodeURI) {
 }
 
 async function initPublicKeysAsync (coreConfig) {
+  // check to see if public keys exists in database
   try {
-    await publicKeys.storeConfigPubKeyAsync(coreConfig.public_keys)
     let pubKeys = await publicKeys.getLocalPublicKeysAsync()
+    if (!pubKeys) {
+      // if no public keys are present in database, store keys from coreConfig in DB and return them
+      await publicKeys.storeConfigPubKeyAsync(coreConfig.public_keys)
+      pubKeys = await publicKeys.getLocalPublicKeysAsync()
+    }
     return pubKeys
   } catch (error) {
     throw new Error(`Registration : Unable to initialize Core public keys.`)
