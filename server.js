@@ -445,6 +445,9 @@ function startIntervals (coreConfig) {
 async function nodeHeartbeat (nodeUri) {
   try {
     let response = await rp({
+      headers: {
+        'User-Agent': `chainpoint-node/${version}`
+      },
       method: 'GET',
       uri: `${nodeUri}/config`,
       json: true,
