@@ -22,7 +22,6 @@ const os = require('os')
 const { exec } = require('child_process')
 const apiServer = require('./lib/api-server.js')
 const calendarBlock = require('./lib/models/CalendarBlock.js')
-const publicKey = require('./lib/models/PublicKey.js')
 const hmacKey = require('./lib/models/HMACKey.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
@@ -55,7 +54,8 @@ const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
 
 // pull in variables defined in shared sequelize modules
 let sequelizeCalBlock = calendarBlock.sequelize
-let sequelizePubKey = publicKey.sequelize
+let CalendarBlock = calendarBlock.CalendarBlock
+let Op = sequelizeCalBlock.Op
 let sequelizeHMACKey = hmacKey.sequelize
 let HMACKey = hmacKey.HMACKey
 
@@ -97,7 +97,7 @@ async function validateUriAsync (nodeUri) {
 
   let parsedURI = url.parse(nodeUri)
   let parsedURIHost = parsedURI.hostname
-  let uriHasValidPort = (parsedURI.port === null || parsedURI.port === '80') ? true : false
+  let uriHasValidPort = !!((parsedURI.port === null || parsedURI.port === '80'))
 
   // Valid IPv4 IP address
   let uriHasValidIPHost = validator.isIP(parsedURIHost, 4)
@@ -120,7 +120,6 @@ async function openStorageConnectionAsync () {
   while (!storageConnected) {
     try {
       await sequelizeCalBlock.sync({ logging: false })
-      await sequelizePubKey.sync({ logging: false })
       await sequelizeHMACKey.sync({ logging: false })
       storageConnected = true
     } catch (error) {
@@ -157,23 +156,11 @@ async function authKeysUpdate () {
       keyFileContent = _.head(keyFileContent.split(os.EOL).map(_.trim).filter(isHMAC))
 
       if (isHMAC(keyFileContent)) {
-        // If an entry exists within hmackeys table with a primary key of the NODE_TNT_ADDRESS, simply update the record with
-        // the new hmac key, if not, create a new record in the table.
         try {
-          await HMACKey
-            .findOrCreate({ where: { tntAddr: env.NODE_TNT_ADDRESS }, defaults: { tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 } })
-            .spread((hmac, created) => {
-              if (!created) {
-                return hmac.update({
-                  hmacKey: keyFileContent,
-                  version: hmac.version + 1
-                })
-              }
-            })
-
-          console.log(`INFO : Registration : Auth key saved to PostgreSQL : ${keyFile}`)
+          await rocksDB.saveHMACKeyAsync({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: keyFileContent, version: 1 })
+          console.log(`INFO : Registration : Auth key saved to local storage : ${keyFile}`)
         } catch (err) {
-          console.error(`ERROR : Registration : Error inserting/updating auth key in PostgreSQL : ${keyFile}`)
+          console.error(`ERROR : Registration : Error inserting/updating auth key in local storage : ${keyFile}`)
           process.exit(0)
         }
       } else {
@@ -195,7 +182,7 @@ async function registerNodeAsync (nodeURI) {
       // Check if HMAC key for current TNT address already exists
       let hmacEntry
       try {
-        hmacEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+        hmacEntry = await rocksDB.getHMACKeyByTNTAddressAsync(env.NODE_TNT_ADDRESS)
       } catch (error) {
         console.error(`ERROR : Registration : Unable to load auth key`)
         // We are no longer exiting this process. Simply set registration state to 'false' which
@@ -324,9 +311,9 @@ async function registerNodeAsync (nodeURI) {
           try {
             // write new hmac entry
             let writeHMACKey = response.hmac_key
-            await HMACKey.create({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey, version: 1 })
+            await rocksDB.saveHMACKeyAsync({ tntAddr: env.NODE_TNT_ADDRESS, hmacKey: writeHMACKey, version: 1 })
             // read hmac entry that was just written
-            let newHMACEntry = await HMACKey.findOne({ where: { tntAddr: env.NODE_TNT_ADDRESS } })
+            let newHMACEntry = await rocksDB.getHMACKeyByTNTAddressAsync(env.NODE_TNT_ADDRESS)
             // confirm the two are the same
             if (!newHMACEntry || (newHMACEntry.hmacKey !== writeHMACKey)) {
               throw new Error(`Unable to confirm authentication key with read after write.`)
@@ -465,6 +452,40 @@ async function nodeHeartbeat (nodeUri) {
   }
 }
 
+async function migrateCalendarDataAsync () {
+  let batchSize = 100000
+  try {
+    // check to see if the rocksDB already has data, if so, abort migration
+    let topRocksBlock = await rocksDB.getTopCalendarBlockAsync()
+    if (topRocksBlock !== null) return
+    // iterate through migration data in batches
+    let startIndex = 0
+    let blocks = []
+    console.log(`INFO : App : Migrating calendar blocks`)
+    do {
+      // read blocks from postgres
+      let endIndex = startIndex + batchSize - 1
+      try {
+        blocks = await CalendarBlock.findAll({ where: { id: { [Op.between]: [startIndex, endIndex] } }, order: [['id', 'ASC']], raw: true })
+      } catch (error) {
+        let err = `Unable to read blocks from postgres : ${error.message}`
+        throw err
+      }
+      // write blocks to RocksDB
+      try {
+        await rocksDB.saveCalendarBlockBatchAsync(blocks)
+      } catch (error) {
+        let err = `Unable to write blocks to RocksDB : ${error.message}`
+        throw err
+      }
+      if (blocks.length > 0) console.log(`INFO : App : Migrated calendar blocks ${startIndex} to ${blocks[blocks.length - 1].id}`)
+      startIndex += batchSize
+    } while (blocks.length > 0)
+  } catch (error) {
+    console.error(`ERROR : Unable to migrate calendar data : ${error}`)
+  }
+}
+
 async function migrateProofStateAsync () {
   try {
     // read any existing proof state from redis
@@ -575,6 +596,17 @@ async function migrateOtherValuesAsync () {
   }
 }
 
+async function migrateHMACKeysAsync () {
+  try {
+    let allHMACKeys = await HMACKey.findAll()
+    for (let key of allHMACKeys) {
+      await rocksDB.saveHMACKeyAsync(key)
+    }
+  } catch (error) {
+    console.error(`ERROR : Unable to migrate HMAC keys : ${error.message}`)
+  }
+}
+
 // process all steps need to start the application
 async function startAsync () {
   try {
@@ -584,6 +616,7 @@ async function startAsync () {
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     IS_PRIVATE_NODE = (nodeUri === null)
+    await migrateHMACKeysAsync()
     // Register HMAC Key
     await authKeysUpdate()
     let hmacKey = await registerNodeAsync(nodeUri)
@@ -591,6 +624,7 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await eventMetrics.loadMetricsAsync()
+    await migrateCalendarDataAsync()
     await migrateProofStateAsync()
     await migrateOtherValuesAsync()
     await apiServer.startAsync()

@@ -1,30 +1,10 @@
 const fs = require('fs')
 const path = require('path')
-const hmacKey = require('./lib/models/HMACKey.js')
-const utils = require('./lib/utils.js')
-
-let HMACKey = hmacKey.HMACKey
-let sequelizeHMACKey = hmacKey.sequelize
+const rocksDB = require('./lib/models/RocksDB.js')
 
 // establish a connection with the database
 async function openStorageConnectionAsync () {
-  let storageConnected = false
-  let retryCount = 0
-  while (!storageConnected) {
-    try {
-      await sequelizeHMACKey.sync({ logging: false })
-      storageConnected = true
-    } catch (error) {
-      if (retryCount >= 1 && retryCount < 20) {
-        console.error('ERROR : BackupAuthKeys : PostgreSQL not available : Will retry in 5 seconds...')
-      } else if (retryCount > 20) {
-        console.error('ERROR : BackupAuthKeys : Could not connect to PostgreSQL')
-        process.exit(1)
-      }
-      retryCount += 1
-      await utils.sleepAsync(5000)
-    }
-  }
+  await rocksDB.openConnectionAsync()
 }
 
 /**
@@ -37,23 +17,20 @@ async function openStorageConnectionAsync () {
 async function backupAuthKeys (req, res, next) {
   console.log(`INFO : BackupAuthKeys : Starting Auth key backups...`)
   try {
-    let result = await HMACKey.findAll().then((keys) => {
-      return keys.map((currVal) => {
-        let key = currVal.get({plain: true})
+    let HMACKeys = await rocksDB.getAllHMACKeysAsync()
+    let results = HMACKeys.map((key) => {
+      // Check to see if backup keys dir exists
+      if (!fs.existsSync(`${path.resolve('./keys')}`)) {
+        fs.mkdirSync(`${path.resolve('./keys')}`)
+      } else if (!fs.existsSync(`${path.resolve('./keys/backups')}`)) {
+        fs.mkdirSync(`${path.resolve('./keys/backups')}`)
+      }
 
-        // Check to see if backup keys dir exists
-        if (!fs.existsSync(`${path.resolve('./keys')}`)) {
-          fs.mkdirSync(`${path.resolve('./keys')}`)
-        } else if (!fs.existsSync(`${path.resolve('./keys/backups')}`)) {
-          fs.mkdirSync(`${path.resolve('./keys/backups')}`)
-        }
+      fs.writeFileSync(`${path.resolve('./keys/backups')}/${key.tntAddr}-${Date.now()}.key`, key.hmacKey)
 
-        fs.writeFileSync(`${path.resolve('./keys/backups')}/${key.tntAddr}-${Date.now()}.key`, key.hmacKey)
-
-        return `${key.tntAddr} Auth key has been backed up`
-      })
+      return `${key.tntAddr} Auth key has been backed up`
     })
-    res.send(200, result)
+    res.send(200, results)
 
     return next()
   } catch (err) {
@@ -78,7 +55,7 @@ async function main () {
       }
     }
 
-    await backupAuthKeys(req, res, () => {})
+    await backupAuthKeys(req, res, () => { })
   } catch (error) {
     console.error(`ERROR : BackupAuthKeys : Unable to complete key backup(s)`)
     process.exit(1)
