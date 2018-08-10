@@ -54,6 +54,8 @@ const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
 
 // pull in variables defined in shared sequelize modules
 let sequelizeCalBlock = calendarBlock.sequelize
+let CalendarBlock = calendarBlock.CalendarBlock
+let Op = sequelizeCalBlock.Op
 let sequelizeHMACKey = hmacKey.sequelize
 let HMACKey = hmacKey.HMACKey
 
@@ -95,7 +97,7 @@ async function validateUriAsync (nodeUri) {
 
   let parsedURI = url.parse(nodeUri)
   let parsedURIHost = parsedURI.hostname
-  let uriHasValidPort = (parsedURI.port === null || parsedURI.port === '80') ? true : false
+  let uriHasValidPort = !!((parsedURI.port === null || parsedURI.port === '80'))
 
   // Valid IPv4 IP address
   let uriHasValidIPHost = validator.isIP(parsedURIHost, 4)
@@ -447,6 +449,40 @@ async function nodeHeartbeat (nodeUri) {
   }
 }
 
+async function migrateCalendarDataAsync () {
+  let batchSize = 100000
+  try {
+    // check to see if the rocksDB already has data, if so, abort migration
+    let topRocksBlock = await rocksDB.getTopCalendarBlockAsync()
+    if (topRocksBlock !== null) return
+    // iterate through migration data in batches
+    let startIndex = 0
+    let blocks = []
+    console.log(`INFO : App : Migrating calendar blocks`)
+    do {
+      // read blocks from postgres
+      let endIndex = startIndex + batchSize - 1
+      try {
+        blocks = await CalendarBlock.findAll({ where: { id: { [Op.between]: [startIndex, endIndex] } }, order: [['id', 'ASC']], raw: true })
+      } catch (error) {
+        let err = `Unable to read blocks from postgres : ${error.message}`
+        throw err
+      }
+      // write blocks to RocksDB
+      try {
+        await rocksDB.saveCalendarBlockBatchAsync(blocks)
+      } catch (error) {
+        let err = `Unable to write blocks to RocksDB : ${error.message}`
+        throw err
+      }
+      if (blocks.length > 0) console.log(`INFO : App : Migrated calendar blocks ${startIndex} to ${blocks[blocks.length - 1].id}`)
+      startIndex += batchSize
+    } while (blocks.length > 0)
+  } catch (error) {
+    console.error(`ERROR : Unable to migrate calendar data : ${error}`)
+  }
+}
+
 async function migrateProofStateAsync () {
   try {
     // read any existing proof state from redis
@@ -585,6 +621,7 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await eventMetrics.loadMetricsAsync()
+    await migrateCalendarDataAsync()
     await migrateProofStateAsync()
     await migrateOtherValuesAsync()
     await apiServer.startAsync()
