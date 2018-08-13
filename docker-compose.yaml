@@ -18,19 +18,6 @@ services:
     networks:
       - chainpoint-node
 
-  redis:
-    image: redis:4.0.10-alpine
-    container_name: redis-node-src
-    restart: always
-    volumes:
-      - ./.redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
-      - ./.data/redis:/data
-    networks:
-      - chainpoint-node
-    command:
-      - redis-server
-      - /usr/local/etc/redis/redis.conf
-
   chainpoint-node:
     image: gcr.io/chainpoint-registry/chainpoint-node:latest
     restart: on-failure
@@ -44,7 +31,6 @@ services:
     networks:
       - chainpoint-node
     depends_on:
-      - redis
       - postgres
     environment:
       NODE_TNT_ADDRESS: "${NODE_TNT_ADDRESS}"
