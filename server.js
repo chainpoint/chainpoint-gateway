@@ -18,6 +18,7 @@ const validator = require('validator')
 const env = require('./lib/parse-env.js')
 
 const fs = require('fs')
+const path = require('path')
 const os = require('os')
 const { exec } = require('child_process')
 const apiServer = require('./lib/api-server.js')
@@ -470,8 +471,15 @@ async function migrateHMACKeysAsync () {
     for (let key of allHMACKeys) {
       await rocksDB.saveHMACKeyAsync(key)
     }
+    // backup keys from PG before dropping tables
+    await backupAuthKeysAsync()
     // drop the pubkey and hmackeys table
-    await HMACKey.sequelize.query('DROP table hmackeys, pubkey;')
+    try {
+      await HMACKey.sequelize.query('DROP table hmackeys;')
+      await HMACKey.sequelize.query('DROP table pubkey;')
+    } catch (error) {
+
+    }
   } catch (error) {
     console.error(`ERROR : Unable to migrate HMAC keys : ${error.message}`)
   }
@@ -519,3 +527,32 @@ async function startAsync () {
 
 // get the whole show started
 startAsync()
+
+/**
+ * Backup Auth Keys Handler - Has the following signature for isomorphic purposes so the function can be used as
+ * an HTTP event handler
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
+async function backupAuthKeysAsync () {
+  return new Promise(async (resolve, reject) => {
+    console.log(`INFO : BackupAuthKeys : Starting Auth key backups...`)
+    try {
+      let HMACKeys = await HMACKey.findAll({ raw: true })
+      HMACKeys.map((key) => {
+        // Check to see if backup keys dir exists
+        if (!fs.existsSync(`${path.resolve('./keys')}`)) {
+          fs.mkdirSync(`${path.resolve('./keys')}`)
+        } else if (!fs.existsSync(`${path.resolve('./keys/backups')}`)) {
+          fs.mkdirSync(`${path.resolve('./keys/backups')}`)
+        }
+
+        fs.writeFileSync(`${path.resolve('./keys/backups')}/${key.tntAddr}-${Date.now()}.key`, key.hmacKey)
+      })
+      resolve()
+    } catch (err) {
+      reject(new Error(`BackupAuthKeys : Unable to complete Auth key backup(s) : ${err.message}`))
+    }
+  })
+}
