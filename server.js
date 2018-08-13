@@ -472,7 +472,7 @@ async function migrateHMACKeysAsync () {
       await rocksDB.saveHMACKeyAsync(key)
     }
     // backup keys from PG before dropping tables
-    // backupAuthKeysAsync()
+    backupAuthKeysAsync()
     // drop the pubkey and hmackeys table
     try {
       await HMACKey.sequelize.query('DROP table hmackeys;')
