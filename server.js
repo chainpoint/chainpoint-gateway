@@ -470,6 +470,8 @@ async function migrateHMACKeysAsync () {
     for (let key of allHMACKeys) {
       await rocksDB.saveHMACKeyAsync(key)
     }
+    // drop the pubkey and hmackeys table
+    await HMACKey.sequelize.query('DROP table hmackeys, pubkey;')
   } catch (error) {
     console.error(`ERROR : Unable to migrate HMAC keys : ${error.message}`)
   }
