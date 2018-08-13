@@ -111,13 +111,14 @@ backup-auth-keys: up
 print-auth-keys: up
 	@docker exec -it chainpoint-node-src_chainpoint-node_1 node auth-keys-print.js
 
+## TODO: Replace with function that works after Rocks migration
 ## calendar-delete : Delete all calendar data for this Node
-.PHONY : calendar-delete
-calendar-delete: 
-	@docker-compose up -d postgres
-	@sleep 6
-	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM calendar"
-	make restart
+##.PHONY : calendar-delete
+##calendar-delete: 
+##	@docker-compose up -d postgres
+##	@sleep 6
+##	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM calendar"
+##	make restart
 
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \
