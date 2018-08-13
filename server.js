@@ -473,7 +473,7 @@ async function migrateHMACKeysAsync () {
     }
     try {
       // backup keys from PG before dropping tables
-      backupAuthKeysAsync()
+      await backupAuthKeysAsync()
       // drop the pubkey and hmackeys table
       await HMACKey.sequelize.query('DROP table hmackeys;')
       await HMACKey.sequelize.query('DROP table pubkey;')
