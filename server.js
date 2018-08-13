@@ -456,6 +456,9 @@ async function migrateCalendarDataAsync () {
       if (blocks.length > 0) console.log(`INFO : App : Migrated calendar blocks ${startIndex} to ${blocks[blocks.length - 1].id}`)
       startIndex += batchSize
     } while (blocks.length > 0)
+
+    // drop the postgres calendar table
+    await CalendarBlock.drop()
   } catch (error) {
     console.error(`ERROR : Unable to migrate calendar data : ${error}`)
   }
