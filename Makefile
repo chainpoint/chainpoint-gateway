@@ -101,24 +101,10 @@ postgres:
 	@sleep 6
 	@docker exec -it postgres-node-src psql -U chainpoint
 
-## backup-auth-keys: Backup HMAC Auth keys to the 'keys/backups' dir
-.PHONY : backup-auth-keys
-backup-auth-keys: up
-	@docker exec -it chainpoint-node-src_chainpoint-node_1 node auth-keys-backup.js
-
 ## print-auth-keys : Print to console the name and contents of auth key (HMAC) backups
 .PHONY : print-auth-keys
 print-auth-keys: up
 	@docker exec -it chainpoint-node-src_chainpoint-node_1 node auth-keys-print.js
-
-## TODO: Replace with function that works after Rocks migration
-## calendar-delete : Delete all calendar data for this Node
-##.PHONY : calendar-delete
-##calendar-delete: 
-##	@docker-compose up -d postgres
-##	@sleep 6
-##	@docker exec -it postgres-node-src psql -U chainpoint -c "DELETE FROM calendar"
-##	make restart
 
 guard-%:
 	@ if [ "${${*}}" = "" ]; then \

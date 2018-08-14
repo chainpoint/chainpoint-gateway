@@ -6,10 +6,11 @@ function main () {
   const path = './keys/backups/'
   let backupDate = new Date()
 
-  console.log('***************************************')
+  console.log('***************************************************')
   console.log('Chainpoint Node Auth Keys (HMAC) Backup')
   console.log('Created:', backupDate.toISOString())
-  console.log('***************************************\n')
+  console.log('Prints ETH address, HMAC Key, and Restore Command')
+  console.log('***************************************************\n')
 
   fs.readdir(path, function (err, items) {
     if (err) {
@@ -22,7 +23,8 @@ function main () {
       if (match.test(items[i])) {
         console.log(items[i])
         var buffer = Buffer.from(fs.readFileSync(path + items[i], 'utf8'))
-        console.log(buffer.toString() + '\n')
+        console.log(buffer.toString())
+        console.log(`echo -n "${buffer.toString()}" > keys/${items[i]}` + '\n')
       }
     }
   })
