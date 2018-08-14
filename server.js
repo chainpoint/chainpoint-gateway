@@ -308,12 +308,9 @@ async function registerNodeAsync (nodeURI) {
 
           // New Registration Succeeded. Perform Automatic Auth Key Backup for newly saved hmac key
           try {
-            exec('node auth-keys-backup.js', (err, stdout, stderr) => {
-              if (err) console.error(`ERROR : Registration : BackupAuthKeys : Unable to complete key backup(s)`)
-              else console.log(stdout)
-            })
+            await backupAuthKeysAsync()
           } catch (error) {
-            console.log(`ERROR : Registration : AuthKeyBackup : ${error}`)
+            console.log(`ERROR : Registration : AuthKeyBackup : ${error.message}`)
           }
 
           return response.hmac_key
