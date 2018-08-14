@@ -465,6 +465,42 @@ async function migrateCalendarDataAsync () {
   }
 }
 
+async function backupAuthKeysAsync () {
+  return new Promise(async (resolve, reject) => {
+    console.log(`INFO : BackupAuthKeys : Performing Auth key(s) backup`)
+    let HMACKeys = []
+    // find any keys in PG
+    try {
+      let pgKeys = await HMACKey.findAll({ raw: true })
+      HMACKeys.push(...pgKeys)
+    } catch (error) {
+
+    }
+    // find any keys in Rocks
+    try {
+      let rocksKeys = await rocksDB.getAllHMACKeysAsync()
+      HMACKeys.push(...rocksKeys)
+    } catch (error) {
+
+    }
+    // Check to see if backup keys dir exists, and create as needed
+    if (!fs.existsSync(`${path.resolve('./keys')}`)) {
+      fs.mkdirSync(`${path.resolve('./keys')}`)
+    } else if (!fs.existsSync(`${path.resolve('./keys/backups')}`)) {
+      fs.mkdirSync(`${path.resolve('./keys/backups')}`)
+    }
+
+    try {
+      for (let key of HMACKeys) {
+        fs.writeFileSync(`${path.resolve('./keys/backups')}/${key.tntAddr}-${Date.now()}.key`, key.hmacKey)
+      }
+      resolve()
+    } catch (err) {
+      reject(new Error(`BackupAuthKeys : Unable to complete Auth key backup(s) : ${err.message}`))
+    }
+  })
+}
+
 async function migrateHMACKeysAsync () {
   try {
     let allHMACKeys = await HMACKey.findAll()
@@ -472,8 +508,6 @@ async function migrateHMACKeysAsync () {
       await rocksDB.saveHMACKeyAsync(key)
     }
     try {
-      // backup keys from PG before dropping tables
-      await backupAuthKeysAsync()
       // drop the pubkey and hmackeys table
       await HMACKey.sequelize.query('DROP table hmackeys;')
       await HMACKey.sequelize.query('DROP table pubkey;')
@@ -493,6 +527,8 @@ async function startAsync () {
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
     IS_PRIVATE_NODE = (nodeUri === null)
+    // backup auth key(s)
+    await backupAuthKeysAsync()
     await migrateHMACKeysAsync()
     // Register HMAC Key
     await authKeysUpdate()
@@ -527,32 +563,3 @@ async function startAsync () {
 
 // get the whole show started
 startAsync()
-
-/**
- * Backup Auth Keys Handler - Has the following signature for isomorphic purposes so the function can be used as
- * an HTTP event handler
- * @param {*} req
- * @param {*} res
- * @param {*} next
- */
-async function backupAuthKeysAsync () {
-  return new Promise(async (resolve, reject) => {
-    console.log(`INFO : BackupAuthKeys : Starting Auth key backups...`)
-    try {
-      let HMACKeys = await HMACKey.findAll({ raw: true })
-      HMACKeys.map((key) => {
-        // Check to see if backup keys dir exists
-        if (!fs.existsSync(`${path.resolve('./keys')}`)) {
-          fs.mkdirSync(`${path.resolve('./keys')}`)
-        } else if (!fs.existsSync(`${path.resolve('./keys/backups')}`)) {
-          fs.mkdirSync(`${path.resolve('./keys/backups')}`)
-        }
-
-        fs.writeFileSync(`${path.resolve('./keys/backups')}/${key.tntAddr}-${Date.now()}.key`, key.hmacKey)
-      })
-      resolve()
-    } catch (err) {
-      reject(new Error(`BackupAuthKeys : Unable to complete Auth key backup(s) : ${err.message}`))
-    }
-  })
-}
