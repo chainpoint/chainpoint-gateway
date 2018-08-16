@@ -41,11 +41,14 @@ COPY ./lib/models/*.js /home/node/app/lib/models/
 
 COPY ./tor-exit-nodes.txt /home/node/app/
 
+COPY ./cert.crt /home/node/app/
+COPY ./cert.key /home/node/app/
+
 RUN mkdir -p /home/node/app/keys
 RUN mkdir -p /home/node/app/keys/backups
 RUN mkdir -p /home/node/app/rocksdb
 
-EXPOSE 8080
+EXPOSE 8080 8443
 
 ENTRYPOINT ["gosu", "node:node", "/tini", "--"]
 

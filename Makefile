@@ -116,3 +116,8 @@ guard-%:
 .PHONY : tor-exit-nodes
 tor-exit-nodes:
 	curl -s https://check.torproject.org/exit-addresses | grep ExitAddress | cut -d' ' -f2 > ./tor-exit-nodes.txt
+
+## cert            : Gen new self-signed TLS cert. 'make cert IP_ADDR=127.0.0.1'
+.PHONY : cert
+cert:
+	./certgen.sh $(IP_ADDR)

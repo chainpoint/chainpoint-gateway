@@ -28,6 +28,7 @@ services:
     build: .
     ports:
       - "9090:8080"
+      - "9443:8443"
     networks:
       - chainpoint-node
     depends_on:
