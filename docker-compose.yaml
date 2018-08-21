@@ -6,18 +6,6 @@ networks:
 
 services:
 
-  postgres:
-    image: postgres:9.6.9-alpine
-    container_name: postgres-node-src
-    restart: always
-    volumes:
-      - ./.data/postgresql:/var/lib/postgresql/data
-    environment:
-      POSTGRES_USER: chainpoint
-      POSTGRES_PASSWORD: chainpoint
-    networks:
-      - chainpoint-node
-
   chainpoint-node:
     image: gcr.io/chainpoint-registry/chainpoint-node:latest
     restart: on-failure
@@ -31,8 +19,6 @@ services:
       - "9443:8443"
     networks:
       - chainpoint-node
-    depends_on:
-      - postgres
     environment:
       NODE_TNT_ADDRESS: "${NODE_TNT_ADDRESS}"
       CHAINPOINT_NODE_PUBLIC_URI: "${CHAINPOINT_NODE_PUBLIC_URI:-http://0.0.0.0}"

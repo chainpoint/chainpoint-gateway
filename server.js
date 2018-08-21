@@ -21,8 +21,6 @@ const fs = require('fs')
 const path = require('path')
 const os = require('os')
 const apiServer = require('./lib/api-server.js')
-const calendarBlock = require('./lib/models/CalendarBlock.js')
-const hmacKey = require('./lib/models/HMACKey.js')
 const utils = require('./lib/utils.js')
 const calendar = require('./lib/calendar.js')
 const publicKeys = require('./lib/public-keys.js')
@@ -47,13 +45,6 @@ const CALENDAR_VALIDATE_ALL_SECONDS = 1800
 
 // the interval at which the service calculates the Core challenge solution
 const SOLVE_CHALLENGE_INTERVAL_MS = 1000 * 60 * 30 // 30 minutes
-
-// pull in variables defined in shared sequelize modules
-let sequelizeCalBlock = calendarBlock.sequelize
-let CalendarBlock = calendarBlock.CalendarBlock
-let Op = sequelizeCalBlock.Op
-let sequelizeHMACKey = hmacKey.sequelize
-let HMACKey = hmacKey.HMACKey
 
 let IS_PRIVATE_NODE = false
 
@@ -90,21 +81,6 @@ async function validateUriAsync (nodeUri) {
 
 // establish a connection with the database
 async function openStorageConnectionAsync () {
-  let storageConnected = false
-  let retryCount = 0
-  while (!storageConnected) {
-    try {
-      await sequelizeCalBlock.sync({ logging: false })
-      await sequelizeHMACKey.sync({ logging: false })
-      storageConnected = true
-    } catch (error) {
-      if (retryCount >= 1) {
-        console.error('PostgreSQL : not available : Will retry in 5 seconds...')
-      }
-      retryCount += 1
-      await utils.sleepAsync(5000)
-    }
-  }
   await rocksDB.openConnectionAsync()
 }
 
@@ -121,7 +97,7 @@ async function authKeysUpdate () {
   })
 
   if (keys.length) {
-    // Iterate through all key files found and write hmac key to PostgreSQL
+    // Iterate through all key files found and write hmac key to local storage
     for (let key of keys) {
       let isHMAC = (k) => {
         return /^[0-9a-fA-F]{64}$/i.test(k)
@@ -424,54 +400,10 @@ async function nodeHeartbeat (nodeUri) {
   }
 }
 
-async function migrateCalendarDataAsync () {
-  let batchSize = 100000
-  try {
-    // check to see if the rocksDB already has data, if so, abort migration
-    let topRocksBlock = await rocksDB.getTopCalendarBlockAsync()
-    if (topRocksBlock !== null) return
-    // iterate through migration data in batches
-    let startIndex = 0
-    let blocks = []
-    console.log(`INFO : App : Migrating calendar blocks`)
-    do {
-      // read blocks from postgres
-      let endIndex = startIndex + batchSize - 1
-      try {
-        blocks = await CalendarBlock.findAll({ where: { id: { [Op.between]: [startIndex, endIndex] } }, order: [['id', 'ASC']], raw: true })
-      } catch (error) {
-        let err = `Unable to read blocks from postgres : ${error.message}`
-        throw err
-      }
-      // write blocks to RocksDB
-      try {
-        await rocksDB.saveCalendarBlockBatchAsync(blocks)
-      } catch (error) {
-        let err = `Unable to write blocks to RocksDB : ${error.message}`
-        throw err
-      }
-      if (blocks.length > 0) console.log(`INFO : App : Migrated calendar blocks ${startIndex} to ${blocks[blocks.length - 1].id}`)
-      startIndex += batchSize
-    } while (blocks.length > 0)
-
-    // drop the postgres calendar table
-    await CalendarBlock.drop()
-  } catch (error) {
-    console.error(`ERROR : Unable to migrate calendar data : ${error}`)
-  }
-}
-
 async function backupAuthKeysAsync () {
   return new Promise(async (resolve, reject) => {
     console.log(`INFO : BackupAuthKeys : Performing Auth key(s) backup`)
     let HMACKeys = []
-    // find any keys in PG
-    try {
-      let pgKeys = await HMACKey.findAll({ raw: true })
-      HMACKeys.push(...pgKeys)
-    } catch (error) {
-
-    }
     // find any keys in Rocks
     try {
       let rocksKeys = await rocksDB.getAllHMACKeysAsync()
@@ -497,24 +429,6 @@ async function backupAuthKeysAsync () {
   })
 }
 
-async function migrateHMACKeysAsync () {
-  try {
-    let allHMACKeys = await HMACKey.findAll()
-    for (let key of allHMACKeys) {
-      await rocksDB.saveHMACKeyAsync(key)
-    }
-    try {
-      // drop the pubkey and hmackeys table
-      await HMACKey.sequelize.query('DROP table hmackeys;')
-      await HMACKey.sequelize.query('DROP table pubkey;')
-    } catch (error) {
-
-    }
-  } catch (error) {
-    console.error(`ERROR : Unable to migrate HMAC keys : ${error.message}`)
-  }
-}
-
 // process all steps need to start the application
 async function startAsync () {
   try {
@@ -525,7 +439,6 @@ async function startAsync () {
     IS_PRIVATE_NODE = (nodeUri === null)
     // backup auth key(s)
     await backupAuthKeysAsync()
-    await migrateHMACKeysAsync()
     // Register HMAC Key
     await authKeysUpdate()
     let hmacKey = await registerNodeAsync(nodeUri)
@@ -533,7 +446,6 @@ async function startAsync () {
     let coreConfig = await coreHosts.getCoreConfigAsync()
     let pubKeys = await initPublicKeysAsync(coreConfig)
     await eventMetrics.loadMetricsAsync()
-    await migrateCalendarDataAsync()
     await apiServer.startAsync()
     // start the interval processes for aggregating and submitting hashes to Core
     apiServer.startAggInterval(coreConfig.node_aggregation_interval_seconds)

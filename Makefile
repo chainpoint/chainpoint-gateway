@@ -35,11 +35,6 @@ restart: down up
 logs:
 	docker-compose logs -f -t | grep chainpoint-node
 
-## logs-postgres   : Tail PostgreSQL logs
-.PHONY : logs-postgres
-logs-postgres:
-	docker-compose logs -f -t | grep postgres
-
 ## logs-all        : Tail all logs
 .PHONY : logs-all
 logs-all:
@@ -93,13 +88,6 @@ clean: down
 .PHONY : yarn
 yarn:
 	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd gcr.io/chainpoint-registry/chainpoint-node:latest yarn
-
-## postgres        : Connect to the local PostgreSQL with `psql`
-.PHONY : postgres
-postgres:
-	@docker-compose up -d postgres
-	@sleep 6
-	@docker exec -it postgres-node-src psql -U chainpoint
 
 ## print-auth-keys : Print to console the name and contents of auth key (HMAC) backups
 .PHONY : print-auth-keys
