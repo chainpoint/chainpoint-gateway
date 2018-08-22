@@ -4,12 +4,16 @@ import { connect } from 'react-redux'
 import { isUndefined as _isUndefined } from 'lodash'
 
 const PrivateRoute = ({ component: Component, ...rest }) => {
-  const {auth} = rest.app
+  const { auth } = rest.app
   return (
-    <Route {...rest}
-      render={props => !_isUndefined(auth) && !_isUndefined(auth.access_token)
-        ? <Component {...props} />
-        : <Redirect to='/login' />
+    <Route
+      {...rest}
+      render={props =>
+        !_isUndefined(auth) && !_isUndefined(auth.access_token) ? (
+          <Component {...props} />
+        ) : (
+          <Redirect to="/login" />
+        )
       }
     />
   )
