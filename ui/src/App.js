@@ -22,17 +22,29 @@ import 'react-table/react-table.css'
 const syncedHistory = syncHistoryWithStore(history, store)
 
 class App extends Component {
-  render () {
+  render() {
     return (
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <BrowserRouter history={syncedHistory}>
-            <section className='app'>
+            <section className="app">
               <TopNav />
               <Switch>
-                <PrivateRoute exact path='/' component={(props) => <Dashboard {...props} />} />
-                <PrivateRoute exact path='/about' component={(props) => <NodeStatus {...props} />} />
-                <Route exact path='/login' component={(props) => <Login {...props} />} />
+                <PrivateRoute
+                  exact
+                  path="/"
+                  component={props => <Dashboard {...props} />}
+                />
+                <PrivateRoute
+                  exact
+                  path="/about"
+                  component={props => <NodeStatus {...props} />}
+                />
+                <Route
+                  exact
+                  path="/login"
+                  component={props => <Login {...props} />}
+                />
               </Switch>
             </section>
           </BrowserRouter>

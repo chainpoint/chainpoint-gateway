@@ -7,25 +7,25 @@ import ReactTable from 'react-table'
 
 const columns = [
   {
-    Header: () => <span className='left align'>HASH ID</span>,
+    Header: () => <span className="left align">HASH ID</span>,
     getHeaderProps: (state, rowInfo, column) => {
       return {
         style: {
-          'textAlign': 'left',
-          'color': 'white',
-          'fontSize': '16px',
-          'fontWeight': 'bold',
-          'padding': '25px',
-          'border': 'none',
-          'borderTopLeftRadius': '8px',
-          'backgroundColor': '#B2BEC4'
+          textAlign: 'left',
+          color: 'white',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          padding: '25px',
+          border: 'none',
+          borderTopLeftRadius: '8px',
+          backgroundColor: '#B2BEC4'
         }
       }
     },
     getProps: (state, rowInfo, column) => {
       return {
         style: {
-          'color': '#90a4ae'
+          color: '#90a4ae'
         }
       }
     },
@@ -38,46 +38,45 @@ const columns = [
     getHeaderProps: (state, rowInfo, column) => {
       return {
         style: {
-          'textAlign': 'right',
-          'color': 'white',
-          'fontSize': '16px',
-          'fontWeight': 'bold',
-          'padding': '25px',
-          'border': 'none',
-          'borderTopRightRadius': '8px',
-          'backgroundColor': '#B2BEC4'
+          textAlign: 'right',
+          color: 'white',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          padding: '25px',
+          border: 'none',
+          borderTopRightRadius: '8px',
+          backgroundColor: '#B2BEC4'
         }
       }
     },
     getProps: (state, rowInfo, column) => {
       return {
         style: {
-          'textAlign': 'right',
-          'color': '#90a4ae'
+          textAlign: 'right',
+          color: '#90a4ae'
         }
       }
     },
     Cell: props => {
-      return (
-        <span className='right-align'>{props.value}</span>
-      )
+      return <span className="right-align">{props.value}</span>
     }
   }
 ]
 
 class Dashboard extends Component {
-  constructor (props, context) {
+  constructor(props, context) {
     super(props)
 
     this._mapHashesReceivedToday = this._mapHashesReceivedToday.bind(this)
   }
 
-  componentDidMount () {
+  componentDidMount() {
     // Fetch Node Config Details like version, calendar block height, etc.
     this.props.getNodeConfig()
     // Fetch Node stats 'last_1_days' filter by default
     this.props.getNodeStats('last_1_days').catch(err => {
-      if (_isNumber(_toNumber(err)) && parseInt(err, 10) === 401) this.props.history.push('/login')
+      if (_isNumber(_toNumber(err)) && parseInt(err, 10) === 401)
+        this.props.history.push('/login')
     })
 
     this.statsInterval = setInterval(() => {
@@ -87,28 +86,69 @@ class Dashboard extends Component {
     }, 1000)
   }
 
-  _mapHashesReceivedToday (hashes = []) {
-    return hashes.map(currVal => ({ hash_id_node: currVal.split('|')[0], hash: currVal.split('|')[1], created_at: currVal.split('|')[2] }))
+  _mapHashesReceivedToday(hashes = []) {
+    return hashes.map(currVal => ({
+      hash_id_node: currVal.split('|')[0],
+      hash: currVal.split('|')[1],
+      created_at: currVal.split('|')[2]
+    }))
   }
 
-  componentWillUnmount () {
+  componentWillUnmount() {
     clearInterval(this.statsInterval)
   }
 
-  render () {
+  render() {
     return (
       <section>
-        <div className='dashboard-view-wrapper hero-wrapper'>
+        <div className="dashboard-view-wrapper hero-wrapper">
           <Grid fluid>
-            <Row className='add-bottom-padding'>
+            <Row className="add-bottom-padding">
               <Col xs={12}>
-                <Col xs={12} sm={2} className='add-top add-bottom'>
-                  <h3 className='title lightgray-text add-bottom'>ACTIVITY</h3>
+                <Col xs={12} sm={2} className="add-top add-bottom">
+                  <h3 className="title lightgray-text add-bottom">ACTIVITY</h3>
                 </Col>
-                <Col xs={12} sm={10} className='add-top add-bottom'>
-                  <CountTile count={this.props.node.stats.last_1_days ? this.props.node.stats.last_1_days.hour : null} size={4} title='Hashes Received' subTitle='Current Hour' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' />
-                  <CountTile count={this.props.node.stats.last_1_days ? this.props.node.stats.last_1_days.last24Hrs : null} size={4} title='Hashes Received' subTitle='Past 24 Hours' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' />
-                  <CountTile count={(this.props.nodeConfig && this.props.nodeConfig.calendar) ? this.props.nodeConfig.calendar.height : null} size={4} title='Calendar Height' subTitle='Current' color='tierion-tile-gradient' opacity='0.85' txtcolor='tierion-skyblue-text' extraClasses='last-tile no-padding-right' />
+                <Col xs={12} sm={10} className="add-top add-bottom">
+                  <CountTile
+                    count={
+                      this.props.node.stats.last_1_days
+                        ? this.props.node.stats.last_1_days.hour
+                        : null
+                    }
+                    size={4}
+                    title="Hashes Received"
+                    subTitle="Current Hour"
+                    color="tierion-tile-gradient"
+                    opacity="0.85"
+                    txtcolor="tierion-skyblue-text"
+                  />
+                  <CountTile
+                    count={
+                      this.props.node.stats.last_1_days
+                        ? this.props.node.stats.last_1_days.last24Hrs
+                        : null
+                    }
+                    size={4}
+                    title="Hashes Received"
+                    subTitle="Past 24 Hours"
+                    color="tierion-tile-gradient"
+                    opacity="0.85"
+                    txtcolor="tierion-skyblue-text"
+                  />
+                  <CountTile
+                    count={
+                      this.props.nodeConfig && this.props.nodeConfig.calendar
+                        ? this.props.nodeConfig.calendar.height
+                        : null
+                    }
+                    size={4}
+                    title="Calendar Height"
+                    subTitle="Current"
+                    color="tierion-tile-gradient"
+                    opacity="0.85"
+                    txtcolor="tierion-skyblue-text"
+                    extraClasses="last-tile no-padding-right"
+                  />
                 </Col>
               </Col>
             </Row>
@@ -116,35 +156,42 @@ class Dashboard extends Component {
         </div>
         <div>
           <Grid fluid>
-            <Row className='add-top add-bottom'>
-              <Col xs={12} className='add-top add-bottom'>
+            <Row className="add-top add-bottom">
+              <Col xs={12} className="add-top add-bottom">
                 <Col xs={12}>
                   <ReactTable
                     getTrProps={(state, rowInfo, column) => {
                       return {
                         style: {
-                          'background': '#FFFFFF',
-                          'paddingLeft': '18px',
-                          'paddingRight': '18px',
-                          'paddingTop': '10px',
-                          'paddingBottom': '10px',
-                          'fontSize': '16px',
-                          'fontWeight': '300'
+                          background: '#FFFFFF',
+                          paddingLeft: '18px',
+                          paddingRight: '18px',
+                          paddingTop: '10px',
+                          paddingBottom: '10px',
+                          fontSize: '16px',
+                          fontWeight: '300'
                         }
                       }
                     }}
                     sortable={false}
-                    data={this.props.node.stats.last_1_days ? this._mapHashesReceivedToday(this.props.node.stats.last_1_days.hashesReceivedToday) : []}
+                    data={
+                      this.props.node.stats.last_1_days
+                        ? this._mapHashesReceivedToday(
+                            this.props.node.stats.last_1_days
+                              .hashesReceivedToday
+                          )
+                        : []
+                    }
                     columns={columns}
                     defaultPageSize={25}
-                    showPagination={false} />
+                    showPagination={false}
+                  />
                 </Col>
               </Col>
             </Row>
           </Grid>
         </div>
       </section>
-
     )
   }
 }

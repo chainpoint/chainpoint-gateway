@@ -19,10 +19,7 @@ const persistConfig = {
 const persistedReducer = persistReducer(persistConfig, rootReducer)
 
 const enhancers = []
-const middleware = [
-  thunk,
-  routerMiddleware(history)
-]
+const middleware = [thunk, routerMiddleware(history)]
 
 if (process.env.NODE_ENV === 'development') {
   const devToolsExtension = window.devToolsExtension
@@ -35,7 +32,7 @@ if (process.env.NODE_ENV === 'development') {
 // try / catch to prevent errors when users have cookies disabled
 try {
   window.localStorage.removeItem('redux')
-} catch(e) {
+} catch (e) {
   console.log('cookies and / or localStorage is unavailable.')
 }
 

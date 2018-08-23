@@ -4,7 +4,8 @@
   "version": "1.5.3",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "prettier": "prettier --write '**/*.{js,json}'"
   },
   "repository": {
     "type": "git",
@@ -58,5 +59,8 @@
     "uuid-validate": "0.0.2",
     "valid-url": "^1.0.9",
     "validator": "^9.0.0"
+  },
+  "devDependencies": {
+    "prettier": "^1.14.2"
   }
 }
