@@ -1,6 +1,6 @@
 # Chainpoint Node Source
 
-[![JavaScript Style Guide](https://cdn.rawgit.com/feross/standard/master/badge.svg)](https://github.com/feross/standard)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
@@ -30,15 +30,36 @@ In order to run a Node in development these instructions assume
 you have already installed both the `docker` and `docker-compose`
 commands as appropriate for your system.
 
-### Running
+### Code Formatting & Linting
 
+This project makes use of [Prettier](https://prettier.io/) & [ESLint](https://eslint.org/) to maintain clean, and consistently styled, code.
+
+You can run ESLint manually using the CLI to display a report of issues:
+
+```sh
+./node_modules/.bin/eslint .
 ```
+
+This project is coded in the [Visual Studio Code](https://code.visualstudio.com/) IDE and we use the following plugins to auto-format and report on linting issues during development:
+
+[vscode-eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+
+[prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
+
+[EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig)
+
+### Running The Server
+
+```sh
 cd chainpoint-node
 
 # Copy the `.env.sample` to `.env`
 make build-config
 
-# Edit the .env file to add your Ethereum address
+# Edit the .env file as appropriate
+# Note that in development you'll likely want
+# to leave the `CHAINPOINT_NODE_PUBLIC_URI`
+# value empty to run a private Node.
 vi .env
 
 make up
@@ -48,13 +69,13 @@ Run `make help` to learn about additional control and build commands.
 
 ### Connect to Node Dashboard
 
-Navigate to http://<node_ip_address> in a web browser. Your Node's Dashboard can be password protected if desired. By default you will need to supply the valid Ethereum Address you have used to register the particular node you are connecting to in order to authenticate successfully.
+Navigate to `http://<node_ip_address>` in a web browser. Your Node's Dashboard can be password protected if desired. By default you will need to supply the valid Ethereum Address you have used to register the particular node you are connecting to in order to authenticate successfully.
 
 Node Dashboard Password Scenarios:
+
 1. Default: Password is initially set to your Ethereum Address
 2. Using a Custom Password: If you wish to specify your own password. Edit the '.env' file and add a new environment variable named 'CHAINPOINT_NODE_UI_PASSWORD' with the value of your new password assigned to it (ex. CHAINPOINT_NODE_UI_PASSWORD=password1)
 3. PUBLIC Dashboard: You can optionally make your Node's Dashboard public to the web. Simply set 'CHAINPOINT_NODE_UI_PASSWORD=false'
-
 
 ## Node Public API
 
@@ -79,4 +100,3 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 ```
-
