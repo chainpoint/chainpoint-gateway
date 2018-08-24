@@ -34,10 +34,25 @@ commands as appropriate for your system.
 
 This project makes use of [Prettier](https://prettier.io/) & [ESLint](https://eslint.org/) to maintain clean, and consistently styled, code.
 
-You can run ESLint manually using the CLI to display a report of issues:
+You can run ESLint manually using the CLI:
+
+For the Chainpoint Node JS Source:
 
 ```sh
 ./node_modules/.bin/eslint .
+```
+
+For the Chainpoint Node UI:
+
+```sh
+cd ui/
+./node_modules/.bin/eslint .
+```
+
+You can run Prettier manually to see which files would be re-formatted by it. For example:
+
+```sh
+./node_modules/.bin/prettier -l lib/**/*.js
 ```
 
 This project is coded in the [Visual Studio Code](https://code.visualstudio.com/) IDE and we use the following plugins to auto-format and report on linting issues during development:

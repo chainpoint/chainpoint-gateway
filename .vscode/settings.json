@@ -1,0 +1,28 @@
+{
+  // Format a file on save. A formatter must be available, the file must not be auto-saved, and editor must not be shutting down.
+  // Prettier respects this setting.
+  "editor.formatOnSave": true,
+
+  // Enables auto fix on save. Please note auto fix on save is only available if VS Code's files.autoSave is either off, onFocusChange or onWindowChange. It will not work with afterDelay.
+  "eslint.autoFixOnSave": true,
+
+  // Whether the extension contributes a lint task to lint a whole workspace folder.
+  "eslint.provideLintTask": true,
+
+  // An array for working directories to be used. ESLint resolves configuration files relative to a working directory. This new settings allows users to control which working directory is used for which files.
+  // "eslint.workingDirectories": [
+  //   "./", "./ui"
+  // ],
+
+  // Enable/disable JavaScript validation.
+  "javascript.validate.enable": false,
+
+  // Enable/disable default JavaScript formatter.
+  "javascript.format.enable": false,
+
+  // Control whether or not jslint is enabled for JavaScript files.
+  "jslint.enable": false,
+
+  // Controls whether JavaScript Standard Style is enabled for JavaScript files or not.
+  "standard.enable": false
+}
