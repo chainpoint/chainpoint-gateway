@@ -103,12 +103,12 @@ class Login extends Component {
                       this.props.app.status.error &&
                       this.props.app.status.event === 'AUTH_LOGIN_ERROR' &&
                       this.state.submitted && (
-                      <HelpBlock>
-                        <span className="firebrick-text">
+                        <HelpBlock>
+                          <span className="firebrick-text">
                             Invalid Login. Please try again.
-                        </span>
-                      </HelpBlock>
-                    )}
+                          </span>
+                        </HelpBlock>
+                      )}
 
                     <div className="add-top">
                       <ButtonGroup vertical block>

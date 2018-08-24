@@ -177,9 +177,9 @@ class Dashboard extends Component {
                     data={
                       this.props.node.stats.last_1_days
                         ? this._mapHashesReceivedToday(
-                          this.props.node.stats.last_1_days
-                            .hashesReceivedToday
-                        )
+                            this.props.node.stats.last_1_days
+                              .hashesReceivedToday
+                          )
                         : []
                     }
                     columns={columns}

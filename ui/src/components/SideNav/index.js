@@ -44,11 +44,11 @@ class SideNav extends Component {
         {this.props.app &&
           this.props.app.auth &&
           this.props.app.auth.access_token && (
-          <Link to="/login" onClick={this._handleSignOut}>
-            <FontAwesome className="lightpurple-text" name="sign-out" />
+            <Link to="/login" onClick={this._handleSignOut}>
+              <FontAwesome className="lightpurple-text" name="sign-out" />
               &nbsp;&nbsp;Logout
-          </Link>
-        )}
+            </Link>
+          )}
       </div>
     )
   }
