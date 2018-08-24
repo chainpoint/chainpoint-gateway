@@ -59,8 +59,6 @@ This project is coded in the [Visual Studio Code](https://code.visualstudio.com/
 
 [vscode-eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
-[prettier-vscode](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
-
 [EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig)
 
 ### Running The Server
