@@ -1,63 +1,63 @@
 .teal {
-  background-color: #44BBA4;
+  background-color: #44bba4;
 }
 
 .greentea {
-  background-color: #D1EFB5;
+  background-color: #d1efb5;
 }
 
 .greentea-text {
-  color: #D1EFB5;
+  color: #d1efb5;
 }
 
 .greenslate {
-  background-color: #395B50;
+  background-color: #395b50;
 }
 
 .greenslate-text {
-  color: #395B50;
+  color: #395b50;
 }
 
 .greenwinter {
-  background-color: #5A7684;
+  background-color: #5a7684;
 }
 
 .green {
-  background-color: #388E3C;
+  background-color: #388e3c;
 }
 
 .green-text {
-  color: #388E3C;
-  -webkit-text-fill-color: #388E3C;
+  color: #388e3c;
+  -webkit-text-fill-color: #388e3c;
 }
 
 .green-text-important {
-  color: #388E3C !important;
-  -webkit-text-fill-color: #388E3C !important;
+  color: #388e3c !important;
+  -webkit-text-fill-color: #388e3c !important;
 }
 
 .mustard {
-  background-color: #E7BB41;
+  background-color: #e7bb41;
 }
 
 .steel {
-  background-color: #393E41;
+  background-color: #393e41;
 }
 
 .lightgray {
-  background-color: #D3D0CB;
+  background-color: #d3d0cb;
 }
 
 .lightgray-text {
-  color: #D3D0CB;
+  color: #d3d0cb;
 }
 
 .platinum {
-  background-color: #E7E5DF;
+  background-color: #e7e5df;
 }
 
 .platinum-text {
-  color: #E7E5DF;
+  color: #e7e5df;
 }
 
 .darkgray {
@@ -69,7 +69,7 @@
 }
 
 .darkskyblue {
-  background-color: #92AFD7;
+  background-color: #92afd7;
 }
 
 .darkblue {
@@ -77,19 +77,19 @@
 }
 
 .violetjapanese {
-  background-color: #4D2D52;
+  background-color: #4d2d52;
 }
 
 .lightpurple {
-  background-color: #8F78C7;
+  background-color: #8f78c7;
 }
 
 .lightpurple-text {
-  color: #8F78C7;
+  color: #8f78c7;
 }
 
 .tierionpink {
-  background-color: #EC5281;
+  background-color: #ec5281;
 }
 
 .tierion-skyblue {
@@ -101,7 +101,7 @@
 }
 
 .tierion-tealblue-text {
-  color: #B3E4FC;
+  color: #b3e4fc;
 }
 
 .tierion-darkblue {
@@ -113,23 +113,23 @@
 }
 
 .tierion-purple {
-  background-color: #45339D;
+  background-color: #45339d;
 }
 
 .tierion-purple-text {
-  color: #45339D;
+  color: #45339d;
 }
 
 .tierionorange {
-  background-color: #ED6237;
+  background-color: #ed6237;
 }
 
 .firebrick {
-  background-color: #BF211E;
+  background-color: #bf211e;
 }
 
 .firebrick-text {
-  color: #BF211E;
+  color: #bf211e;
 }
 
 .red {
@@ -139,7 +139,6 @@
 .red-text {
   color: #a94442;
   -webkit-text-fill-color: #a94442;
-  
 }
 
 .red-text-important {

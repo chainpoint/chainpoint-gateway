@@ -13,9 +13,12 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    getNodeStats: (query) => dispatch(getNodeStats(query)),
+    getNodeStats: query => dispatch(getNodeStats(query)),
     getNodeConfig: () => dispatch(getNodeConfig())
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Dashboard)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Dashboard)

@@ -10,9 +10,9 @@ This is a simple user interface available on all running Chainpoint Nodes. It ex
 
 ## Building Project
 
-1. ```$ yarn install```
-2. ```$ npm start```
-3. Navigate to ```http://localhost:3000``` in your web browser
+1. `$ yarn install`
+2. `$ npm start`
+3. Navigate to `http://localhost:3000` in your web browser
 
 ## Technologies Used
 
