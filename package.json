@@ -4,7 +4,8 @@
   "version": "1.5.3",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "eslint-check": "eslint --print-config . | eslint-config-prettier-check"
   },
   "repository": {
     "type": "git",
