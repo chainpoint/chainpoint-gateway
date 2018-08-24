@@ -275,16 +275,16 @@ class NodeStatus extends Component {
               </FormGroup>
               {publicUri !== '' &&
                 !nodeIsPrivate && (
-                <FormGroup controlId="formBasicText">
-                  <ControlLabel>Node Public URI</ControlLabel>
-                  <FormControl
-                    type="text"
-                    value={publicUri}
-                    placeholder="Node Public URI"
-                    disabled
-                  />
-                </FormGroup>
-              )}
+                  <FormGroup controlId="formBasicText">
+                    <ControlLabel>Node Public URI</ControlLabel>
+                    <FormControl
+                      type="text"
+                      value={publicUri}
+                      placeholder="Node Public URI"
+                      disabled
+                    />
+                  </FormGroup>
+                )}
               <FormGroup
                 className={classnames({ hide: tnt_addr === '' })}
                 controlId="formBasicText"
