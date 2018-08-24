@@ -58,5 +58,12 @@
     "uuid-validate": "0.0.2",
     "valid-url": "^1.0.9",
     "validator": "^9.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.4.0",
+    "eslint-config-prettier": "^3.0.1",
+    "eslint-plugin-prettier": "^2.6.2",
+    "eslint-plugin-react": "^7.11.1",
+    "prettier": "^1.14.2"
   }
 }
