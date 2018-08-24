@@ -2,7 +2,7 @@
 
 const fs = require('fs')
 
-function main () {
+function main() {
   const path = './keys/backups/'
   let backupDate = new Date()
 
@@ -12,7 +12,7 @@ function main () {
   console.log('Prints ETH address, HMAC Key, and Restore Command')
   console.log('***************************************************\n')
 
-  fs.readdir(path, function (err, items) {
+  fs.readdir(path, function(err, items) {
     if (err) {
       console.error(`Could not read from ${path} : ${err}`)
       return

@@ -1,9 +1,20 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { Grid, Row, Col, Well, FormGroup, ControlLabel, FormControl, HelpBlock, ButtonGroup, Button } from 'react-bootstrap'
+import {
+  Grid,
+  Row,
+  Col,
+  Well,
+  FormGroup,
+  ControlLabel,
+  FormControl,
+  HelpBlock,
+  ButtonGroup,
+  Button
+} from 'react-bootstrap'
 
 class Login extends Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
 
     this.state = { value: '', edited: false, persistenceEnabled: true }
@@ -11,12 +22,20 @@ class Login extends Component {
     this._handleLogin = this._handleLogin.bind(this)
   }
 
-  componentDidMount () {
-    this.props.submitLogin(this.state.value).then(() => {
-      return this.props.getNodeStats('last_1_days').then(() => {
-        return this.props.history.push('/')
-      }, (err) => { console.log(err, 'err') })
-    }).catch(e => {})
+  componentDidMount() {
+    this.props
+      .submitLogin(this.state.value)
+      .then(() => {
+        return this.props.getNodeStats('last_1_days').then(
+          () => {
+            return this.props.history.push('/')
+          },
+          err => {
+            console.log(err, 'err')
+          }
+        )
+      })
+      .catch(e => {})
 
     try {
       const storage = window['localStorage']
@@ -28,57 +47,79 @@ class Login extends Component {
     }
   }
 
-  getValidationState () {
+  getValidationState() {
     const length = this.state.value.length
     if (length > 0) return 'success'
 
     return null
   }
 
-  _handleChange (e) {
+  _handleChange(e) {
     this.setState({ value: e.target.value, submitted: false })
   }
 
-  _handleLogin (e) {
+  _handleLogin(e) {
     e.preventDefault()
     this.setState({ submitted: true })
 
-    this.props.submitLogin(this.state.value).then((res) => {
-      this.props.history.push('/')
-    }, () => {})
+    this.props.submitLogin(this.state.value).then(
+      res => {
+        this.props.history.push('/')
+      },
+      () => {}
+    )
   }
 
-  render () {
+  render() {
     return (
       <section>
         <Grid fluid>
-          {
-            !this.state.persistenceEnabled ? (
-              <Row className='add-top'>
-                <Col xs={8} xsOffset={2}>
-                  We've detected that you have cookies disabled. This application requires the use of browser local storage. Enabling cookies for your Node’s address will allow persisting your login.
-                </Col>
-              </Row>
-            ) : ''
-          }
-          <Row className='add-top'>
+          {!this.state.persistenceEnabled ? (
+            <Row className="add-top">
+              <Col xs={8} xsOffset={2}>
+                We've detected that you have cookies disabled. This application
+                requires the use of browser local storage. Enabling cookies for
+                your Node’s address will allow persisting your login.
+              </Col>
+            </Row>
+          ) : (
+            ''
+          )}
+          <Row className="add-top">
             <Col xs={8} xsOffset={2}>
               <Well>
                 <form onSubmit={this._handleLogin}>
-                  <FormGroup controlId='accessToken'>
+                  <FormGroup controlId="accessToken">
                     <ControlLabel>Password:</ControlLabel>
                     <FormControl
-                      type='password'
+                      type="password"
                       value={this.state.value}
-                      placeholder='Enter Password...'
-                      onChange={this._handleChange} />
+                      placeholder="Enter Password..."
+                      onChange={this._handleChange}
+                    />
                     <FormControl.Feedback />
 
-                    {(this.props.app.status && this.props.app.status.error && this.props.app.status.event === 'AUTH_LOGIN_ERROR' && this.state.submitted) && (<HelpBlock><span className='firebrick-text'>Invalid Login. Please try again.</span></HelpBlock>)}
+                    {this.props.app.status &&
+                      this.props.app.status.error &&
+                      this.props.app.status.event === 'AUTH_LOGIN_ERROR' &&
+                      this.state.submitted && (
+                      <HelpBlock>
+                        <span className="firebrick-text">
+                            Invalid Login. Please try again.
+                        </span>
+                      </HelpBlock>
+                    )}
 
-                    <div className='add-top'>
+                    <div className="add-top">
                       <ButtonGroup vertical block>
-                        <Button bsStyle='primary' type='submit' onClick={this._handleLogin} onSubmit={this._handleLogin}>Login</Button>
+                        <Button
+                          bsStyle="primary"
+                          type="submit"
+                          onClick={this._handleLogin}
+                          onSubmit={this._handleLogin}
+                        >
+                          Login
+                        </Button>
                       </ButtonGroup>
                     </div>
                   </FormGroup>

@@ -4,7 +4,7 @@
   font-weight: 500;
 }
 
-.about-view-wrapper input[type=text] {
+.about-view-wrapper input[type='text'] {
   background: white;
   padding: 10px;
   height: 55px;

@@ -15,9 +15,12 @@ const mapStateToProps = (state, ownProps) => {
 
 const mapDispatchToProps = (dispatch, ownProps) => {
   return {
-    submitLogin: (accessToken) => dispatch(submitLogin(accessToken)),
-    getNodeStats: (query) => dispatch(getNodeStats(query))
+    submitLogin: accessToken => dispatch(submitLogin(accessToken)),
+    getNodeStats: query => dispatch(getNodeStats(query))
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login)
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Login)
