@@ -6,10 +6,8 @@
 
 ## About
 
-Chainpoint Nodes are a critical component of the Chainpoint Network. Nodes
-allows anyone to run a server that accepts hashes, anchor them to public
-blockchains, verify proofs, and participate in the Chainpoint Network
-Token (TNT) ecosystem.
+Chainpoint Nodes allow anyone to run a server that can accept hashes, anchor them to a public
+blockchain, returns a timestamp proof, verify proofs, and participate in the Chainpoint Network.
 
 This repository contains the source code for the Chainpoint Node
 software. The code in this repository is primarily intended for
