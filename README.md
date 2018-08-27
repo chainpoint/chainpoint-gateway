@@ -6,8 +6,7 @@
 
 ## About
 
-Chainpoint Nodes allow anyone to run a server that can accept hashes, anchor them to a public
-blockchain, returns a timestamp proof, verify proofs, and participate in the Chainpoint Network.
+Chainpoint Nodes allows anyone to run a server that accepts hashes, anchors them to public blockchains, create and verify proofs, and participate in the Chainpoint Network.
 
 This repository contains the source code for the Chainpoint Node
 software. The code in this repository is primarily intended for
