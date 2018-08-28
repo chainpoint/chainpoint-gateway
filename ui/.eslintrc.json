@@ -25,6 +25,7 @@
   "rules": {
     "prettier/prettier": "error",
     "linebreak-style": ["error", "unix"],
+    "no-console": "off",
     "camelcase": [
       "error",
       {
