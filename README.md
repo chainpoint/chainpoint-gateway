@@ -36,14 +36,13 @@ You can run ESLint manually using the CLI:
 For the Chainpoint Node JS Source:
 
 ```sh
-./node_modules/.bin/eslint .
+./node_modules/.bin/eslint . --ignore-pattern '/ui/'
 ```
 
 For the Chainpoint Node UI:
 
 ```sh
-cd ui/
-./node_modules/.bin/eslint .
+./node_modules/.bin/eslint ./ui/
 ```
 
 You can run Prettier manually to see which files would be re-formatted by it. For example:
