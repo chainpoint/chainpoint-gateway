@@ -23,7 +23,7 @@ export function submitLogin(accessToken = '') {
       dispatch({ type: AUTH_LOGIN_SUCCESSFUL, payload: accessTokenLowered })
 
       let headers = { auth: accessTokenLowered || '' }
-      let url = new URL(`${getApiUrl()}/stats`) // eslint-disable-line
+      let url = new URL(`${getApiUrl()}/stats`)
       let params = Object.assign(
         {},
         { filter: 'last_1_days' },
@@ -33,7 +33,6 @@ export function submitLogin(accessToken = '') {
         url.searchParams.append(key, params[key])
       )
       await fetch(url, { headers }).then(res => {
-        // eslint-disable-line
         if (res.status === 401) throw new Error(401)
 
         return res.json()

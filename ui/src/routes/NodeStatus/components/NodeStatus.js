@@ -40,7 +40,6 @@ class NodeStatus extends Component {
     fetch('https://a.chainpoint.org/config')
       .then(res => res.json())
       .then(res => {
-        // eslint-disable-line
         this.setState({
           node_min_version: res.node_min_version
         })
@@ -176,7 +175,7 @@ class NodeStatus extends Component {
     let auditStatus = this._calculateAuditStatus()
     let npmVersion = this._calculateValidNPMVersion()
     let publicUri = this._getNodePublicUri()
-    let tnt_addr = this._getNodeETHAddress() // eslint-disable-line
+    let tntAddr = this._getNodeETHAddress()
     let [ntpDeltaVal, ntpDeltaBool] = this._calculateNTPDelta()
     let [
       totalAuditsPassed,
@@ -196,7 +195,6 @@ class NodeStatus extends Component {
       (_isEmpty(this.props.nodeData.node_public_uri) ||
         this.props.nodeData.node_public_uri === 'http://0.0.0.0')
     let dataFromCoreLastReceived = (() => {
-      // eslint-disable-line
       if (this.props.nodeData && this.props.nodeData.dataFromCoreLastReceived) {
         return moment(
           parseInt(this.props.nodeData.dataFromCoreLastReceived, 10)
@@ -286,13 +284,13 @@ class NodeStatus extends Component {
                   </FormGroup>
                 )}
               <FormGroup
-                className={classnames({ hide: tnt_addr === '' })} // eslint-disable-line
+                className={classnames({ hide: tntAddr === '' })}
                 controlId="formBasicText"
               >
                 <ControlLabel>Node TNT Address</ControlLabel>
                 <FormControl
                   type="text"
-                  value={tnt_addr} // eslint-disable-line
+                  value={tntAddr}
                   placeholder="Node TNT Address"
                   disabled
                 />

@@ -30,7 +30,7 @@ export function getNodeConfig() {
   return async dispatch => {
     dispatch({ type: GET_NODE_CONFIG, payload: null })
     try {
-      let result = await fetch(`${getApiUrl()}/config`).then(res => res.json()) // eslint-disable-line
+      let result = await fetch(`${getApiUrl()}/config`).then(res => res.json())
       dispatch({
         type: GET_NODE_CONFIG_SUCCESSFUL,
         payload: Object.assign({}, result, { ip: '127.0.0.1' })
@@ -69,7 +69,7 @@ export function getNodeStats(query = 'last_1_days') {
     dispatch({ type: GET_NODE_STATS, payload: { query } })
     try {
       let headers = { auth: getState().app.auth.access_token || '' }
-      let url = new URL(`${getApiUrl()}/stats`) // eslint-disable-line
+      let url = new URL(`${getApiUrl()}/stats`)
       let params = Object.assign(
         {},
         { filter: query },
@@ -82,7 +82,6 @@ export function getNodeStats(query = 'last_1_days') {
       )
 
       let result = await fetch(url, { headers }).then(res => {
-        // eslint-disable-line
         if (res.status === 401) throw new Error(401)
 
         return res.json()
@@ -103,7 +102,7 @@ export function getNodeStats(query = 'last_1_days') {
           : error.message
       dispatch({ type: GET_NODE_STATS_ERROR, payload: errMsg })
 
-      if (errMsg == 401) dispatch({ type: AUTH_LOGIN_ERROR, payload: null }) // eslint-disable-line
+      if (errMsg == 401) dispatch({ type: AUTH_LOGIN_ERROR, payload: null })
 
       return Promise.reject(errMsg)
     }
