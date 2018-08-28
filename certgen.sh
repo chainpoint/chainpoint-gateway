@@ -59,16 +59,16 @@ EOF
 #FILE_NAME="$IP_ADDRESS"
 FILE_NAME="cert"
 
-# Remove previous keys
-echo "Removing existing certs like $FILE_NAME.*"
-chmod 770 $FILE_NAME.*
-rm $FILE_NAME.*
+# Remove previous cert files
+[ -f ./cert.key ] && \
+  chmod 770 $FILE_NAME.* && \
+  rm $FILE_NAME.* && \
+  echo 'Old TLS cert files removed' || true
 
-echo "Generating certs for $IP_ADDRESS"
+echo "Generating certificate for IP Address : $IP_ADDRESS"
 
 # Generate our Private Key, CSR and Certificate
 # Use SHA-2 as SHA-1 is unsupported from Jan 1, 2017
-
 openssl req -new -x509 -newkey rsa:4096 -sha256 -nodes -keyout "$FILE_NAME.key" -days $DAYS -out "$FILE_NAME.crt" -passin pass:$PASSPHRASE -config "$CONFIG_FILE"
 
 # Store the human readable details of the generated crt in *.info file
