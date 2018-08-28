@@ -11,7 +11,7 @@ class SideNav extends Component {
 
     this._handleSignOut = this._handleSignOut.bind(this)
   }
-  componentWillUpdate(nextProps, nextState) {
+  componentWillUpdate(nextProps) {
     return !isEqual(this.props, nextProps)
   }
 

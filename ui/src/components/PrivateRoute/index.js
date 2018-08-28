@@ -19,7 +19,7 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
   )
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = state => {
   return { app: state.app }
 }
 

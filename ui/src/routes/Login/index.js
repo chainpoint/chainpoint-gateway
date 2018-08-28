@@ -3,7 +3,7 @@ import Login from './components/Login'
 import { submitLogin } from '../../reducers/appReducer'
 import { getNodeStats } from '../../reducers/nodeReducer'
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = state => {
   return {
     app: state.app,
     nodeConfig: state.node.config,
@@ -13,7 +13,7 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = dispatch => {
   return {
     submitLogin: accessToken => dispatch(submitLogin(accessToken)),
     getNodeStats: query => dispatch(getNodeStats(query))

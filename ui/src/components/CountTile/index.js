@@ -59,7 +59,12 @@ class CountTile extends Component {
 CountTile.propTypes = {
   size: PropTypes.number,
   color: PropTypes.string,
-  title: PropTypes.string.isRequired
+  title: PropTypes.string.isRequired,
+  extraClasses: PropTypes.string,
+  txtcolor: PropTypes.string,
+  subTitle: PropTypes.string,
+  count: PropTypes.number,
+  opacity: PropTypes.number
 }
 
 CountTile.defaultProps = {

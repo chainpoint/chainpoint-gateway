@@ -5,66 +5,8 @@ import { isNumber as _isNumber, toNumber as _toNumber } from 'lodash'
 import CountTile from '../../../components/CountTile'
 import ReactTable from 'react-table'
 
-const columns = [
-  {
-    Header: () => <span className="left align">HASH ID</span>,
-    getHeaderProps: (state, rowInfo, column) => {
-      return {
-        style: {
-          textAlign: 'left',
-          color: 'white',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          padding: '25px',
-          border: 'none',
-          borderTopLeftRadius: '8px',
-          backgroundColor: '#B2BEC4'
-        }
-      }
-    },
-    getProps: (state, rowInfo, column) => {
-      return {
-        style: {
-          color: '#90a4ae'
-        }
-      }
-    },
-    accessor: 'hash_id_node'
-  },
-  {
-    Header: 'RECEIVED',
-    accessor: 'created_at',
-    maxWidth: 240,
-    getHeaderProps: (state, rowInfo, column) => {
-      return {
-        style: {
-          textAlign: 'right',
-          color: 'white',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          padding: '25px',
-          border: 'none',
-          borderTopRightRadius: '8px',
-          backgroundColor: '#B2BEC4'
-        }
-      }
-    },
-    getProps: (state, rowInfo, column) => {
-      return {
-        style: {
-          textAlign: 'right',
-          color: '#90a4ae'
-        }
-      }
-    },
-    Cell: props => {
-      return <span className="right-align">{props.value}</span>
-    }
-  }
-]
-
 class Dashboard extends Component {
-  constructor(props, context) {
+  constructor(props) {
     super(props)
 
     this._mapHashesReceivedToday = this._mapHashesReceivedToday.bind(this)
@@ -98,6 +40,66 @@ class Dashboard extends Component {
     clearInterval(this.statsInterval)
   }
 
+  getColumns() {
+    return [
+      {
+        Header: () => <span className="left align">HASH ID</span>,
+        getHeaderProps: () => {
+          return {
+            style: {
+              textAlign: 'left',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              padding: '25px',
+              border: 'none',
+              borderTopLeftRadius: '8px',
+              backgroundColor: '#B2BEC4'
+            }
+          }
+        },
+        getProps: () => {
+          return {
+            style: {
+              color: '#90a4ae'
+            }
+          }
+        },
+        accessor: 'hash_id_node'
+      },
+      {
+        Header: 'RECEIVED',
+        accessor: 'created_at',
+        maxWidth: 240,
+        getHeaderProps: () => {
+          return {
+            style: {
+              textAlign: 'right',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              padding: '25px',
+              border: 'none',
+              borderTopRightRadius: '8px',
+              backgroundColor: '#B2BEC4'
+            }
+          }
+        },
+        getProps: () => {
+          return {
+            style: {
+              textAlign: 'right',
+              color: '#90a4ae'
+            }
+          }
+        },
+        Cell: props => {
+          return <span className="right-align">{props.value}</span>
+        }
+      }
+    ]
+  }
+
   render() {
     return (
       <section>
@@ -119,7 +121,7 @@ class Dashboard extends Component {
                     title="Hashes Received"
                     subTitle="Current Hour"
                     color="tierion-tile-gradient"
-                    opacity="0.85"
+                    opacity={0.85}
                     txtcolor="tierion-skyblue-text"
                   />
                   <CountTile
@@ -132,7 +134,7 @@ class Dashboard extends Component {
                     title="Hashes Received"
                     subTitle="Past 24 Hours"
                     color="tierion-tile-gradient"
-                    opacity="0.85"
+                    opacity={0.85}
                     txtcolor="tierion-skyblue-text"
                   />
                   <CountTile
@@ -145,7 +147,7 @@ class Dashboard extends Component {
                     title="Calendar Height"
                     subTitle="Current"
                     color="tierion-tile-gradient"
-                    opacity="0.85"
+                    opacity={0.85}
                     txtcolor="tierion-skyblue-text"
                     extraClasses="last-tile no-padding-right"
                   />
@@ -160,7 +162,7 @@ class Dashboard extends Component {
               <Col xs={12} className="add-top add-bottom">
                 <Col xs={12}>
                   <ReactTable
-                    getTrProps={(state, rowInfo, column) => {
+                    getTrProps={() => {
                       return {
                         style: {
                           background: '#FFFFFF',
@@ -182,7 +184,7 @@ class Dashboard extends Component {
                           )
                         : []
                     }
-                    columns={columns}
+                    columns={this.getColumns()}
                     defaultPageSize={25}
                     showPagination={false}
                   />
@@ -197,7 +199,17 @@ class Dashboard extends Component {
 }
 
 Dashboard.propTypes = {
-  getNodeStats: PropTypes.func.isRequired
+  getNodeStats: PropTypes.func.isRequired,
+  getNodeConfig: PropTypes.func,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }),
+  node: PropTypes.shape({
+    stats: PropTypes.shape({
+      last_1_days: PropTypes.any
+    })
+  }),
+  nodeConfig: PropTypes.object
 }
 
 Dashboard.defaultProps = {

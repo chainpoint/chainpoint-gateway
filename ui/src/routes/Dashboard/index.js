@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import Dashboard from './components/Dashboard'
 import { getNodeConfig, getNodeStats } from '../../reducers/nodeReducer'
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = state => {
   return {
     nodeConfig: state.node.config,
     node: state.node,
@@ -11,7 +11,7 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = dispatch => {
   return {
     getNodeStats: query => dispatch(getNodeStats(query)),
     getNodeConfig: () => dispatch(getNodeConfig())

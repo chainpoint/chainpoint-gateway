@@ -30,12 +30,10 @@ class Login extends Component {
           () => {
             return this.props.history.push('/')
           },
-          err => {
-            console.log(err, 'err')
-          }
+          () => {}
         )
       })
-      .catch(e => {})
+      .catch(() => {})
 
     try {
       const storage = window['localStorage']
@@ -63,7 +61,7 @@ class Login extends Component {
     this.setState({ submitted: true })
 
     this.props.submitLogin(this.state.value).then(
-      res => {
+      () => {
         this.props.history.push('/')
       },
       () => {}
@@ -77,9 +75,10 @@ class Login extends Component {
           {!this.state.persistenceEnabled ? (
             <Row className="add-top">
               <Col xs={8} xsOffset={2}>
-                We've detected that you have cookies disabled. This application
-                requires the use of browser local storage. Enabling cookies for
-                your Node’s address will allow persisting your login.
+                We&apos;ve detected that you have cookies disabled. This
+                application requires the use of browser local storage. Enabling
+                cookies for your Node&apos;s address will allow persisting your
+                login.
               </Col>
             </Row>
           ) : (
@@ -135,7 +134,17 @@ class Login extends Component {
 
 Login.propTypes = {
   node: PropTypes.object.isRequired,
-  submitLogin: PropTypes.func.isRequired
+  submitLogin: PropTypes.func.isRequired,
+  getNodeStats: PropTypes.func,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }),
+  app: PropTypes.shape({
+    status: PropTypes.shape({
+      error: PropTypes.bool,
+      event: PropTypes.string
+    })
+  })
 }
 
 export default Login
