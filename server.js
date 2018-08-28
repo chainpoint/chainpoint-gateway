@@ -513,7 +513,10 @@ async function backupAuthKeysAsync() {
     try {
       let rocksKeys = await rocksDB.getAllHMACKeysAsync()
       HMACKeys.push(...rocksKeys)
-    } catch (error) {}
+    } catch (error) {
+      // continue regardless of error
+    }
+
     // Check to see if backup keys dir exists, and create as needed
     if (!fs.existsSync(`${path.resolve('./keys')}`)) {
       fs.mkdirSync(`${path.resolve('./keys')}`)
