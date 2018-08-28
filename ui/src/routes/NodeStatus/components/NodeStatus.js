@@ -286,13 +286,13 @@ class NodeStatus extends Component {
                   </FormGroup>
                 )}
               <FormGroup
-                className={classnames({ hide: tnt_addr === '' })}
+                className={classnames({ hide: tnt_addr === '' })} // eslint-disable-line
                 controlId="formBasicText"
               >
                 <ControlLabel>Node TNT Address</ControlLabel>
                 <FormControl
                   type="text"
-                  value={tnt_addr}
+                  value={tnt_addr} // eslint-disable-line
                   placeholder="Node TNT Address"
                   disabled
                 />
