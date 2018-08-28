@@ -3,10 +3,7 @@
     "browser": true,
     "es6": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:prettier/recommended"
-  ],
+  "extends": ["eslint:recommended", "plugin:prettier/recommended"],
   "parserOptions": {
     "ecmaFeatures": {
       "jsx": true
@@ -14,16 +11,16 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
-  "plugins": [
-    "prettier",
-    "react"
-  ],
+  "plugins": ["prettier", "react"],
   "rules": {
     "prettier/prettier": "error",
-    "linebreak-style": [
+    "linebreak-style": ["error", "unix"],
+    "camelcase": [
       "error",
-      "unix"
-    ],
-    "camelcase": "error"
+      {
+        "properties": "never",
+        "ignoreDestructuring": true
+      }
+    ]
   }
 }
