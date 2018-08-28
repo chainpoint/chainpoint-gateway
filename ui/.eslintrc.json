@@ -16,6 +16,11 @@
     "sourceType": "module"
   },
   "plugins": ["prettier", "react"],
+  "settings": {
+    "react": {
+      "version": "16.2"
+    }
+  },
   "rules": {
     "prettier/prettier": "error",
     "linebreak-style": ["error", "unix"],
