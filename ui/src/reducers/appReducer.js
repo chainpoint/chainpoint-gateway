@@ -13,7 +13,7 @@ const getApiUrl = () => {
 }
 
 export function submitLogin(accessToken = '') {
-  return async (dispatch, getState) => {
+  return async dispatch => {
     try {
       const accessTokenLowered = _startsWith(accessToken, '0x')
         ? _toLower(accessToken)
@@ -32,7 +32,7 @@ export function submitLogin(accessToken = '') {
       Object.keys(params).forEach(key =>
         url.searchParams.append(key, params[key])
       )
-      let result = await fetch(url, { headers }).then(res => {
+      await fetch(url, { headers }).then(res => {
         // eslint-disable-line
         if (res.status === 401) throw new Error(401)
 
@@ -49,7 +49,7 @@ export function submitLogin(accessToken = '') {
 }
 
 export function signOut() {
-  return async (dispatch, getState) => {
+  return async dispatch => {
     dispatch({ type: AUTH_SIGN_OUT, payload: null })
 
     return Promise.resolve()
@@ -60,7 +60,7 @@ export function signOut() {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  [AUTH_LOGIN]: (state, action) => {
+  [AUTH_LOGIN]: state => {
     return Object.assign({}, state, {
       status: {
         event: AUTH_LOGIN,
@@ -100,7 +100,7 @@ const ACTION_HANDLERS = {
       auth: {}
     })
   },
-  [AUTH_SIGN_OUT]: (state, action) => {
+  [AUTH_SIGN_OUT]: state => {
     return Object.assign({}, state, {
       status: {
         event: AUTH_SIGN_OUT,

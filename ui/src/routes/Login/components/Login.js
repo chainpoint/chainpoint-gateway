@@ -35,7 +35,7 @@ class Login extends Component {
           }
         )
       })
-      .catch(e => {})
+      .catch(() => {})
 
     try {
       const storage = window['localStorage']
@@ -63,7 +63,7 @@ class Login extends Component {
     this.setState({ submitted: true })
 
     this.props.submitLogin(this.state.value).then(
-      res => {
+      () => {
         this.props.history.push('/')
       },
       () => {}
@@ -135,7 +135,8 @@ class Login extends Component {
 
 Login.propTypes = {
   node: PropTypes.object.isRequired,
-  submitLogin: PropTypes.func.isRequired
+  submitLogin: PropTypes.func.isRequired,
+  getNodeStats: PropTypes.func
 }
 
 export default Login

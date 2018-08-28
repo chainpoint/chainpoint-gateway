@@ -26,8 +26,8 @@ const getApiUrl = () => {
 // ------------------------------------
 // Actions
 // ------------------------------------
-export function getNodeConfig(query) {
-  return async (dispatch, getState) => {
+export function getNodeConfig() {
+  return async dispatch => {
     dispatch({ type: GET_NODE_CONFIG, payload: null })
     try {
       let result = await fetch(`${getApiUrl()}/config`).then(res => res.json()) // eslint-disable-line
@@ -114,7 +114,7 @@ export function getNodeStats(query = 'last_1_days') {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  [GET_NODE_STATS]: (state, action) => {
+  [GET_NODE_STATS]: state => {
     return Object.assign({}, state, {
       status: {
         event: GET_NODE_STATS,

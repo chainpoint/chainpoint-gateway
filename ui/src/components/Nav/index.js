@@ -77,17 +77,21 @@ class TopNav extends Component {
 }
 
 TopNav.propTypes = {
-  app: PropTypes.object.isRequired
+  app: PropTypes.object.isRequired,
+  signOut: PropTypes.func,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  })
 }
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = state => {
   return {
     app: state.app,
     routing: state.routing
   }
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = dispatch => {
   return {
     signOut: () => {
       dispatch(signOut())

@@ -2,7 +2,7 @@ import { connect } from 'react-redux'
 import NodeStatus from './components/NodeStatus'
 import { getNodeConfig, getNodeStats } from '../../reducers/nodeReducer'
 
-const mapStateToProps = (state, ownProps) => {
+const mapStateToProps = state => {
   return {
     nodeConfig: state.node.config,
     nodeData: state.node.nodeData,
@@ -12,7 +12,7 @@ const mapStateToProps = (state, ownProps) => {
   }
 }
 
-const mapDispatchToProps = (dispatch, ownProps) => {
+const mapDispatchToProps = dispatch => {
   return {
     getNodeConfig: () => dispatch(getNodeConfig()),
     getNodeStats: () => dispatch(getNodeStats())

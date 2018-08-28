@@ -406,7 +406,28 @@ class NodeStatus extends Component {
 NodeStatus.propTypes = {
   nodeConfig: PropTypes.object,
   auth: PropTypes.object,
-  getNodeConfig: PropTypes.func.isRequired
+  getNodeConfig: PropTypes.func.isRequired,
+  getNodeStats: PropTypes.func,
+  node: PropTypes.shape({
+    stats: PropTypes.shape({
+      last_1_days: PropTypes.any
+    })
+  }),
+  nodeData: PropTypes.shape({
+    node_registered: PropTypes.bool,
+    audits: PropTypes.array,
+    node_public_uri: PropTypes.string,
+    core: PropTypes.any,
+    dataFromCoreLastReceived: PropTypes.string,
+    node: PropTypes.shape({
+      node_tnt_addr: PropTypes.string,
+      node_registered: PropTypes.bool,
+      pass_count: PropTypes.number,
+      fail_count: PropTypes.number,
+      consecutive_fails: PropTypes.number,
+      consecutive_passes: PropTypes.number
+    })
+  })
 }
 
 NodeStatus.defaultProps = {

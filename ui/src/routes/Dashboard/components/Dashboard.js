@@ -8,7 +8,7 @@ import ReactTable from 'react-table'
 const columns = [
   {
     Header: () => <span className="left align">HASH ID</span>,
-    getHeaderProps: (state, rowInfo, column) => {
+    getHeaderProps: () => {
       return {
         style: {
           textAlign: 'left',
@@ -22,7 +22,7 @@ const columns = [
         }
       }
     },
-    getProps: (state, rowInfo, column) => {
+    getProps: () => {
       return {
         style: {
           color: '#90a4ae'
@@ -35,7 +35,7 @@ const columns = [
     Header: 'RECEIVED',
     accessor: 'created_at',
     maxWidth: 240,
-    getHeaderProps: (state, rowInfo, column) => {
+    getHeaderProps: () => {
       return {
         style: {
           textAlign: 'right',
@@ -49,7 +49,7 @@ const columns = [
         }
       }
     },
-    getProps: (state, rowInfo, column) => {
+    getProps: () => {
       return {
         style: {
           textAlign: 'right',
@@ -119,7 +119,7 @@ class Dashboard extends Component {
                     title="Hashes Received"
                     subTitle="Current Hour"
                     color="tierion-tile-gradient"
-                    opacity="0.85"
+                    opacity={0.85}
                     txtcolor="tierion-skyblue-text"
                   />
                   <CountTile
@@ -132,7 +132,7 @@ class Dashboard extends Component {
                     title="Hashes Received"
                     subTitle="Past 24 Hours"
                     color="tierion-tile-gradient"
-                    opacity="0.85"
+                    opacity={0.85}
                     txtcolor="tierion-skyblue-text"
                   />
                   <CountTile
@@ -145,7 +145,7 @@ class Dashboard extends Component {
                     title="Calendar Height"
                     subTitle="Current"
                     color="tierion-tile-gradient"
-                    opacity="0.85"
+                    opacity={0.85}
                     txtcolor="tierion-skyblue-text"
                     extraClasses="last-tile no-padding-right"
                   />
