@@ -64,7 +64,7 @@ const columns = [
 ]
 
 class Dashboard extends Component {
-  constructor(props, context) {
+  constructor(props) {
     super(props)
 
     this._mapHashesReceivedToday = this._mapHashesReceivedToday.bind(this)
@@ -160,7 +160,7 @@ class Dashboard extends Component {
               <Col xs={12} className="add-top add-bottom">
                 <Col xs={12}>
                   <ReactTable
-                    getTrProps={(state, rowInfo, column) => {
+                    getTrProps={() => {
                       return {
                         style: {
                           background: '#FFFFFF',
@@ -197,7 +197,17 @@ class Dashboard extends Component {
 }
 
 Dashboard.propTypes = {
-  getNodeStats: PropTypes.func.isRequired
+  getNodeStats: PropTypes.func.isRequired,
+  getNodeConfig: PropTypes.func,
+  history: PropTypes.shape({
+    push: PropTypes.func.isRequired
+  }),
+  node: PropTypes.shape({
+    stats: PropTypes.shape({
+      last_1_days: PropTypes.any
+    })
+  }),
+  nodeConfig: PropTypes.object
 }
 
 Dashboard.defaultProps = {
