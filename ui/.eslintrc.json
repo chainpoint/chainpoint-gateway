@@ -23,6 +23,7 @@
     "linebreak-style": [
       "error",
       "unix"
-    ]
+    ],
+    "camelcase": "error"
   }
 }

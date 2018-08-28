@@ -19,6 +19,7 @@
       "error",
       "unix"
     ],
-    "no-console": "off"
+    "no-console": "off",
+    "camelcase": "error"
   }
 }
