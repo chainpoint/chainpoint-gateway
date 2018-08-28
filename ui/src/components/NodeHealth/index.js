@@ -7,26 +7,25 @@ import FontAwesome from 'react-fontawesome'
 class NodeHealth extends Component {
   render() {
     let health = { healthLabel: '', healthIcon: 'gear' }
-    // prettier-ignore
     switch (this.props.health) {
-    case 'healthy':
-      health = { healthLabel: 'Node is healthy.', healthIcon: 'check-circle' }
-      break
-    case 'tainted':
-      health = {
-        healthLabel: 'Node is experiencing technical difficulties.',
-        healthIcon: 'info-circle'
-      }
-      break
-    case 'failing':
-      health = {
-        healthLabel: 'Node is experiencing technical difficulties.',
-        healthIcon: 'times-circle'
-      }
-      break
-    default:
-      health = { healthLabel: '', healthIcon: '' }
-      break
+      case 'healthy':
+        health = { healthLabel: 'Node is healthy.', healthIcon: 'check-circle' }
+        break
+      case 'tainted':
+        health = {
+          healthLabel: 'Node is experiencing technical difficulties.',
+          healthIcon: 'info-circle'
+        }
+        break
+      case 'failing':
+        health = {
+          healthLabel: 'Node is experiencing technical difficulties.',
+          healthIcon: 'times-circle'
+        }
+        break
+      default:
+        health = { healthLabel: '', healthIcon: '' }
+        break
     }
     return (
       <Col xs={12}>
