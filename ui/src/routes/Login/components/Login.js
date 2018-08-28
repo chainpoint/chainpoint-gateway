@@ -139,8 +139,8 @@ Login.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }),
-  app: PropTypes.object.shape({
-    status: PropTypes.object.shape({
+  app: PropTypes.shape({
+    status: PropTypes.shape({
       error: PropTypes.bool,
       event: PropTypes.string
     })

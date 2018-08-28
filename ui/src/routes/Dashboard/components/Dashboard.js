@@ -5,64 +5,6 @@ import { isNumber as _isNumber, toNumber as _toNumber } from 'lodash'
 import CountTile from '../../../components/CountTile'
 import ReactTable from 'react-table'
 
-const columns = [
-  {
-    Header: () => <span className="left align">HASH ID</span>,
-    getHeaderProps: () => {
-      return {
-        style: {
-          textAlign: 'left',
-          color: 'white',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          padding: '25px',
-          border: 'none',
-          borderTopLeftRadius: '8px',
-          backgroundColor: '#B2BEC4'
-        }
-      }
-    },
-    getProps: () => {
-      return {
-        style: {
-          color: '#90a4ae'
-        }
-      }
-    },
-    accessor: 'hash_id_node'
-  },
-  {
-    Header: 'RECEIVED',
-    accessor: 'created_at',
-    maxWidth: 240,
-    getHeaderProps: () => {
-      return {
-        style: {
-          textAlign: 'right',
-          color: 'white',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          padding: '25px',
-          border: 'none',
-          borderTopRightRadius: '8px',
-          backgroundColor: '#B2BEC4'
-        }
-      }
-    },
-    getProps: () => {
-      return {
-        style: {
-          textAlign: 'right',
-          color: '#90a4ae'
-        }
-      }
-    },
-    Cell: props => {
-      return <span className="right-align">{props.value}</span>
-    }
-  }
-]
-
 class Dashboard extends Component {
   constructor(props) {
     super(props)
@@ -96,6 +38,66 @@ class Dashboard extends Component {
 
   componentWillUnmount() {
     clearInterval(this.statsInterval)
+  }
+
+  getColumns() {
+    return [
+      {
+        Header: () => <span className="left align">HASH ID</span>,
+        getHeaderProps: () => {
+          return {
+            style: {
+              textAlign: 'left',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              padding: '25px',
+              border: 'none',
+              borderTopLeftRadius: '8px',
+              backgroundColor: '#B2BEC4'
+            }
+          }
+        },
+        getProps: () => {
+          return {
+            style: {
+              color: '#90a4ae'
+            }
+          }
+        },
+        accessor: 'hash_id_node'
+      },
+      {
+        Header: 'RECEIVED',
+        accessor: 'created_at',
+        maxWidth: 240,
+        getHeaderProps: () => {
+          return {
+            style: {
+              textAlign: 'right',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: 'bold',
+              padding: '25px',
+              border: 'none',
+              borderTopRightRadius: '8px',
+              backgroundColor: '#B2BEC4'
+            }
+          }
+        },
+        getProps: () => {
+          return {
+            style: {
+              textAlign: 'right',
+              color: '#90a4ae'
+            }
+          }
+        },
+        Cell: props => {
+          return <span className="right-align">{props.value}</span>
+        }
+      }
+    ]
   }
 
   render() {
@@ -182,7 +184,7 @@ class Dashboard extends Component {
                           )
                         : []
                     }
-                    columns={columns}
+                    columns={this.getColumns()}
                     defaultPageSize={25}
                     showPagination={false}
                   />
