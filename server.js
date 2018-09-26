@@ -88,6 +88,54 @@ async function validateUriAsync(nodeUri) {
   }
 }
 
+async function validatePrivateUriAsync(nodeUri) {
+  if (_.isEmpty(nodeUri)) return null
+
+  let isValidURI = validator.isURL(nodeUri, {
+    protocols: ['http', 'https'],
+    require_protocol: true,
+    host_blacklist: ['0.0.0.0']
+  })
+
+  let parsedURI = url.parse(nodeUri)
+  let parsedURIHost = parsedURI.hostname
+  let uriHasValidPort = !!(parsedURI.port === null || parsedURI.port === '80')
+  let uriHasValidIPHost = validator.isIP(parsedURIHost, 4)
+
+  if (
+    isValidURI &&
+    uriHasValidIPHost &&
+    uriHasValidPort &&
+    ip.isPrivate(parsedURIHost)
+  ) {
+    return nodeUri
+  } else if (isValidURI && uriHasValidIPHost && !ip.isPrivate(parsedURIHost)) {
+    throw new Error(
+      `CHAINPOINT_NODE_PRIVATE_URI must be a RFC1918 Private IP Addresses`
+    )
+  } else if (!uriHasValidPort) {
+    throw new Error(
+      'CHAINPOINT_NODE_PRIVATE_URI only supports the use of port 80'
+    )
+  }
+}
+
+async function validateReflectedUri(val) {
+  const enumerals = ['public', 'private']
+
+  if (!enumerals.includes(val))
+    throw new Error(
+      'CHAINPOINT_NODE_REFLECTED_URI only accepts a value of "public" or "private"'
+    )
+  else if (!env.CHAINPOINT_NODE_PUBLIC_URI && !env.CHAINPOINT_NODE_PRIVATE_URI)
+    throw new Error(
+      'CHAINPOINT_NODE_REFLECTED_URI requires that a valid value be set for "CHAINPOINT_NODE_PUBLIC_URI" or "CHAINPOINT_NODE_PRIVATE_URI"'
+    )
+  else if (!env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] || env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] === 'empty') throw new Error(
+    `${`CHAINPOINT_NODE_${val.toUpperCase()}_URI`} is required as it has been set as the CHAINPOINT_NODE_REFLECTED_URI`
+  )
+}
+
 // establish a connection with the database
 async function openStorageConnectionAsync() {
   await rocksDB.openConnectionAsync()
@@ -551,6 +599,15 @@ async function startAsync() {
     await openStorageConnectionAsync()
     await coreHosts.initCoreHostsFromDNSAsync()
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
+
+    // Validate CHAINPOINT_NODE_PRIVATE_URI & CHAINPOINT_NODE_REFLECTED_URI if either env variable is set in .env
+    if (env.CHAINPOINT_NODE_PRIVATE_URI && env.CHAINPOINT_NODE_PRIVATE_URI !== 'empty') {
+      await validatePrivateUriAsync(env.CHAINPOINT_NODE_PRIVATE_URI)
+    }
+    if (env.CHAINPOINT_NODE_REFLECTED_URI && env.CHAINPOINT_NODE_REFLECTED_URI !== 'empty') {
+      await validateReflectedUri(env.CHAINPOINT_NODE_REFLECTED_URI)
+    }
+
     IS_PRIVATE_NODE = nodeUri === null
     // backup auth key(s)
     await backupAuthKeysAsync()
