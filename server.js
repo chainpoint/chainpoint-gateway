@@ -129,7 +129,7 @@ async function validateReflectedUri(val) {
     throw new Error(
       'CHAINPOINT_NODE_REFLECTED_URI only accepts a value of "public" or "private"'
     )
-  else if ((!env.CHAINPOINT_NODE_PUBLIC_URI && !env.CHAINPOINT_NODE_PRIVATE_URI) || env.CHAINPOINT_NODE_PUBLIC_URI === 'http://0.0.0.0')
+  else if ((!env.CHAINPOINT_NODE_PUBLIC_URI && !env.CHAINPOINT_NODE_PRIVATE_URI) || (env.CHAINPOINT_NODE_PUBLIC_URI === 'http://0.0.0.0' && !env.CHAINPOINT_NODE_PRIVATE_URI))
     throw new Error(
       'CHAINPOINT_NODE_REFLECTED_URI requires that a valid value be set for "CHAINPOINT_NODE_PUBLIC_URI" or "CHAINPOINT_NODE_PRIVATE_URI"'
     )
