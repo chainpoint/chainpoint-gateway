@@ -129,11 +129,11 @@ async function validateReflectedUri(val) {
     throw new Error(
       'CHAINPOINT_NODE_REFLECTED_URI only accepts a value of "public" or "private"'
     )
-  else if ((!env.CHAINPOINT_NODE_PUBLIC_URI && !env.CHAINPOINT_NODE_PRIVATE_URI) || (env.CHAINPOINT_NODE_PUBLIC_URI === 'http://0.0.0.0' && !env.CHAINPOINT_NODE_PRIVATE_URI))
+  else if ((!env.CHAINPOINT_NODE_PUBLIC_URI || env.CHAINPOINT_NODE_PUBLIC_URI === 'http://0.0.0.0') && (!env.CHAINPOINT_NODE_PRIVATE_URI || env.CHAINPOINT_NODE_PRIVATE_URI === 'empty'))
     throw new Error(
       'CHAINPOINT_NODE_REFLECTED_URI requires that a valid value be set for "CHAINPOINT_NODE_PUBLIC_URI" or "CHAINPOINT_NODE_PRIVATE_URI"'
     )
-  else if (!env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] || env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] === 'empty') throw new Error(
+  else if (!env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] || env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] === 'empty' || env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] === 'http://0.0.0.0') throw new Error(
     `${`CHAINPOINT_NODE_${val.toUpperCase()}_URI`} is required as it has been set as the CHAINPOINT_NODE_REFLECTED_URI`
   )
 }
