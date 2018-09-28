@@ -30,7 +30,9 @@ const moment = require('moment')
 const ip = require('ip')
 const url = require('url')
 const rp = require('request-promise-native')
-const { version } = require('./package.json')
+const {
+  version
+} = require('./package.json')
 const eventMetrics = require('./lib/event-metrics.js')
 const rocksDB = require('./lib/models/RocksDB.js')
 
@@ -127,7 +129,7 @@ async function validateReflectedUri(val) {
     throw new Error(
       'CHAINPOINT_NODE_REFLECTED_URI only accepts a value of "public" or "private"'
     )
-  else if (!env.CHAINPOINT_NODE_PUBLIC_URI && !env.CHAINPOINT_NODE_PRIVATE_URI)
+  else if ((!env.CHAINPOINT_NODE_PUBLIC_URI && !env.CHAINPOINT_NODE_PRIVATE_URI) || env.CHAINPOINT_NODE_PUBLIC_URI === 'http://0.0.0.0')
     throw new Error(
       'CHAINPOINT_NODE_REFLECTED_URI requires that a valid value be set for "CHAINPOINT_NODE_PUBLIC_URI" or "CHAINPOINT_NODE_PRIVATE_URI"'
     )
@@ -166,9 +168,9 @@ async function authKeysUpdate() {
       let keyFileContent = fs.readFileSync(`./keys/${keyFile}`, 'utf8')
       keyFileContent = _.head(
         keyFileContent
-          .split(os.EOL)
-          .map(_.trim)
-          .filter(isHMAC)
+        .split(os.EOL)
+        .map(_.trim)
+        .filter(isHMAC)
       )
 
       if (isHMAC(keyFileContent)) {
@@ -317,7 +319,9 @@ async function registerNodeAsync(nodeURI) {
             if (error.error && error.error.message) {
               throw new Error(`${error.statusCode} : ${error.error.message}`)
             }
-            let err = { statusCode: error.statusCode }
+            let err = {
+              statusCode: error.statusCode
+            }
             throw err
           }
 
