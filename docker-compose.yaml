@@ -1,14 +1,14 @@
-version: '2.1'
+version: '3.7'
 
 networks:
   chainpoint-node:
     driver: bridge
 
 services:
-
   chainpoint-node:
     image: gcr.io/chainpoint-registry/chainpoint-node:latest
     restart: on-failure
+    init: true
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ./keys:/home/node/app/keys
@@ -26,4 +26,3 @@ services:
       CHAINPOINT_CORE_API_BASE_URI: "${CHAINPOINT_CORE_API_BASE_URI:-http://0.0.0.0}"
       CHAINPOINT_NODE_UI_PASSWORD: "${CHAINPOINT_NODE_UI_PASSWORD:-empty}"
       CHAINPOINT_NODE_REFLECTED_URI: "${CHAINPOINT_NODE_REFLECTED_URI:-empty}"
-      #DEBUG: "sequelize*"
