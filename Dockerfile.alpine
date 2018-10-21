@@ -12,15 +12,16 @@ COPY package.json yarn.lock /home/node/app/
 RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
   apk add --no-cache gosu@testing && \
   apk add --no-cache --virtual .build build-base linux-headers git python && \
-  mkdir -p /home/node/app/keys/backups && \
-  mkdir -p /home/node/app/rocksdb && \
+  mkdir -p keys/backups && \
+  mkdir -p rocksdb && \
   JOBS=max npm install --production && \
   \
   # Clean rocksdb build dependencies
-  mv /home/node/app/node_modules/rocksdb/build/Release/leveldown.node /tmp/ && \
-  rm -r /home/node/app/node_modules/rocksdb/build/ && \
-  mkdir -p /home/node/app/node_modules/rocksdb/build/Release/ && \
+  mv node_modules/rocksdb/build/Release/leveldown.node /tmp/ && \
+  rm -r node_modules/rocksdb/build/ && \
+  mkdir -p node_modules/rocksdb/build/Release/ && \
   mv /tmp/leveldown.node /home/node/app/node_modules/rocksdb/build/Release/ && \
+  rm -r node_modules/rocksdb/deps && \
   \
   # Remove Alpine build dependencies
   apk del --no-cache .build
