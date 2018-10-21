@@ -1,0 +1,27 @@
+FROM node:alpine
+
+LABEL MAINTAINER="Glenn Rempe <glenn@tierion.com>"
+WORKDIR /home/node/app
+ENV NODE_ENV production
+
+# Copy package.json first, build and then add other files.
+# This way there's no need to rebuild the whole thing if only a few JS files change
+COPY package.json yarn.lock /home/node/app/
+
+# Install dependencies and create directories
+RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
+  apk add --no-cache gosu@testing && \
+  apk add --no-cache --virtual .build build-base linux-headers git python && \
+  mkdir -p /home/node/app/keys/backups && \
+  mkdir -p /home/node/app/rocksdb && \
+  JOBS=max npm install --production && \
+  apk del --no-cache .build
+
+# Copy all necessary JS files
+COPY auth-keys-print.js server.js tor-exit-nodes.txt cert.crt cert.key /home/node/app/
+COPY lib /home/node/app/lib
+COPY ui/build /home/node/app/ui
+
+EXPOSE 8080
+ENTRYPOINT ["gosu", "node:node"]
+CMD ["yarn", "start"]
