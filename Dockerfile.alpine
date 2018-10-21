@@ -15,6 +15,14 @@ RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/ap
   mkdir -p /home/node/app/keys/backups && \
   mkdir -p /home/node/app/rocksdb && \
   JOBS=max npm install --production && \
+  \
+  # Clean rocksdb build dependencies
+  mv /home/node/app/node_modules/rocksdb/build/Release/leveldown.node /tmp/ && \
+  rm -r /home/node/app/node_modules/rocksdb/build/ && \
+  mkdir -p /home/node/app/node_modules/rocksdb/build/Release/ && \
+  mv /tmp/leveldown.node /home/node/app/node_modules/rocksdb/build/Release/ && \
+  \
+  # Remove Alpine build dependencies
   apk del --no-cache .build
 
 # Copy all necessary JS files
