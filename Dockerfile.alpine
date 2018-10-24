@@ -9,8 +9,7 @@ ENV NODE_ENV production
 COPY package.json yarn.lock /home/node/app/
 
 # Install dependencies and create directories
-RUN echo "@testing http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories && \
-  apk add --no-cache gosu@testing && \
+RUN apk add --no-cache su-exec && \
   apk add --no-cache --virtual .build build-base linux-headers git python && \
   mkdir -p keys/backups && \
   mkdir -p rocksdb && \
@@ -32,5 +31,5 @@ COPY lib /home/node/app/lib
 COPY ui/build /home/node/app/ui
 
 EXPOSE 8080
-ENTRYPOINT ["gosu", "node:node"]
+ENTRYPOINT ["su-exec", "node:node"]
 CMD ["yarn", "start"]
