@@ -6,7 +6,7 @@ ENV NODE_ENV production
 
 # Copy package.json first, build and then add other files.
 # This way there's no need to rebuild the whole thing if only a few JS files change
-COPY package.json yarn.lock /home/node/app/
+COPY package.json yarn.lock ./
 
 # Install dependencies and create directories
 RUN apk add --no-cache su-exec tini && \
@@ -19,16 +19,16 @@ RUN apk add --no-cache su-exec tini && \
   mv node_modules/rocksdb/build/Release/leveldown.node /tmp/ && \
   rm -r node_modules/rocksdb/build/ && \
   mkdir -p node_modules/rocksdb/build/Release/ && \
-  mv /tmp/leveldown.node /home/node/app/node_modules/rocksdb/build/Release/ && \
+  mv /tmp/leveldown.node node_modules/rocksdb/build/Release/ && \
   rm -r node_modules/rocksdb/deps && \
   \
   # Remove Alpine build dependencies
   apk del --no-cache .build
 
 # Copy all necessary JS files
-COPY auth-keys-print.js server.js tor-exit-nodes.txt cert.crt cert.key /home/node/app/
-COPY lib /home/node/app/lib
-COPY ui/build /home/node/app/ui
+COPY auth-keys-print.js server.js tor-exit-nodes.txt cert.crt cert.key ./
+COPY lib ./lib
+COPY ui/build ./ui
 
 EXPOSE 8080
 ENTRYPOINT ["su-exec", "node:node", "tini", "--"]
