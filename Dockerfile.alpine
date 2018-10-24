@@ -9,7 +9,7 @@ ENV NODE_ENV production
 COPY package.json yarn.lock /home/node/app/
 
 # Install dependencies and create directories
-RUN apk add --no-cache su-exec && \
+RUN apk add --no-cache su-exec tini && \
   apk add --no-cache --virtual .build build-base linux-headers git python && \
   mkdir -p keys/backups && \
   mkdir -p rocksdb && \
@@ -31,5 +31,5 @@ COPY lib /home/node/app/lib
 COPY ui/build /home/node/app/ui
 
 EXPOSE 8080
-ENTRYPOINT ["su-exec", "node:node"]
+ENTRYPOINT ["su-exec", "node:node", "tini", "--"]
 CMD ["yarn", "start"]
