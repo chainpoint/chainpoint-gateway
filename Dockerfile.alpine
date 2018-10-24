@@ -1,4 +1,4 @@
-FROM node:alpine
+FROM node:8.12.0-alpine
 
 LABEL MAINTAINER="Glenn Rempe <glenn@tierion.com>"
 WORKDIR /home/node/app
