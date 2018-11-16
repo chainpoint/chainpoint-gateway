@@ -30,6 +30,6 @@ COPY auth-keys-print.js server.js tor-exit-nodes.txt cert.crt cert.key ./
 COPY lib ./lib
 COPY ui/build ./ui
 
-EXPOSE 8080
+EXPOSE 8080 8443
 ENTRYPOINT ["su-exec", "node:node", "tini", "--"]
 CMD ["yarn", "start"]
