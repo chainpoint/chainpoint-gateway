@@ -30,9 +30,7 @@ const moment = require('moment')
 const ip = require('ip')
 const url = require('url')
 const rp = require('request-promise-native')
-const {
-  version
-} = require('./package.json')
+const { version } = require('./package.json')
 const eventMetrics = require('./lib/event-metrics.js')
 const rocksDB = require('./lib/models/RocksDB.js')
 
@@ -129,13 +127,23 @@ async function validateReflectedUri(val) {
     throw new Error(
       'CHAINPOINT_NODE_REFLECTED_URI only accepts a value of "public" or "private"'
     )
-  else if ((!env.CHAINPOINT_NODE_PUBLIC_URI || env.CHAINPOINT_NODE_PUBLIC_URI === 'http://0.0.0.0') && (!env.CHAINPOINT_NODE_PRIVATE_URI || env.CHAINPOINT_NODE_PRIVATE_URI === 'empty'))
+  else if (
+    (!env.CHAINPOINT_NODE_PUBLIC_URI ||
+      env.CHAINPOINT_NODE_PUBLIC_URI === 'http://0.0.0.0') &&
+    (!env.CHAINPOINT_NODE_PRIVATE_URI ||
+      env.CHAINPOINT_NODE_PRIVATE_URI === 'empty')
+  )
     throw new Error(
       'CHAINPOINT_NODE_REFLECTED_URI requires that a valid value be set for "CHAINPOINT_NODE_PUBLIC_URI" or "CHAINPOINT_NODE_PRIVATE_URI"'
     )
-  else if (!env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] || env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] === 'empty' || env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] === 'http://0.0.0.0') throw new Error(
-    `${`CHAINPOINT_NODE_${val.toUpperCase()}_URI`} is required as it has been set as the CHAINPOINT_NODE_REFLECTED_URI`
+  else if (
+    !env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] ||
+    env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] === 'empty' ||
+    env[`CHAINPOINT_NODE_${val.toUpperCase()}_URI`] === 'http://0.0.0.0'
   )
+    throw new Error(
+      `${`CHAINPOINT_NODE_${val.toUpperCase()}_URI`} is required as it has been set as the CHAINPOINT_NODE_REFLECTED_URI`
+    )
 }
 
 // establish a connection with the database
@@ -160,42 +168,51 @@ async function authKeysUpdate() {
 
   if (keys.length) {
     // Iterate through all key files found and write hmac key to local storage
-    for (let key of keys) {
-      let isHMAC = k => {
-        return /^[0-9a-fA-F]{64}$/i.test(k)
-      }
-      let keyFile = key
+    for (let keyFile of keys) {
       let keyFileContent = fs.readFileSync(`./keys/${keyFile}`, 'utf8')
       keyFileContent = _.head(
         keyFileContent
-        .split(os.EOL)
-        .map(_.trim)
-        .filter(isHMAC)
+          .split(os.EOL)
+          .map(_.trim)
+          .filter(isHMAC)
       )
 
-      if (isHMAC(keyFileContent)) {
-        try {
-          await rocksDB.saveHMACKeyAsync({
-            tntAddr: env.NODE_TNT_ADDRESS,
-            hmacKey: keyFileContent,
-            version: 1
-          })
-          console.log(
-            `INFO : Registration : Auth key saved to local storage : ${keyFile}`
-          )
-        } catch (err) {
-          console.error(
-            `ERROR : Registration : Error inserting/updating auth key in local storage : ${keyFile}`
-          )
-          process.exit(0)
-        }
-      } else {
-        console.error(
-          `ERROR : Registration : Invalid HMAC Auth Key : ${keyFile}`
-        )
-        process.exit(0)
-      }
+      await saveHMAC(keyFileContent, keyFile)
     }
+  }
+
+  // Get the HMAC key from environment variables if available
+  if (env.CHAINPOINT_NODE_HMAC_KEY) {
+    await saveHMAC(env.CHAINPOINT_NODE_HMAC_KEY)
+  }
+}
+
+function isHMAC(key) {
+  return /^[0-9a-fA-F]{64}$/i.test(key)
+}
+
+async function saveHMAC(hmac, logText) {
+  logText = logText || hmac
+
+  if (isHMAC(hmac)) {
+    try {
+      await rocksDB.saveHMACKeyAsync({
+        tntAddr: env.NODE_TNT_ADDRESS,
+        hmacKey: hmac,
+        version: 1
+      })
+      console.log(
+        `INFO : Registration : Auth key saved to local storage : ${logText}`
+      )
+    } catch (err) {
+      console.error(
+        `ERROR : Registration : Error inserting/updating auth key in local storage : ${logText}`
+      )
+      process.exit(0)
+    }
+  } else {
+    console.error(`ERROR : Registration : Invalid HMAC Auth Key : ${logText}`)
+    process.exit(0)
   }
 }
 
@@ -605,10 +622,16 @@ async function startAsync() {
     let nodeUri = await validateUriAsync(env.CHAINPOINT_NODE_PUBLIC_URI)
 
     // Validate CHAINPOINT_NODE_PRIVATE_URI & CHAINPOINT_NODE_REFLECTED_URI if either env variable is set in .env
-    if (env.CHAINPOINT_NODE_PRIVATE_URI && env.CHAINPOINT_NODE_PRIVATE_URI !== 'empty') {
+    if (
+      env.CHAINPOINT_NODE_PRIVATE_URI &&
+      env.CHAINPOINT_NODE_PRIVATE_URI !== 'empty'
+    ) {
       await validatePrivateUriAsync(env.CHAINPOINT_NODE_PRIVATE_URI)
     }
-    if (env.CHAINPOINT_NODE_REFLECTED_URI && env.CHAINPOINT_NODE_REFLECTED_URI !== 'empty') {
+    if (
+      env.CHAINPOINT_NODE_REFLECTED_URI &&
+      env.CHAINPOINT_NODE_REFLECTED_URI !== 'empty'
+    ) {
       await validateReflectedUri(env.CHAINPOINT_NODE_REFLECTED_URI)
     }
 
