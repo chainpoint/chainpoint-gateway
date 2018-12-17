@@ -1,55 +1,38 @@
-# Node.js 8.x LTS on Debian Stretch Linux
+# Node.js 10.x LTS on Alpine Linux
 # see: https://github.com/nodejs/LTS
 # see: https://hub.docker.com/_/node/
-FROM node:8.11.3-stretch
+FROM node:10.14.2-alpine
 
 LABEL MAINTAINER="Glenn Rempe <glenn@tierion.com>"
-
-# gosu : https://github.com/tianon/gosu
-RUN apt-get update && apt-get install -y git gosu
-
-# Tini : https://github.com/krallin/tini
-ENV TINI_VERSION v0.18.0
-ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
-#ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini.asc /tini.asc
-#RUN gpg --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 595E85A6B1B4779EA4DAAEC70B588DFF0527A9B7 && gpg --verify /tini.asc
-RUN chown root:root /tini && chmod 755 /tini
-
-# The `node` user and its home dir is provided by
-# the base image. Create a subdir where app code lives.
-RUN mkdir /home/node/app
-RUN mkdir /home/node/app/ui
-
-# Copy Build Artifacts Node Stats UI
-COPY ./ui/build /home/node/app/ui
-
 WORKDIR /home/node/app
-
 ENV NODE_ENV production
 
-COPY package.json yarn.lock auth-keys-print.js server.js /home/node/app/
-RUN yarn
+# Copy package.json first, build and then add other files.
+# This way there's no need to rebuild the whole thing if only a few JS files change
+COPY package.json yarn.lock ./
 
-RUN mkdir -p /home/node/app/lib
-COPY ./lib/*.js /home/node/app/lib/
+# Install dependencies and create directories
+RUN apk add --no-cache su-exec tini && \
+  apk add --no-cache --virtual .build build-base linux-headers git python && \
+  mkdir -p keys/backups && \
+  mkdir -p rocksdb && \
+  yarn install --production --verbose && \
+  \
+  # Clean rocksdb build dependencies
+  mv node_modules/rocksdb/build/Release/leveldown.node /tmp/ && \
+  rm -r node_modules/rocksdb/build/ && \
+  mkdir -p node_modules/rocksdb/build/Release/ && \
+  mv /tmp/leveldown.node node_modules/rocksdb/build/Release/ && \
+  rm -r node_modules/rocksdb/deps && \
+  \
+  # Remove Alpine build dependencies
+  apk del --no-cache .build
 
-RUN mkdir -p /home/node/app/lib/endpoints
-COPY ./lib/endpoints/*.js /home/node/app/lib/endpoints/
-
-RUN mkdir -p /home/node/app/lib/models
-COPY ./lib/models/*.js /home/node/app/lib/models/
-
-COPY ./tor-exit-nodes.txt /home/node/app/
-
-COPY ./cert.crt /home/node/app/
-COPY ./cert.key /home/node/app/
-
-RUN mkdir -p /home/node/app/keys
-RUN mkdir -p /home/node/app/keys/backups
-RUN mkdir -p /home/node/app/rocksdb
+# Copy all necessary JS files
+COPY auth-keys-print.js server.js tor-exit-nodes.txt cert.crt cert.key ./
+COPY lib ./lib
+COPY ui/build ./ui
 
 EXPOSE 8080 8443
-
-ENTRYPOINT ["gosu", "node:node", "/tini", "--"]
-
+ENTRYPOINT ["su-exec", "node:node", "tini", "--"]
 CMD ["yarn", "start"]
