@@ -4,11 +4,8 @@ all: help
 # without this 'source' won't work.
 SHELL := /bin/bash
 
-# Get the location of this makefile.
-ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-
 # Specify the binary dependencies
-REQUIRED_BINS := docker docker-compose gcloud
+REQUIRED_BINS := docker docker-compose
 $(foreach bin,$(REQUIRED_BINS),\
     $(if $(shell command -v $(bin) 2> /dev/null),$(),$(error Please install `$(bin)` first!)))
 
@@ -18,7 +15,7 @@ help : Makefile
 
 ## up              : Start Node
 .PHONY : up
-up: build-config yarn build build-rocksdb
+up: build-config build build-rocksdb
 	docker-compose up -d --no-build
 
 ## down            : Shutdown Node
@@ -49,7 +46,7 @@ ps:
 .PHONY : build
 build: tor-exit-nodes
 	docker build -t chainpoint-node .
-	docker tag chainpoint-node gcr.io/chainpoint-registry/github-chainpoint-chainpoint-ntpd
+	docker tag chainpoint-node gcr.io/chainpoint-registry/github-chainpoint-chainpoint-node
 	docker container prune -f
 	docker-compose build
 
@@ -84,21 +81,10 @@ upgrade: down git-pull up
 clean: down
 	@rm -rf ./.data/*
 
-## yarn            : Install Node Javascript dependencies
-.PHONY : yarn
-yarn:
-	docker run -it --rm --volume "$(PWD)":/usr/src/app --volume /var/run/docker.sock:/var/run/docker.sock --volume ~/.docker:/root/.docker --volume "$(PWD)":/wd --workdir /wd gcr.io/chainpoint-registry/chainpoint-node:latest yarn
-
 ## print-auth-keys : Print to console the name and contents of auth key (HMAC) backups
 .PHONY : print-auth-keys
 print-auth-keys: up
 	@docker exec -it chainpoint-node-src_chainpoint-node_1 node auth-keys-print.js
-
-guard-%:
-	@ if [ "${${*}}" = "" ]; then \
-		echo "Environment variable $* not set"; \
-		exit 1; \
-	fi
 
 ## tor-exit-nodes  : Update static list of Exit Nodes
 .PHONY : tor-exit-nodes
