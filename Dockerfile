@@ -1,7 +1,7 @@
 # Node.js 8.x LTS on Debian Stretch Linux
 # see: https://github.com/nodejs/LTS
 # see: https://hub.docker.com/_/node/
-FROM node:8.11.3-stretch
+FROM node:10.14.2-stretch
 
 LABEL MAINTAINER="Glenn Rempe <glenn@tierion.com>"
 
