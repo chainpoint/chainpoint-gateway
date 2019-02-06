@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "eslint-check": "eslint --print-config . | eslint-config-prettier-check"
+    "eslint-check": "eslint --print-config . | eslint-config-prettier-check",
+    "test": "mocha tests/*.js"
   },
   "husky": {
     "hooks": {
@@ -40,12 +41,14 @@
   "author": "Jason Bukowski <jason@tierion.com> (https://tierion.com)",
   "license": "Apache-2.0",
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^5.4.0",
     "eslint-config-prettier": "^3.0.1",
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-react": "^7.11.1",
     "husky": "^1.0.0-rc.13",
     "lint-staged": "^8.1.0",
+    "mocha": "^5.2.0",
     "prettier": "^1.14.2"
   },
   "dependencies": {
