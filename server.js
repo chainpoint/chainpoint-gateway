@@ -15,10 +15,12 @@
 const env = require('./lib/parse-env.js')
 
 const apiServer = require('./lib/api-server.js')
+const aggregator = require('./lib/aggregator.js')
 const { version } = require('./package.json')
 const eventMetrics = require('./lib/event-metrics.js')
 const rocksDB = require('./lib/models/RocksDB.js')
 const utils = require('./lib/utils.js')
+const cachedProofs = require('./lib/cached-proofs.js')
 
 // establish a connection with the database
 async function openStorageConnectionAsync() {
@@ -54,8 +56,20 @@ async function startAsync() {
     await eventMetrics.loadMetricsAsync()
     await apiServer.startAsync()
 
+    // start the interval processes for refreshing the IP blocklist
+    apiServer.startBlocklistRefreshInterval()
+
     // start the interval processes for aggregating and submitting hashes to Core
-    apiServer.startAggInterval()
+    aggregator.startAggInterval()
+
+    // start the interval processes for pruning expired proof state data from RocksDB
+    rocksDB.startPruningInterval()
+
+    // start the interval processes for pruning cached proof data from memory
+    cachedProofs.startPruneExpiredItemsInterval()
+
+    // start the interval processes for saving event metrics data
+    eventMetrics.startPersistDataInterval()
 
     console.log(`INFO : App : Startup : Complete`)
   } catch (err) {
