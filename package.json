@@ -1,11 +1,12 @@
 {
   "name": "chainpoint-node",
   "description": "A Chainpoint Network Node is a key part of a scalable solution for anchoring data to public blockchains.",
-  "version": "1.5.4",
+  "version": "2.0.0",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "eslint-check": "eslint --print-config . | eslint-config-prettier-check"
+    "eslint-check": "eslint --print-config . | eslint-config-prettier-check",
+    "test": "mocha tests/*.js"
   },
   "husky": {
     "hooks": {
@@ -24,10 +25,6 @@
       ]
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/chainpoint/chainpoint-node.git"
-  },
   "keywords": [
     "Chainpoint",
     "Tierion",
@@ -43,47 +40,41 @@
   ],
   "author": "Jason Bukowski <jason@tierion.com> (https://tierion.com)",
   "license": "Apache-2.0",
-  "bugs": {
-    "url": "https://github.com/chainpoint/chainpoint-node/issues"
-  },
-  "homepage": "https://github.com/chainpoint/chainpoint-node#readme",
-  "dependencies": {
-    "async-await-parallel": "^1.0.0",
-    "async-retry": "^1.1.4",
-    "blake2s-js": "^1.2.2",
-    "chainpoint-binary": "^4.0.2",
-    "chainpoint-parse": "^3.1.4",
-    "envalid": "^4.0.2",
-    "ip": "^1.1.5",
-    "jmespath": "^0.15.0",
-    "js-binary": "^1.2.0",
-    "level-rocksdb": "^3.0.1",
-    "lodash": "^4.17.4",
-    "merkle-tools": "^1.3.2",
-    "moment": "^2.18.1",
-    "object-hash": "^1.3.0",
-    "request": "^2.83.0",
-    "request-promise-native": "^1.0.5",
-    "restify": "^5.2.0",
-    "restify-cors-middleware": "^1.0.1",
-    "restify-errors": "^5.0.0",
-    "semver": "^5.5.0",
-    "tweetnacl": "^1.0.0",
-    "tweetnacl-util": "^0.15.0",
-    "url": "^0.11.0",
-    "uuid": "^3.1.0",
-    "uuid-time": "^1.0.0",
-    "uuid-validate": "0.0.2",
-    "valid-url": "^1.0.9",
-    "validator": "^9.0.0"
-  },
   "devDependencies": {
+    "chai": "^4.2.0",
     "eslint": "^5.4.0",
     "eslint-config-prettier": "^3.0.1",
     "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-react": "^7.11.1",
     "husky": "^1.0.0-rc.13",
     "lint-staged": "^8.1.0",
+    "mocha": "^5.2.0",
     "prettier": "^1.14.2"
+  },
+  "dependencies": {
+    "async-await-parallel": "^1.0.0",
+    "async-retry": "^1.2.3",
+    "blake2s-js": "^1.3.0",
+    "chainpoint-binary": "^4.0.2",
+    "chainpoint-parse": "^3.1.4",
+    "envalid": "^4.2.0",
+    "ip": "^1.1.5",
+    "jmespath": "^0.15.0",
+    "js-binary": "^1.2.0",
+    "level-rocksdb": "^3.0.1",
+    "lodash": "^4.17.11",
+    "merkle-tools": "^1.4.0",
+    "moment": "^2.24.0",
+    "request": "^2.88.0",
+    "request-promise-native": "^1.0.5",
+    "restify": "^7.7.0",
+    "restify-cors-middleware": "^1.1.1",
+    "restify-errors": "^6.1.1",
+    "url": "^0.11.0",
+    "uuid": "^3.3.2",
+    "uuid-time": "^1.0.0",
+    "uuid-validate": "^0.0.3",
+    "valid-url": "^1.0.9",
+    "validator": "^10.11.0"
   }
 }
