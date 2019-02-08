@@ -7,11 +7,15 @@ const expect = require('chai').expect
 const request = require('supertest')
 
 const app = require('../lib/api-server.js')
+const hashes = require('../lib/endpoints/hashes.js')
 
 describe('Hashes Controller', () => {
   let insecureServer = null
   beforeEach(async () => {
     insecureServer = await app.startInsecureRestifyServerAsync()
+    hashes.setRocksDB({
+      queueIncomingHashObjectsAsync: () => {}
+    })
   })
   afterEach(() => {
     insecureServer.close()
@@ -96,6 +100,85 @@ describe('Hashes Controller', () => {
             .to.have.property('message')
             .and.to.be.a('string')
             .and.to.equal('invalid JSON body, hashes Array is empty')
+          done()
+        })
+    })
+
+    it('should return the proper error with max hashes exceeded', done => {
+      request(insecureServer)
+        .post('/hashes')
+        .set('Content-type', 'application/json')
+        .send({ hashes: ['a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1', 'b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1b1'] })
+        .expect('Content-type', /json/)
+        .expect(409)
+        .end((err, res) => {
+          expect(err).to.equal(null)
+          expect(res.body)
+            .to.have.property('code')
+            .and.to.be.a('string')
+            .and.to.equal('InvalidArgument')
+          expect(res.body)
+            .to.have.property('message')
+            .and.to.be.a('string')
+            .and.to.equal(`invalid JSON body, hashes Array max size of 1 exceeded`)
+          done()
+        })
+    })
+
+    it('should return the proper error with invalid hashes', done => {
+      request(insecureServer)
+        .post('/hashes')
+        .set('Content-type', 'application/json')
+        .send({ hashes: ['invalid'] })
+        .expect('Content-type', /json/)
+        .expect(409)
+        .end((err, res) => {
+          expect(err).to.equal(null)
+          expect(res.body)
+            .to.have.property('code')
+            .and.to.be.a('string')
+            .and.to.equal('InvalidArgument')
+          expect(res.body)
+            .to.have.property('message')
+            .and.to.be.a('string')
+            .and.to.equal(`invalid JSON body, invalid hashes present`)
+          done()
+        })
+    })
+
+    it('should return the proper result on success', done => {
+      let hash = 'a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1'
+      request(insecureServer)
+        .post('/hashes')
+        .set('Content-type', 'application/json')
+        .send({ hashes: [hash] })
+        .expect('Content-type', /json/)
+        .expect(200)
+        .end((err, res) => {
+          expect(err).to.equal(null)
+          expect(res.body).to.have.property('meta')
+          expect(res.body.meta)
+            .to.have.property('submitted_at')
+            .and.to.be.a('string')
+          expect(res.body.meta).to.have.property('processing_hints')
+          expect(res.body.meta.processing_hints)
+            .to.have.property('cal')
+            .and.to.be.a('string')
+          expect(res.body.meta.processing_hints)
+            .to.have.property('btc')
+            .and.to.be.a('string')
+          expect(res.body)
+            .to.have.property('hashes')
+            .and.to.be.a('array')
+          expect(res.body.hashes).to.have.length(1)
+          expect(Object.keys(res.body.hashes[0]).length).to.equal(2)
+          expect(res.body.hashes[0])
+            .to.have.property('hash_id_node')
+            .and.to.be.a('string')
+          expect(res.body.hashes[0])
+            .to.have.property('hash')
+            .and.to.be.a('string')
+            .and.to.equal(hash)
           done()
         })
     })
