@@ -71,7 +71,7 @@ describe('Hash format function', () => {
 
 describe('Proof parsing function', () => {
   it('parseAnchorsComplete should return correct result for cal proof', done => {
-    let proofJSON = fs.readFileSync('./tests/sampleCalProof.chp.json')
+    let proofJSON = fs.readFileSync('./tests/sample-data/cal-proof.chp.json')
     let proofObj = JSON.parse(proofJSON)
     let res = app.parseAnchorsComplete(proofObj)
     expect(res.length).to.equal(1)
@@ -79,7 +79,7 @@ describe('Proof parsing function', () => {
     done()
   })
   it('parseAnchorsComplete should return correct result for btc proof', done => {
-    let proofJSON = fs.readFileSync('./tests/sampleBtcProof.chp.json')
+    let proofJSON = fs.readFileSync('./tests/sample-data/btc-proof.chp.json')
     let proofObj = JSON.parse(proofJSON)
     let res = app.parseAnchorsComplete(proofObj)
     expect(res.length).to.equal(2)
