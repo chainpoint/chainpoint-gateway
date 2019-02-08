@@ -1,6 +1,5 @@
 .env
 .DS_Store
-.vscode
 .data/
 node_modules/
 ui/node_modules/
