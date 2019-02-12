@@ -18,7 +18,7 @@ describe('Hashes Controller', () => {
       logRecentHash: () => {}
     })
     hashes.setRocksDB({
-      queueIncomingHashObjectsAsync: () => {}
+      queueIncomingHashObjectsAsync: async () => {}
     })
     hashes.setENV({ POST_HASHES_MAX: 1 })
   })
