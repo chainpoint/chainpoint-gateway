@@ -59,6 +59,7 @@ describe('Proofs Controller', () => {
         }
       }
     })
+    proofs.setENV({ GET_PROOFS_MAX_REST: 1 })
   })
   afterEach(() => {
     insecureServer.close()

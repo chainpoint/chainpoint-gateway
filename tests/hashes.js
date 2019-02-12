@@ -20,6 +20,7 @@ describe('Hashes Controller', () => {
     hashes.setRocksDB({
       queueIncomingHashObjectsAsync: () => {}
     })
+    hashes.setENV({ POST_HASHES_MAX: 1 })
   })
   afterEach(() => {
     insecureServer.close()
