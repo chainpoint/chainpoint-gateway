@@ -1,6 +1,7 @@
 .env
 .DS_Store
 .data/
+.nyc_output
 node_modules/
 ui/node_modules/
 npm-debug.log*
