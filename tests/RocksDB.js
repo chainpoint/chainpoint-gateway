@@ -1,0 +1,246 @@
+/* global describe, it, before, after */
+
+process.env.NODE_ENV = 'test'
+
+// test related packages
+const expect = require('chai').expect
+
+const rocksDB = require('../lib/models/RocksDB.js')
+const rmrf = require('rimraf')
+const uuidv1 = require('uuid/v1')
+const crypto = require('crypto')
+const utils = require('../lib/utils.js')
+
+const TEST_ROCKS_DIR = './.data/test_db'
+
+let insertedProofStateHashIdNodes = null
+
+describe('RocksDB Methods', () => {
+  let db = null
+  before(async () => {
+    db = await rocksDB.openConnectionAsync(TEST_ROCKS_DIR)
+  })
+  after(() => {
+    db.close(() => {
+      rmrf.sync(TEST_ROCKS_DIR)
+    })
+  })
+
+  describe('Proof State Functions', () => {
+    it('should return the same data that was inserted', async () => {
+      let sampleData = generateSampleProofStateData(100)
+      await rocksDB.saveProofStatesBatchAsync(sampleData.state)
+      let queriedState = await rocksDB.getProofStatesBatchByHashIdNodesAsync(sampleData.hashIdNodes)
+      insertedProofStateHashIdNodes = sampleData.hashIdNodes
+      queriedState = convertStateBackToBinaryForm(queriedState)
+      expect(queriedState).to.deep.equal(sampleData.state)
+    })
+  })
+
+  describe('Incoming Hash Functions', () => {
+    let delOps = []
+    it('should return the same data that was inserted', async () => {
+      let sampleData = generateSampleHashObjects(100)
+      await rocksDB.queueIncomingHashObjectsAsync(sampleData)
+      let getResults = await rocksDB.getIncomingHashesUpToAsync(Date.now)
+      let queriedHashes = getResults[0]
+      delOps = getResults[1]
+      expect(queriedHashes).to.deep.equal(sampleData)
+    })
+    after(async () => {
+      await db.batch(delOps)
+    })
+  })
+
+  describe('Event Metrics Functions', () => {
+    it('should return the same count metrics that were inserted', async () => {
+      let sampleData = generateCountMetrics(100)
+      await rocksDB.saveCountMetricsAsync(sampleData.objects, [])
+      // retrieve what has just been written, confirm
+      let getResults = await rocksDB.getCountMetricsAsync()
+      expect(getResults).to.have.deep.members(sampleData.objects)
+      // delete what has just been written, confirm
+      await rocksDB.saveCountMetricsAsync([], sampleData.keys)
+      getResults = await rocksDB.getCountMetricsAsync()
+      expect(getResults).to.deep.equal([])
+    })
+
+    it('should return the same recent hashes that were inserted', async () => {
+      let sampleData = generateRecentHashes(100)
+      await rocksDB.saveRecentHashDataAsync(sampleData)
+      let getResults = await rocksDB.getRecentHashDataAsync()
+      expect(getResults).to.deep.equal(sampleData)
+    })
+  })
+
+  describe('Generic key/value Functions', () => {
+    it('should return the same value that was inserted', async () => {
+      let keys = []
+      let values = []
+      for (let x = 0; x < 100; x++) {
+        keys.push(`testKey${x}${crypto.randomBytes(8).toString('hex')}`)
+        values.push(crypto.randomBytes(8).toString('hex'))
+      }
+      for (let x = 0; x < 100; x++) {
+        await rocksDB.setAsync(keys[x], values[x])
+      }
+
+      let delOps = []
+      for (let key of keys) {
+        delOps.push({ type: 'del', key: key })
+      }
+      rocksDB.deleteBatchAsync(delOps).then(async () => {
+        let getValues = []
+        for (let x = 0; x < 100; x++) {
+          getValues.push(await rocksDB.getAsync(keys[x]))
+        }
+        expect(getValues).to.deep.equal(values)
+      })
+    })
+  })
+
+  describe('Delete/Prune Functions', () => {
+    before(() => {
+      rocksDB.setENV({
+        PROOF_EXPIRE_MINUTES: 0
+      })
+    })
+    it('should batch delete as expected', async () => {
+      let keys = []
+      let values = []
+      for (let x = 0; x < 100; x++) {
+        keys.push(`testKey${x}${crypto.randomBytes(8).toString('hex')}`)
+        values.push(crypto.randomBytes(8).toString('hex'))
+      }
+      for (let x = 0; x < 100; x++) {
+        await rocksDB.setAsync(keys[x], values[x])
+      }
+      let getValues = []
+      for (let x = 0; x < 100; x++) {
+        getValues.push(await rocksDB.getAsync(keys[x]))
+      }
+      expect(getValues).to.deep.equal(values)
+
+      let delOps = []
+      for (let key of keys) {
+        delOps.push({ type: 'del', key: `custom_key:${key}` })
+      }
+      await rocksDB.deleteBatchAsync(delOps)
+      getValues = []
+      for (let x = 0; x < 100; x++) {
+        let getResult = await rocksDB.getAsync(keys[x])
+        expect(getResult).to.equal(null)
+      }
+    })
+
+    it('should initiate prune interval as expected', async () => {
+      let interval = rocksDB.startPruningInterval()
+      expect(interval).to.be.a('object')
+      clearInterval(interval)
+    })
+
+    it('should prune proof state data as expected', async () => {
+      // retrieve inserted proof state, confirm it still exists
+      let queriedState = await rocksDB.getProofStatesBatchByHashIdNodesAsync(insertedProofStateHashIdNodes)
+      expect(queriedState).to.be.a('array')
+      expect(queriedState.length).to.be.greaterThan(0)
+      for (let x = 0; x < queriedState.length; x++) {
+        expect(queriedState[x]).to.have.property('hash')
+        expect(queriedState[x].hash).to.be.a('string')
+      }
+
+      // prune all proof state data (0 minute expiration)
+      await rocksDB.pruneOldProofStateDataAsync()
+
+      // retrieve inserted proof state, confirm it has all beed pruned
+      queriedState = await rocksDB.getProofStatesBatchByHashIdNodesAsync(insertedProofStateHashIdNodes)
+      expect(queriedState).to.be.a('array')
+      expect(queriedState.length).to.be.greaterThan(0)
+      for (let x = 0; x < queriedState.length; x++) {
+        expect(queriedState[x]).to.have.property('hash')
+        expect(queriedState[x].hash).to.equal(null)
+      }
+    })
+  })
+})
+
+// support functions
+function generateSampleProofStateData(batchSize) {
+  let results = {}
+  results.state = []
+  results.hashIdNodes = []
+
+  for (let x = 0; x < batchSize; x++) {
+    let newHashIdNode = uuidv1()
+    results.state.push({
+      hashIdNode: newHashIdNode,
+      hash: crypto.randomBytes(32).toString('hex'),
+      proofState: [Buffer.from(Math.round(Math.random()) ? '00' : '01', 'hex'), crypto.randomBytes(32)],
+      hashIdCore: uuidv1()
+    })
+    results.hashIdNodes.push(newHashIdNode)
+  }
+
+  return results
+}
+
+function convertStateBackToBinaryForm(queriedState) {
+  for (let stateItem of queriedState) {
+    let binState
+    for (let psItem of stateItem.proofState) {
+      binState = []
+      if (psItem.left) {
+        binState.push(Buffer.from('00', 'hex'))
+        binState.push(Buffer.from(psItem.left, 'hex'))
+      } else {
+        binState.push(Buffer.from('01', 'hex'))
+        binState.push(Buffer.from(psItem.right, 'hex'))
+      }
+    }
+    stateItem.proofState = binState
+  }
+  return queriedState
+}
+
+function generateSampleHashObjects(batchSize) {
+  let results = []
+
+  for (let x = 0; x < batchSize; x++) {
+    results.push({
+      hash_id_node: uuidv1(),
+      hash: crypto.randomBytes(32).toString('hex')
+    })
+  }
+
+  return results
+}
+
+function generateCountMetrics(batchSize) {
+  let results = {}
+  results.objects = []
+  results.keys = []
+
+  for (let x = 0; x < batchSize; x++) {
+    let newKey = `nodestats:counter:${crypto.randomBytes(32).toString('hex')}`
+    results.objects.push({
+      key: newKey,
+      value: Math.ceil(Math.random() * 1000)
+    })
+    results.keys.push(newKey)
+  }
+
+  return results
+}
+
+function generateRecentHashes(batchSize) {
+  let results = []
+  for (let x = 0; x < batchSize; x++) {
+    results.push({
+      hashIdNode: uuidv1(),
+      hash: crypto.randomBytes(32).toString('hex'),
+      submittedAt: utils.formatDateISO8601NoMs(new Date())
+    })
+  }
+
+  return results
+}
