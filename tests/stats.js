@@ -37,8 +37,6 @@ describe('Stats Controller', () => {
             return { coreKey1: 'coreValue1' }
           case 'dataFromCoreLastReceived':
             return '2019-02-12T17:40:08Z'
-          default:
-            return ''
         }
       }
     })
