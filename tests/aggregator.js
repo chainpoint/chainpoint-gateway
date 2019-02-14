@@ -92,6 +92,15 @@ describe('Aggregator Methods', () => {
       expect(IncomingHashes.length).to.equal(0)
       expect(ProofStateData.length).to.equal(hashCount)
       for (let x = 0; x < hashCount; x++) {
+        expect(ProofStateData[x])
+          .to.have.property('hashIdNode')
+          .and.and.be.a('string')
+        expect(ProofStateData[x])
+          .to.have.property('hash')
+          .and.and.be.a('string')
+        expect(ProofStateData[x])
+          .to.have.property('proofState')
+          .and.and.be.a('array')
         // add the additional nodeId operation to get final leaf values
         let hashIdBuffer = Buffer.from(`node_id:${ProofStateData[x].hashIdNode}`, 'utf8')
         let hashBuffer = Buffer.from(ProofStateData[x].hash, 'hex')
@@ -113,6 +122,10 @@ describe('Aggregator Methods', () => {
           proofState.push(fullOp)
         }
         expect(merkleTools.validateProof(proofState, ProofStateData[x].hash, aggRoot)).to.equal(true)
+        expect(ProofStateData[x])
+          .to.have.property('hashIdCore')
+          .and.and.be.a('string')
+          .and.to.equal(newHashIdCore)
       }
     })
   })
