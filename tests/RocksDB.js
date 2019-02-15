@@ -19,6 +19,7 @@ describe('RocksDB Methods', () => {
   let db = null
   before(async () => {
     db = await rocksDB.openConnectionAsync(TEST_ROCKS_DIR)
+    expect(db).to.be.a('object')
   })
   after(() => {
     db.close(() => {
@@ -84,6 +85,12 @@ describe('RocksDB Methods', () => {
       for (let x = 0; x < 100; x++) {
         await rocksDB.setAsync(keys[x], values[x])
       }
+
+      let getValues = []
+      for (let x = 0; x < 100; x++) {
+        getValues.push(await rocksDB.getAsync(keys[x]))
+      }
+      expect(getValues).to.deep.equal(values)
 
       let delOps = []
       for (let key of keys) {
@@ -160,6 +167,21 @@ describe('RocksDB Methods', () => {
         expect(queriedState[x]).to.have.property('hash')
         expect(queriedState[x].hash).to.equal(null)
       }
+    })
+  })
+
+  describe('Other Functions', () => {
+    it('hexToUUIDv1 should return null with invalid hex value', done => {
+      let result = rocksDB.hexToUUIDv1('deadbeefcafe')
+      expect(result).to.equal(null)
+      done()
+    })
+    it('hexToUUIDv1 should return the expected result with proper hex value', done => {
+      let result = rocksDB.hexToUUIDv1('ed60c311ede60102689f66a9e98feab6')
+      expect(result)
+        .to.be.a('string')
+        .and.to.equal('ed60c311-ede6-0102-689f-66a9e98feab6')
+      done()
     })
   })
 })
