@@ -57,7 +57,7 @@ async function startAsync() {
     await apiServer.startAsync()
 
     // start the interval processes for refreshing the IP blocklist
-    apiServer.startBlocklistRefreshInterval()
+    apiServer.startIPBlacklistRefreshInterval()
 
     // start the interval processes for aggregating and submitting hashes to Core
     aggregator.startAggInterval()
