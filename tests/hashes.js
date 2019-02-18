@@ -1,4 +1,4 @@
-/* global describe, it beforeEach, afterEach */
+/* global describe, it beforeEach, afterEach, before, after */
 
 process.env.NODE_ENV = 'test'
 
@@ -24,6 +24,34 @@ describe('Hashes Controller', () => {
   })
   afterEach(() => {
     insecureServer.close()
+  })
+
+  describe('POST /hashes', () => {
+    before(() => {
+      app.setAcceptingHashes(false)
+    })
+    after(() => {
+      app.setAcceptingHashes(true)
+    })
+    it('should return the proper error when not accepting hashes', done => {
+      request(insecureServer)
+        .post('/hashes')
+        .set('Content-type', 'text/plain')
+        .expect('Content-type', /json/)
+        .expect(503)
+        .end((err, res) => {
+          expect(err).to.equal(null)
+          expect(res.body)
+            .to.have.property('code')
+            .and.to.be.a('string')
+            .and.to.equal('ServiceUnavailable')
+          expect(res.body)
+            .to.have.property('message')
+            .and.to.be.a('string')
+            .and.to.equal('Service is not currently accepting hashes')
+          done()
+        })
+    })
   })
 
   describe('POST /hashes', () => {
