@@ -45,7 +45,7 @@ describe('Proofs Controller', () => {
       getCachedCoreProofsAsync: async hashIdCores => {
         switch (hashIdCores[0]) {
           case '000139a0-2e5c-11e9-bec9-01115ea738e6': {
-            let proofJSON = fs.readFileSync('./tests/sample-data/core-proof.chp.json')
+            let proofJSON = fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json')
             return [
               {
                 hash_id: hashIdCores[0],
