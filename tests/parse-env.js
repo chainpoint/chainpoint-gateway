@@ -58,11 +58,6 @@ describe('Environment variables', () => {
       expect(result).to.equal('')
       done()
     })
-    it('should allow `empty` and return empty string', done => {
-      let result = parseEnv.valNodeUIPassword('empty')
-      expect(result).to.equal('')
-      done()
-    })
     it('should throw error when not alpha-numeric', done => {
       expect(() => {
         parseEnv.valNodeUIPassword('bad_password')

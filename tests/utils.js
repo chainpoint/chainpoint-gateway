@@ -274,65 +274,65 @@ describe('Utils Methods', () => {
       })
     })
     describe('Validating reflected URI', () => {
-      it('should throw error with invalid CHAINPOINT_NODE_REFLECTED_URI', done => {
+      it('should throw error with invalid CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE', done => {
         let val = 'nonsense'
         expect(() => {
           app.validateReflectedUri(val)
-        }).to.throw('CHAINPOINT_NODE_REFLECTED_URI only accepts a value of "public" or "private"')
+        }).to.throw('CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE only accepts a value of "public" or "private"')
         done()
       })
       it('should throw error with no valid CHAINPOINT_NODE_PUBLIC_URI or CHAINPOINT_NODE_PRIVATE_URI, nothing set', done => {
         let val = 'public'
         expect(() => {
+          process.env.CHAINPOINT_NODE_PUBLIC_URI = ''
+          process.env.CHAINPOINT_NODE_PRIVATE_URI = ''
           app.validateReflectedUri(val)
         }).to.throw(
-          'CHAINPOINT_NODE_REFLECTED_URI requires that a valid value be set for "CHAINPOINT_NODE_PUBLIC_URI" or "CHAINPOINT_NODE_PRIVATE_URI"'
-        )
-        done()
-      })
-      it('should throw error with no valid CHAINPOINT_NODE_PUBLIC_URI or CHAINPOINT_NODE_PRIVATE_URI, empties set', done => {
-        let val = 'public'
-        expect(() => {
-          process.env.CHAINPOINT_NODE_PUBLIC_URI = 'http://0.0.0.0'
-          process.env.CHAINPOINT_NODE_PRIVATE_URI = 'empty'
-          app.validateReflectedUri(val)
-        }).to.throw(
-          'CHAINPOINT_NODE_REFLECTED_URI requires that a valid value be set for "CHAINPOINT_NODE_PUBLIC_URI" or "CHAINPOINT_NODE_PRIVATE_URI"'
+          'CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE requires that a valid value be set for "CHAINPOINT_NODE_PUBLIC_URI" or "CHAINPOINT_NODE_PRIVATE_URI"'
         )
         done()
       })
       it('should throw error with empty CHAINPOINT_NODE_PUBLIC_URI when val = public', done => {
         let val = 'public'
         expect(() => {
-          process.env.CHAINPOINT_NODE_PUBLIC_URI = 'empty'
+          process.env.CHAINPOINT_NODE_PUBLIC_URI = ''
+          process.env.CHAINPOINT_NODE_PRIVATE_URI = 'http://10.0.0.1'
           app.validateReflectedUri(val)
-        }).to.throw(`CHAINPOINT_NODE_PUBLIC_URI is required as it has been set as the CHAINPOINT_NODE_REFLECTED_URI`)
+        }).to.throw(
+          `CHAINPOINT_NODE_PUBLIC_URI is required as it has been set as the CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE`
+        )
         done()
       })
       it('should throw error with 0.0.0.0 CHAINPOINT_NODE_PUBLIC_URI when val = public', done => {
         let val = 'public'
         expect(() => {
-          process.env.CHAINPOINT_NODE_PUBLIC_URI = 'http://0.0.0.0'
+          process.env.CHAINPOINT_NODE_PUBLIC_URI = ''
           process.env.CHAINPOINT_NODE_PRIVATE_URI = 'http://10.0.0.1'
           app.validateReflectedUri(val)
-        }).to.throw(`CHAINPOINT_NODE_PUBLIC_URI is required as it has been set as the CHAINPOINT_NODE_REFLECTED_URI`)
+        }).to.throw(
+          `CHAINPOINT_NODE_PUBLIC_URI is required as it has been set as the CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE`
+        )
         done()
       })
       it('should throw error with empty CHAINPOINT_NODE_PRIVATE_URI when val = private', done => {
         let val = 'private'
         expect(() => {
           process.env.CHAINPOINT_NODE_PUBLIC_URI = 'http://65.1.1.1'
-          process.env.CHAINPOINT_NODE_PRIVATE_URI = 'empty'
+          process.env.CHAINPOINT_NODE_PRIVATE_URI = ''
           app.validateReflectedUri(val)
-        }).to.throw(`CHAINPOINT_NODE_PRIVATE_URI is required as it has been set as the CHAINPOINT_NODE_REFLECTED_URI`)
+        }).to.throw(
+          `CHAINPOINT_NODE_PRIVATE_URI is required as it has been set as the CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE`
+        )
         done()
       })
       it('should throw error with 0.0.0.0 CHAINPOINT_NODE_PRIVATE_URI when val = private', done => {
         let val = 'private'
         expect(() => {
-          process.env.CHAINPOINT_NODE_PRIVATE_URI = 'http://0.0.0.0'
+          process.env.CHAINPOINT_NODE_PRIVATE_URI = ''
           app.validateReflectedUri(val)
-        }).to.throw(`CHAINPOINT_NODE_PRIVATE_URI is required as it has been set as the CHAINPOINT_NODE_REFLECTED_URI`)
+        }).to.throw(
+          `CHAINPOINT_NODE_PRIVATE_URI is required as it has been set as the CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE`
+        )
         done()
       })
       it('should not throw error with valid CHAINPOINT_NODE_PUBLIC_URI when val = public', done => {

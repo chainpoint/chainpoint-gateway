@@ -41,13 +41,13 @@ async function startAsync() {
     // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
     await cores.connectAsync(CORE_CONNECTION_COUNT)
 
-    // Validate CHAINPOINT_NODE_PUBLIC_URI, CHAINPOINT_NODE_PRIVATE_URI & CHAINPOINT_NODE_REFLECTED_URI if either env variable is set in .env
+    // Validate CHAINPOINT_NODE_PUBLIC_URI, CHAINPOINT_NODE_PRIVATE_URI & CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE if either env variable is set in .env
     utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI, false)
-    if (env.CHAINPOINT_NODE_PRIVATE_URI && env.CHAINPOINT_NODE_PRIVATE_URI !== 'empty') {
+    if (env.CHAINPOINT_NODE_PRIVATE_URI !== '') {
       utils.validateNodeUri(env.CHAINPOINT_NODE_PRIVATE_URI, true)
     }
-    if (env.CHAINPOINT_NODE_REFLECTED_URI && env.CHAINPOINT_NODE_REFLECTED_URI !== 'empty') {
-      utils.validateReflectedUri(env.CHAINPOINT_NODE_REFLECTED_URI)
+    if (env.CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE !== '') {
+      utils.validateReflectedUri(env.CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE)
     }
 
     // TODO:  Replace commented code below with code for new registration model
