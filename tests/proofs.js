@@ -26,7 +26,10 @@ describe('Proofs Controller', () => {
                 hashIdNode: hashIds[0],
                 hash: '18af1184ae64160f8a4019f43ddc825db95f11a0e468f8da6cb9f8bbe1dbd784',
                 proofState: [],
-                hashIdCore: '000139a0-2e5c-11e9-bec9-01115ea738e6'
+                submission: {
+                  submitId: 'e4c59c50-37cd-11e9-b270-d778f1c6df42',
+                  cores: [{ ip: '65.1.1.1', hashIdCore: '000139a0-2e5c-11e9-bec9-01115ea738e6' }]
+                }
               }
             ]
           default:
@@ -35,20 +38,21 @@ describe('Proofs Controller', () => {
                 hashIdNode: hashIds[0],
                 hash: null,
                 proofState: null,
-                hashIdCore: null
+                submission: null
               }
             ]
         }
       }
     })
     proofs.setCachedProofs({
-      getCachedCoreProofsAsync: async hashIdCores => {
-        switch (hashIdCores[0]) {
-          case '000139a0-2e5c-11e9-bec9-01115ea738e6': {
+      getCachedCoreProofsAsync: async submissionData => {
+        if (submissionData.length === 0) return []
+        switch (submissionData[0].submitId) {
+          case 'e4c59c50-37cd-11e9-b270-d778f1c6df42': {
             let proofJSON = fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json')
             return [
               {
-                hash_id: hashIdCores[0],
+                submitId: submissionData[0].submitId,
                 proof: JSON.parse(proofJSON),
                 anchorsComplete: ['cal', 'btc']
               }

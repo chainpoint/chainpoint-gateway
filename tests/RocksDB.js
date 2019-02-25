@@ -194,11 +194,19 @@ function generateSampleProofStateData(batchSize) {
 
   for (let x = 0; x < batchSize; x++) {
     let newHashIdNode = uuidv1()
+    let submitId = uuidv1()
     results.state.push({
       hashIdNode: newHashIdNode,
       hash: crypto.randomBytes(32).toString('hex'),
       proofState: [Buffer.from(Math.round(Math.random()) ? '00' : '01', 'hex'), crypto.randomBytes(32)],
-      hashIdCore: uuidv1()
+      submission: {
+        submitId: submitId,
+        cores: [
+          { ip: '65.1.12.122', hashIdCore: uuidv1() },
+          { ip: '65.1.12.123', hashIdCore: uuidv1() },
+          { ip: '65.1.12.124', hashIdCore: uuidv1() }
+        ]
+      }
     })
     results.hashIdNodes.push(newHashIdNode)
   }

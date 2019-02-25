@@ -55,8 +55,11 @@ describe('Aggregator Methods', () => {
   describe('aggregateAndSendToCoreAsync with 100 hashes', () => {
     let hashCount = 100
     let IncomingHashes = generateIncomingHashData(hashCount)
-    let newHashIdCore = null
+    let newHashIdCore1 = null
+    let newHashIdCore2 = null
     let ProofStateData = null
+    let ip1 = '65.21.21.122'
+    let ip2 = '65.21.21.123'
     before(() => {
       aggregator.setRocksDB({
         getIncomingHashesUpToAsync: async () => {
@@ -73,11 +76,15 @@ describe('Aggregator Methods', () => {
           ProofStateData = items
         }
       })
-      aggregator.setCoreHosts({
-        coreRequestAsync: async () => {
+      aggregator.setCores({
+        submitHashAsync: async () => {
           let hash = crypto.randomBytes(32).toString('hex')
-          newHashIdCore = generateBlakeEmbeddedUUID(hash)
-          return { hash_id: newHashIdCore, hash: hash, processing_hints: 'hints' }
+          newHashIdCore1 = generateBlakeEmbeddedUUID(hash)
+          newHashIdCore2 = generateBlakeEmbeddedUUID(hash)
+          return [
+            { ip: ip1, response: { hash_id: newHashIdCore1, hash: hash, processing_hints: 'hints' } },
+            { ip: ip2, response: { hash_id: newHashIdCore2, hash: hash, processing_hints: 'hints' } }
+          ]
         }
       })
       aggregator.setEventMetrics({
@@ -122,10 +129,32 @@ describe('Aggregator Methods', () => {
           proofState.push(fullOp)
         }
         expect(merkleTools.validateProof(proofState, ProofStateData[x].hash, aggRoot)).to.equal(true)
-        expect(ProofStateData[x])
+        expect(ProofStateData[x]).to.have.property('submission')
+        expect(ProofStateData[x].submission).to.be.a('object')
+        expect(ProofStateData[x].submission)
+          .to.have.property('submitId')
+          .and.and.be.a('string')
+        expect(ProofStateData[x].submission).to.have.property('cores')
+        expect(ProofStateData[x].submission.cores).to.to.a('array')
+        expect(ProofStateData[x].submission.cores.length).to.equal(2)
+        expect(ProofStateData[x].submission.cores[0]).to.be.a('object')
+        expect(ProofStateData[x].submission.cores[0])
+          .to.have.property('ip')
+          .and.and.be.a('string')
+          .and.to.equal(ip1)
+        expect(ProofStateData[x].submission.cores[0])
           .to.have.property('hashIdCore')
           .and.and.be.a('string')
-          .and.to.equal(newHashIdCore)
+          .and.to.equal(newHashIdCore1)
+        expect(ProofStateData[x].submission.cores[1]).to.be.a('object')
+        expect(ProofStateData[x].submission.cores[1])
+          .to.have.property('ip')
+          .and.and.be.a('string')
+          .and.to.equal(ip2)
+        expect(ProofStateData[x].submission.cores[1])
+          .to.have.property('hashIdCore')
+          .and.and.be.a('string')
+          .and.to.equal(newHashIdCore2)
       }
     })
   })
