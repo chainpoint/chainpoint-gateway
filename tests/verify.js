@@ -18,20 +18,25 @@ describe('Verify Controller', () => {
     verify.setEventMetrics({
       captureEvent: () => {}
     })
-    verify.setRocksDB({
-      getCalBlockByDataIdAsync: async () => {
-        return {
-          hash: '4690932f928fb7f7ce6e6c49ee95851742231709360be28b7ce2af7b92cfa95b'
-        }
-      },
-      getBtcCBlockByDataIdAsync: async () => {
-        return {
-          dataVal: 'c617f5faca34474bea7020d75c39cb8427a32145f9646586ecb9184002131ad9'
-        }
-      }
-    })
     verify.setENV({
       POST_VERIFY_PROOFS_MAX: 1
+    })
+    verify.setCores({
+      getCachedTransactionAsync: async txId => {
+        switch (txId) {
+          case '985635': {
+            return { dataVal: '4690932f928fb7f7ce6e6c49ee95851742231709360be28b7ce2af7b92cfa95b' }
+          }
+          case '985814': {
+            return { dataVal: 'c617f5faca34474bea7020d75c39cb8427a32145f9646586ecb9184002131ad9' }
+          }
+          default: {
+            return {
+              dataVal: ''
+            }
+          }
+        }
+      }
     })
   })
   afterEach(() => {
