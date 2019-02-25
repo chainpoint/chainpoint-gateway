@@ -382,28 +382,7 @@ definitions:
       version:
         type: string
         example: '1.0.0'
-      proof_expire_minutes:
-        type: integer
-        example: 1440
-      get_proofs_max_rest:
-        type: integer
-        example: 250
-      post_hashes_max:
-        type: integer
-        example: 1000
-      post_verify_proofs_max:
-        type: integer
-        example: 1000
       time:
         type: string
         format: date-time
         example: '2017-07-14T18:07:31Z'
-      calendar:
-        type: object
-        properties:
-          height:
-            type: integer
-            example: 43625
-          audit_response:
-            type: string
-            example: 1504638363018:6ac306525d11767f3458bd63c7a581ea7248790e02cdd9a6b94dd77d75bda054
