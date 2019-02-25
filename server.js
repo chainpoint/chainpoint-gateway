@@ -12,7 +12,7 @@
  */
 
 // load environment variables
-const env = require('./lib/parse-env.js')
+const env = require('./lib/parse-env.js').env
 
 const apiServer = require('./lib/api-server.js')
 const aggregator = require('./lib/aggregator.js')
