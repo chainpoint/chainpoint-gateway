@@ -76,7 +76,6 @@
     "uuid": "^3.3.2",
     "uuid-time": "^1.0.0",
     "uuid-validate": "^0.0.3",
-    "valid-url": "^1.0.9",
     "validator": "^10.11.0"
   }
 }

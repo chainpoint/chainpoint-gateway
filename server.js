@@ -21,6 +21,11 @@ const eventMetrics = require('./lib/event-metrics.js')
 const rocksDB = require('./lib/models/RocksDB.js')
 const utils = require('./lib/utils.js')
 const cachedProofs = require('./lib/cached-proofs.js')
+const cores = require('./lib/cores.js')
+
+// The number of Cores to maintain healthy connection to
+// Also, the number of Cores that each aggregation root will be submitted to
+const CORE_CONNECTION_COUNT = 3
 
 // establish a connection with the database
 async function openStorageConnectionAsync() {
@@ -33,10 +38,8 @@ async function startAsync() {
     console.log(`INFO : App : Startup : Version ${version}`)
     await openStorageConnectionAsync()
 
-    // TODO:  Replace commented code below with code for new discovery model
-    // Set current Core host from CHAINPOINT_CORE_API_BASE_URI variable
-    // or from a random selection using Core discovery
-    // await coreHosts.initCoreHostsFromDNSAsync()
+    // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
+    await cores.connectAsync(CORE_CONNECTION_COUNT)
 
     // Validate CHAINPOINT_NODE_PUBLIC_URI, CHAINPOINT_NODE_PRIVATE_URI & CHAINPOINT_NODE_REFLECTED_URI if either env variable is set in .env
     utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI, false)
@@ -48,8 +51,6 @@ async function startAsync() {
     }
 
     // TODO:  Replace commented code below with code for new registration model
-    // Set current Core host from CHAINPOINT_CORE_API_BASE_URI variable
-    // or from a random selection using Core discovery
     // let hmacKey = await registerNodeAsync(nodeUri)
     // apiServer.setHmacKey(hmacKey)
 
@@ -67,6 +68,9 @@ async function startAsync() {
 
     // start the interval processes for pruning cached proof data from memory
     cachedProofs.startPruneExpiredItemsInterval()
+
+    // start the interval processes for pruning cached transaction data from memory
+    cores.startPruneExpiredItemsInterval()
 
     // start the interval processes for saving event metrics data
     eventMetrics.startPersistDataInterval()
