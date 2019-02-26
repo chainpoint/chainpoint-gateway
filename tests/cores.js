@@ -153,7 +153,7 @@ describe('Cores Methods', () => {
       } catch (err) {
         errResult = err
       }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Cores as required`)
+      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
       expect(connectedIPs.length).to.equal(0)
     })
@@ -174,7 +174,7 @@ describe('Cores Methods', () => {
       } catch (err) {
         errResult = err
       }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Cores as required`)
+      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
       expect(connectedIPs.length).to.equal(0)
     })
@@ -195,7 +195,7 @@ describe('Cores Methods', () => {
       } catch (err) {
         errResult = err
       }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Cores as required`)
+      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
       expect(connectedIPs.length).to.equal(1)
     })
@@ -300,7 +300,7 @@ describe('Cores Methods', () => {
       } catch (err) {
         errResult = err
       }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Cores as required`)
+      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
       expect(connectedIPs.length).to.equal(0)
     })
@@ -321,7 +321,7 @@ describe('Cores Methods', () => {
       } catch (err) {
         errResult = err
       }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Cores as required`)
+      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
       expect(connectedIPs.length).to.equal(0)
     })
@@ -342,7 +342,7 @@ describe('Cores Methods', () => {
       } catch (err) {
         errResult = err
       }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Cores as required`)
+      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
       expect(connectedIPs.length).to.equal(0)
     })
