@@ -16,7 +16,7 @@ describe('Utils Methods', () => {
       app.sleepAsync(amount).then(() => {
         let elapsedMS = Date.now() - startMS
         expect(elapsedMS).to.be.greaterThan(amount - 1)
-        expect(elapsedMS).to.be.lessThan(amount + 15)
+        expect(elapsedMS).to.be.lessThan(amount + 25)
         done()
       })
     })
@@ -26,7 +26,7 @@ describe('Utils Methods', () => {
       app.sleepAsync(amount).then(() => {
         let elapsedMS = Date.now() - startMS
         expect(elapsedMS).to.be.greaterThan(amount - 1)
-        expect(elapsedMS).to.be.lessThan(amount + 15)
+        expect(elapsedMS).to.be.lessThan(amount + 25)
         done()
       })
     })
