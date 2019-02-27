@@ -23,10 +23,6 @@ const utils = require('./lib/utils.js')
 const cachedProofs = require('./lib/cached-proofs.js')
 const cores = require('./lib/cores.js')
 
-// The number of Cores to maintain healthy connection to
-// Also, the number of Cores that each aggregation root will be submitted to
-const CORE_CONNECTION_COUNT = 3
-
 // establish a connection with the database
 async function openStorageConnectionAsync() {
   await rocksDB.openConnectionAsync()
@@ -39,7 +35,7 @@ async function startAsync() {
     await openStorageConnectionAsync()
 
     // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
-    await cores.connectAsync(CORE_CONNECTION_COUNT)
+    await cores.connectAsync()
 
     // Validate CHAINPOINT_NODE_PUBLIC_URI, CHAINPOINT_NODE_PRIVATE_URI & CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE if either env variable is set in .env
     utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI, false)
