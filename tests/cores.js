@@ -517,6 +517,117 @@ describe('Cores Methods', () => {
     })
   })
 
+  describe('getLatestCalBlockHashAsync', () => {
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setRP(async () => {
+        throw { message: 'Bad IP!!!!!', statusCode: 500 }
+      })
+    })
+    it('should throw error with status code', async () => {
+      let errResponse = null
+      try {
+        await cores.getLatestCalBlockHashAsync()
+      } catch (err) {
+        errResponse = err
+      }
+      expect(errResponse.message).to.equal('Invalid response on GET status : 500')
+    })
+  })
+
+  describe('getLatestCalBlockHashAsync', () => {
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setRP(async () => {
+        throw 'Error!'
+      })
+    })
+    it('should throw error no status code', async () => {
+      let errResponse = null
+      try {
+        await cores.getLatestCalBlockHashAsync()
+      } catch (err) {
+        errResponse = err
+      }
+      expect(errResponse.message).to.equal('Invalid response received on GET status')
+    })
+  })
+
+  describe('getLatestCalBlockHashAsync', () => {
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setRP(async () => {
+        return { body: { sync_info: { catching_up: false } } }
+      })
+    })
+    it('should return success with one good IP', async () => {
+      let response = await cores.getLatestCalBlockHashAsync()
+      expect(response).to.be.a('object')
+      expect(response).to.have.property('sync_info')
+      expect(response.sync_info).to.be.a('object')
+      expect(response.sync_info).to.have.property('catching_up')
+      expect(response.sync_info.catching_up).to.equal(false)
+    })
+  })
+
+  describe('getLatestCalBlockHashAsync', () => {
+    let attempts = 0
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1', '65.1.1.2'])
+      cores.setRP(async () => {
+        attempts++
+        if (attempts > 1) return { body: { sync_info: { catching_up: false } } }
+        throw 'Error!'
+      })
+    })
+    it('should return success with one bad and one good IP', async () => {
+      let response = await cores.getLatestCalBlockHashAsync()
+      expect(response).to.be.a('object')
+      expect(response).to.have.property('sync_info')
+      expect(response.sync_info).to.be.a('object')
+      expect(response.sync_info).to.have.property('catching_up')
+      expect(response.sync_info.catching_up).to.equal(false)
+    })
+  })
+
+  describe('getLatestCalBlockHashAsync', () => {
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setRP(async () => {
+        return { body: { sync_info: { catching_up: true } } }
+      })
+    })
+    it('should throw error no status code when not synched', async () => {
+      let errResponse = null
+      try {
+        await cores.getLatestCalBlockHashAsync()
+      } catch (err) {
+        errResponse = err
+      }
+      expect(errResponse.message).to.equal('Invalid response received on GET status')
+    })
+  })
+
+  describe('getLatestCalBlockHashAsync', () => {
+    let attempts = 0
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1', '65.1.1.2'])
+      cores.setRP(async () => {
+        attempts++
+        if (attempts > 1) return { body: { sync_info: { catching_up: false } } }
+        return { body: { sync_info: { catching_up: true } } }
+      })
+    })
+    it('should return success with one unsynched and one good IP', async () => {
+      let response = await cores.getLatestCalBlockHashAsync()
+      expect(response).to.be.a('object')
+      expect(response).to.have.property('sync_info')
+      expect(response.sync_info).to.be.a('object')
+      expect(response.sync_info).to.have.property('catching_up')
+      expect(response.sync_info.catching_up).to.equal(false)
+    })
+  })
+
   describe('getCachedTransactionAsync', () => {
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1'])
