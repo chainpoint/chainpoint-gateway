@@ -29,7 +29,7 @@ describe('Aggregator Methods', () => {
     })
   })
 
-  describe('aggregateAndSendToCoreAsync with 0 hashes', () => {
+  describe('aggregateSubmitAndPersistAsync with 0 hashes', () => {
     let hashCount = 0
     let IncomingHashes = generateIncomingHashData(hashCount)
     let ProofStateData = []
@@ -46,13 +46,13 @@ describe('Aggregator Methods', () => {
     after(() => {})
     it('should complete successfully', async () => {
       expect(IncomingHashes.length).to.equal(hashCount)
-      await aggregator.aggregateAndSendToCoreAsync()
+      await aggregator.aggregateSubmitAndPersistAsync()
       expect(IncomingHashes.length).to.equal(0)
       expect(ProofStateData.length).to.equal(hashCount)
     })
   })
 
-  describe('aggregateAndSendToCoreAsync with 100 hashes', () => {
+  describe('aggregateSubmitAndPersistAsync with 100 hashes', () => {
     let hashCount = 100
     let IncomingHashes = generateIncomingHashData(hashCount)
     let newHashIdCore1 = null
@@ -95,7 +95,7 @@ describe('Aggregator Methods', () => {
     it('should complete successfully', async () => {
       var merkleTools = new MerkleTools()
       expect(IncomingHashes.length).to.equal(hashCount)
-      let aggRoot = await aggregator.aggregateAndSendToCoreAsync()
+      let aggRoot = await aggregator.aggregateSubmitAndPersistAsync()
       expect(IncomingHashes.length).to.equal(0)
       expect(ProofStateData.length).to.equal(hashCount)
       for (let x = 0; x < hashCount; x++) {
