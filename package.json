@@ -72,6 +72,8 @@
     "restify": "^7.7.0",
     "restify-cors-middleware": "^1.1.1",
     "restify-errors": "^6.1.1",
+    "tweetnacl": "^1.0.1",
+    "tweetnacl-util": "^0.15.0",
     "url": "^0.11.0",
     "uuid": "^3.3.2",
     "uuid-time": "^1.0.0",
