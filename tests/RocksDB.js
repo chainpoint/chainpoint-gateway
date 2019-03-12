@@ -38,6 +38,73 @@ describe('RocksDB Methods', () => {
     })
   })
 
+  describe('Reputation Functions', () => {
+    let sampleData = generateSampleReputaionItemsData(10)
+    it('should return the same data that was inserted and the correct items at specified heights', async () => {
+      for (let x = 0; x < 5; x++) {
+        await rocksDB.saveReputationItemAsync(sampleData[x])
+      }
+      await utils.sleepAsync(1000)
+      for (let x = 5; x < 10; x++) {
+        await rocksDB.saveReputationItemAsync(sampleData[x])
+      }
+      let queriedItems = await rocksDB.getReputationItemsBetweenAsync(Date.now() - 2000, Date.now())
+      let mostRecentItem = await rocksDB.getMostRecentReputationItemAsync()
+      expect(queriedItems).to.deep.equal(sampleData)
+      expect(mostRecentItem).to.deep.equal(sampleData[sampleData.length - 1])
+
+      let item0 = await rocksDB.getReputationItemByHeightAsync(0)
+      let items3to7 = await rocksDB.getReputationItemsRangeByHeightsAsync(3, 7)
+      let item9 = await rocksDB.getReputationItemByHeightAsync(9)
+      expect(item0).to.deep.equal(sampleData[0])
+      expect(items3to7).to.deep.equal(sampleData.slice(3, 8))
+      expect(item9).to.deep.equal(sampleData[9])
+    })
+
+    it('should return the subset of data that was inserted', async () => {
+      let sampleData = generateSampleReputaionItemsData(10)
+      for (let x = 0; x < 5; x++) {
+        await rocksDB.saveReputationItemAsync(sampleData[x])
+      }
+      await utils.sleepAsync(1000)
+      for (let x = 5; x < 10; x++) {
+        await rocksDB.saveReputationItemAsync(sampleData[x])
+      }
+      let queriedItems = await rocksDB.getReputationItemsBetweenAsync(Date.now() - 1000, Date.now())
+      let mostRecentItem = await rocksDB.getMostRecentReputationItemAsync()
+      expect(queriedItems).to.deep.equal(sampleData.slice(5))
+      expect(mostRecentItem).to.deep.equal(sampleData[sampleData.length - 1])
+    })
+
+    it('should return the subset of data that was inserted', async () => {
+      let sampleData = generateSampleReputaionItemsData(10)
+      for (let x = 0; x < 4; x++) {
+        await rocksDB.saveReputationItemAsync(sampleData[x])
+      }
+      await utils.sleepAsync(500)
+      for (let x = 4; x < 6; x++) {
+        await rocksDB.saveReputationItemAsync(sampleData[x])
+      }
+      await utils.sleepAsync(500)
+      for (let x = 6; x < 10; x++) {
+        await rocksDB.saveReputationItemAsync(sampleData[x])
+      }
+      let queriedItems = await rocksDB.getReputationItemsBetweenAsync(Date.now() - 600, Date.now() - 400)
+      let mostRecentItem = await rocksDB.getMostRecentReputationItemAsync()
+      expect(queriedItems).to.deep.equal(sampleData.slice(4, 6))
+      expect(mostRecentItem).to.deep.equal(sampleData[sampleData.length - 1])
+    })
+
+    it('should update and return the correct recent item', async () => {
+      let sampleData = generateSampleReputaionItemsData(10)
+      for (let x = 0; x < 10; x++) {
+        await rocksDB.saveReputationItemAsync(sampleData[x])
+        let mostRecentItem = await rocksDB.getMostRecentReputationItemAsync()
+        expect(mostRecentItem).to.deep.equal(sampleData[x])
+      }
+    })
+  })
+
   describe('Incoming Hash Functions', () => {
     let delOps = []
     it('should return the same data that was inserted', async () => {
@@ -187,6 +254,24 @@ describe('RocksDB Methods', () => {
 })
 
 // support functions
+function generateSampleReputaionItemsData(count) {
+  let results = []
+
+  for (let x = 0; x < count; x++) {
+    results.push({
+      id: x,
+      calBlockHeight: 100000 + x,
+      calBlockHash: crypto.randomBytes(32).toString('hex'),
+      prevRepItemHash: crypto.randomBytes(32).toString('hex'),
+      hashIdNode: uuidv1(),
+      repItemHash: crypto.randomBytes(32).toString('hex'),
+      signature: crypto.randomBytes(64).toString('hex')
+    })
+  }
+
+  return results
+}
+
 function generateSampleProofStateData(batchSize) {
   let results = {}
   results.state = []
