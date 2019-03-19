@@ -97,7 +97,7 @@ describe('Stats Controller', () => {
     describe('with no CHAINPOINT_NODE_UI_PASSWORD setting made', () => {
       before(() => {
         stats.setENV({
-          NODE_TNT_ADDRESS: '0xca56356cD2a2bf3202F771F50D3D14A367b48070'
+          NODE_ETH_ADDRESS: '0xca56356cD2a2bf3202F771F50D3D14A367b48070'
         })
       })
       it('should return the proper error with incorrect auth header', done => {
@@ -163,7 +163,7 @@ describe('Stats Controller', () => {
               .and.to.be.a('boolean')
               .and.to.equal(false)
             expect(res.body.nodeData)
-              .to.have.property('node_tnt_addr')
+              .to.have.property('node_eth_addr')
               .and.to.be.a('string')
               .and.to.equal('0xca56356cD2a2bf3202F771F50D3D14A367b48070')
             expect(res.body.nodeData)
@@ -222,7 +222,7 @@ describe('Stats Controller', () => {
               .and.to.be.a('boolean')
               .and.to.equal(false)
             expect(res.body.nodeData)
-              .to.have.property('node_tnt_addr')
+              .to.have.property('node_eth_addr')
               .and.to.be.a('string')
               .and.to.equal('0xca56356cD2a2bf3202F771F50D3D14A367b48070')
             expect(res.body.nodeData)
@@ -252,7 +252,7 @@ describe('Stats Controller', () => {
               .and.to.be.a('boolean')
               .and.to.equal(false)
             expect(res.body.nodeData)
-              .to.have.property('node_tnt_addr')
+              .to.have.property('node_eth_addr')
               .and.to.be.a('string')
               .and.to.equal('0xca56356cD2a2bf3202F771F50D3D14A367b48070')
             expect(res.body.nodeData)

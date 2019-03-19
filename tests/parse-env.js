@@ -12,37 +12,37 @@ describe('Environment variables', () => {
     it('should throw error when empty', done => {
       expect(() => {
         parseEnv.valETHAddress('')
-      }).to.throw('The Ethereum (TNT) address is invalid')
+      }).to.throw('The Ethereum address is invalid')
       done()
     })
     it('should throw error when null', done => {
       expect(() => {
         parseEnv.valETHAddress(null)
-      }).to.throw('The Ethereum (TNT) address is invalid')
+      }).to.throw('The Ethereum address is invalid')
       done()
     })
     it('should throw error when not hex', done => {
       expect(() => {
         parseEnv.valETHAddress('not hex')
-      }).to.throw('The Ethereum (TNT) address is invalid')
+      }).to.throw('The Ethereum address is invalid')
       done()
     })
     it('should throw error when too short', done => {
       expect(() => {
         parseEnv.valETHAddress('0x32Be343B94f860124dC4')
-      }).to.throw('The Ethereum (TNT) address is invalid')
+      }).to.throw('The Ethereum address is invalid')
       done()
     })
     it('should throw error when too long', done => {
       expect(() => {
         parseEnv.valETHAddress('0x32Be343B94f860124dC4fEe278FDCBD38C102D8832Be343B94f860124dC4fEe278FDCBD38C102D88')
-      }).to.throw('The Ethereum (TNT) address is invalid')
+      }).to.throw('The Ethereum address is invalid')
       done()
     })
     it('should throw error when missing 0x prefix', done => {
       expect(() => {
         parseEnv.valETHAddress('32Be343B94f860124dC4fEe278FDCBD38C102D88')
-      }).to.throw('The Ethereum (TNT) address is invalid')
+      }).to.throw('The Ethereum address is invalid')
       done()
     })
     it('should return lowercased when valid', done => {

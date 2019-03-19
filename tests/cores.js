@@ -274,7 +274,7 @@ describe('Cores Methods', () => {
   describe('connectAsync', () => {
     let options = null
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NODE_TNT_ADDRESS: 'addr' })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NODE_ETH_ADDRESS: 'addr' })
       cores.setRP(async o => {
         options = o
         return { body: { sync_info: { catching_up: false } } }

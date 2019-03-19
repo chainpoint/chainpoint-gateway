@@ -1,20 +1,9 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import moment from 'moment'
-import {
-  isNull as _isNull,
-  isNumber as _isNumber,
-  isEmpty as _isEmpty
-} from 'lodash'
+import { isNull as _isNull, isNumber as _isNumber, isEmpty as _isEmpty } from 'lodash'
 import classnames from 'classnames'
-import {
-  Grid,
-  Row,
-  Col,
-  FormGroup,
-  ControlLabel,
-  FormControl
-} from 'react-bootstrap'
+import { Grid, Row, Col, FormGroup, ControlLabel, FormControl } from 'react-bootstrap'
 import semver from 'semver'
 
 class NodeStatus extends Component {
@@ -25,12 +14,8 @@ class NodeStatus extends Component {
     this._calculateValidNPMVersion = this._calculateValidNPMVersion.bind(this)
     this._getNodeETHAddress = this._getNodeETHAddress.bind(this)
     this._calculateNTPDelta = this._calculateNTPDelta.bind(this)
-    this._getTotalAuditsPassedAndFailed = this._getTotalAuditsPassedAndFailed.bind(
-      this
-    )
-    this._getConsecutiveAuditsPassedAndFailed = this._getConsecutiveAuditsPassedAndFailed.bind(
-      this
-    )
+    this._getTotalAuditsPassedAndFailed = this._getTotalAuditsPassedAndFailed.bind(this)
+    this._getConsecutiveAuditsPassedAndFailed = this._getConsecutiveAuditsPassedAndFailed.bind(this)
     this._getTotalNodes = this._getTotalNodes.bind(this)
 
     this.state = { node_min_version: null }
@@ -64,36 +49,25 @@ class NodeStatus extends Component {
 
   _getRegistrationStatusText(status, publicUri) {
     if (status === false) return 'Unregistered'
-    else if (
-      status === true &&
-      (_isEmpty(publicUri) || publicUri === 'http://0.0.0.0')
-    )
-      return 'Private'
+    else if (status === true && (_isEmpty(publicUri) || publicUri === 'http://0.0.0.0')) return 'Private'
     else if (status === true && publicUri !== null) return 'Registered'
     else return 'Unregistered'
   }
 
   _calculateAuditStatus() {
-    if (!(this.props.nodeData.audits && this.props.nodeData.audits.length))
-      return ''
+    if (!(this.props.nodeData.audits && this.props.nodeData.audits.length)) return ''
 
     let passed =
-      this.props.nodeData.audits &&
-      this.props.nodeData.audits.length &&
-      this.props.nodeData.audits[0].audit_passed
+      this.props.nodeData.audits && this.props.nodeData.audits.length && this.props.nodeData.audits[0].audit_passed
 
     return passed ? 'PASSED' : 'FAILED'
   }
 
   _calculateValidNPMVersion() {
-    if (!(this.props.nodeConfig.version && this.state.node_min_version))
-      return ''
+    if (!(this.props.nodeConfig.version && this.state.node_min_version)) return ''
 
     try {
-      let result = semver.gte(
-        this.props.nodeConfig.version,
-        this.state.node_min_version
-      )
+      let result = semver.gte(this.props.nodeConfig.version, this.state.node_min_version)
 
       return result
     } catch (_) {
@@ -102,17 +76,14 @@ class NodeStatus extends Component {
   }
 
   _getNodeETHAddress() {
-    return this.props.nodeData &&
-      this.props.nodeData.node &&
-      this.props.nodeData.node.node_tnt_addr
-      ? this.props.nodeData.node.node_tnt_addr
+    return this.props.nodeData && this.props.nodeData.node && this.props.nodeData.node.node_eth_addr
+      ? this.props.nodeData.node.node_eth_addr
       : ''
   }
 
   _getNodePublicUri() {
     if (_isEmpty(this.props.nodeData.node_public_uri)) return 'Private'
-    else if (!(this.props.nodeData.audits && this.props.nodeData.audits.length))
-      return ''
+    else if (!(this.props.nodeData.audits && this.props.nodeData.audits.length)) return ''
 
     if (_isNull(this.props.nodeData.audits[0].public_uri)) {
       return 'Private'
@@ -136,12 +107,8 @@ class NodeStatus extends Component {
 
   _getTotalAuditsPassedAndFailed() {
     if (this.props.nodeData && this.props.nodeData.node) {
-      let passed = _isNumber(this.props.nodeData.node.pass_count)
-        ? this.props.nodeData.node.pass_count
-        : ''
-      let failed = _isNumber(this.props.nodeData.node.fail_count)
-        ? this.props.nodeData.node.fail_count
-        : ''
+      let passed = _isNumber(this.props.nodeData.node.pass_count) ? this.props.nodeData.node.pass_count : ''
+      let failed = _isNumber(this.props.nodeData.node.fail_count) ? this.props.nodeData.node.fail_count : ''
 
       return [passed, failed]
     } else {
@@ -165,9 +132,7 @@ class NodeStatus extends Component {
   }
 
   _getTotalNodes() {
-    return this.props.nodeData && this.props.nodeData.core
-      ? this.props.nodeData.core.total_active_nodes
-      : ''
+    return this.props.nodeData && this.props.nodeData.core ? this.props.nodeData.core.total_active_nodes : ''
   }
 
   render() {
@@ -175,16 +140,10 @@ class NodeStatus extends Component {
     let auditStatus = this._calculateAuditStatus()
     let npmVersion = this._calculateValidNPMVersion()
     let publicUri = this._getNodePublicUri()
-    let tntAddr = this._getNodeETHAddress()
+    let ethAddr = this._getNodeETHAddress()
     let [ntpDeltaVal, ntpDeltaBool] = this._calculateNTPDelta()
-    let [
-      totalAuditsPassed,
-      totalAuditsFailed
-    ] = this._getTotalAuditsPassedAndFailed()
-    let [
-      consecutiveAuditsPassed,
-      consecutiveAuditsFailed
-    ] = this._getConsecutiveAuditsPassedAndFailed()
+    let [totalAuditsPassed, totalAuditsFailed] = this._getTotalAuditsPassedAndFailed()
+    let [consecutiveAuditsPassed, consecutiveAuditsFailed] = this._getConsecutiveAuditsPassedAndFailed()
     let totalNodes = this._getTotalNodes()
     let registrationStatusText = this._getRegistrationStatusText(
       registrationStatus,
@@ -192,13 +151,10 @@ class NodeStatus extends Component {
     )
     let nodeIsPrivate =
       registrationStatus &&
-      (_isEmpty(this.props.nodeData.node_public_uri) ||
-        this.props.nodeData.node_public_uri === 'http://0.0.0.0')
+      (_isEmpty(this.props.nodeData.node_public_uri) || this.props.nodeData.node_public_uri === 'http://0.0.0.0')
     let dataFromCoreLastReceived = (() => {
       if (this.props.nodeData && this.props.nodeData.dataFromCoreLastReceived) {
-        return moment(
-          parseInt(this.props.nodeData.dataFromCoreLastReceived, 10)
-        )
+        return moment(parseInt(this.props.nodeData.dataFromCoreLastReceived, 10))
           .utc()
           .format()
       } else {
@@ -242,19 +198,12 @@ class NodeStatus extends Component {
                     'red-text-important': auditStatus === 'FAILED'
                   })}
                   type="text"
-                  value={
-                    auditStatus === 'PASSED'
-                      ? 'Passed Last Audit'
-                      : 'Failed Last Audit'
-                  }
+                  value={auditStatus === 'PASSED' ? 'Passed Last Audit' : 'Failed Last Audit'}
                   placeholder="Audit Status"
                   disabled
                 />
               </FormGroup>
-              <FormGroup
-                className={classnames({ hide: npmVersion === '' })}
-                controlId="formBasicText"
-              >
+              <FormGroup className={classnames({ hide: npmVersion === '' })} controlId="formBasicText">
                 <ControlLabel>Node Version</ControlLabel>
                 <FormControl
                   className={classnames({
@@ -263,37 +212,21 @@ class NodeStatus extends Component {
                   })}
                   type="text"
                   value={
-                    npmVersion
-                      ? this.props.nodeConfig.version
-                      : `${this.props.nodeConfig.version} - upgrade available`
+                    npmVersion ? this.props.nodeConfig.version : `${this.props.nodeConfig.version} - upgrade available`
                   }
                   placeholder="Node Version"
                   disabled
                 />
               </FormGroup>
-              {publicUri !== '' &&
-                !nodeIsPrivate && (
-                  <FormGroup controlId="formBasicText">
-                    <ControlLabel>Node Public URI</ControlLabel>
-                    <FormControl
-                      type="text"
-                      value={publicUri}
-                      placeholder="Node Public URI"
-                      disabled
-                    />
-                  </FormGroup>
-                )}
-              <FormGroup
-                className={classnames({ hide: tntAddr === '' })}
-                controlId="formBasicText"
-              >
-                <ControlLabel>Node TNT Address</ControlLabel>
-                <FormControl
-                  type="text"
-                  value={tntAddr}
-                  placeholder="Node TNT Address"
-                  disabled
-                />
+              {publicUri !== '' && !nodeIsPrivate && (
+                <FormGroup controlId="formBasicText">
+                  <ControlLabel>Node Public URI</ControlLabel>
+                  <FormControl type="text" value={publicUri} placeholder="Node Public URI" disabled />
+                </FormGroup>
+              )}
+              <FormGroup className={classnames({ hide: ethAddr === '' })} controlId="formBasicText">
+                <ControlLabel>Node ETH Address</ControlLabel>
+                <FormControl type="text" value={ethAddr} placeholder="Node ETH Address" disabled />
               </FormGroup>
               <FormGroup
                 className={classnames({
@@ -306,9 +239,7 @@ class NodeStatus extends Component {
                   className={classnames({
                     'green-text-important': ntpDeltaBool,
                     'red-text-important':
-                      !ntpDeltaBool ||
-                      (ntpDeltaVal.split('ms')[0] > 5000 ||
-                        ntpDeltaVal.split('ms')[0] < -5000)
+                      !ntpDeltaBool || (ntpDeltaVal.split('ms')[0] > 5000 || ntpDeltaVal.split('ms')[0] < -5000)
                   })}
                   type="text"
                   value={ntpDeltaVal}
@@ -323,12 +254,7 @@ class NodeStatus extends Component {
                 controlId="formBasicText"
               >
                 <ControlLabel>Total Audits Passed</ControlLabel>
-                <FormControl
-                  type="text"
-                  value={totalAuditsPassed}
-                  placeholder="Total Audits Passed"
-                  disabled
-                />
+                <FormControl type="text" value={totalAuditsPassed} placeholder="Total Audits Passed" disabled />
               </FormGroup>
               <FormGroup
                 className={classnames({
@@ -337,12 +263,7 @@ class NodeStatus extends Component {
                 controlId="formBasicText"
               >
                 <ControlLabel>Total Audits Failed</ControlLabel>
-                <FormControl
-                  type="text"
-                  value={totalAuditsFailed}
-                  placeholder="Total Audits Failed"
-                  disabled
-                />
+                <FormControl type="text" value={totalAuditsFailed} placeholder="Total Audits Failed" disabled />
               </FormGroup>
               <FormGroup
                 className={classnames({
@@ -379,19 +300,12 @@ class NodeStatus extends Component {
                 controlId="formBasicText"
               >
                 <ControlLabel>Total Nodes</ControlLabel>
-                <FormControl
-                  type="text"
-                  value={totalNodes}
-                  placeholder="Total Nodes"
-                  disabled
-                />
+                <FormControl type="text" value={totalNodes} placeholder="Total Nodes" disabled />
               </FormGroup>
             </Col>
             <Col className="center-align add-top add-bottom" xs={12}>
               {dataFromCoreLastReceived && (
-                <span className="add-top add-bottom darkgray-text">
-                  Last Updated: {dataFromCoreLastReceived}
-                </span>
+                <span className="add-top add-bottom darkgray-text">Last Updated: {dataFromCoreLastReceived}</span>
               )}
             </Col>
           </Row>
@@ -418,7 +332,7 @@ NodeStatus.propTypes = {
     core: PropTypes.any,
     dataFromCoreLastReceived: PropTypes.string,
     node: PropTypes.shape({
-      node_tnt_addr: PropTypes.string,
+      node_eth_addr: PropTypes.string,
       node_registered: PropTypes.bool,
       pass_count: PropTypes.number,
       fail_count: PropTypes.number,
