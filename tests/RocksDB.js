@@ -39,7 +39,8 @@ describe('RocksDB Methods', () => {
   })
 
   describe('Reputation Functions', () => {
-    let sampleData = generateSampleReputaionItemsData(10)
+    let sampleData = generateSampleReputationItemsData(10)
+
     it('should return the same data that was inserted and the correct items at specified heights', async () => {
       for (let x = 0; x < 5; x++) {
         await rocksDB.saveReputationItemAsync(sampleData[x])
@@ -61,8 +62,13 @@ describe('RocksDB Methods', () => {
       expect(item9).to.deep.equal(sampleData[9])
     })
 
+    it('should return not found with unknown height', async () => {
+      let item = await rocksDB.getReputationItemByHeightAsync(12000)
+      expect(item).to.equal(null)
+    })
+
     it('should return the subset of data that was inserted', async () => {
-      let sampleData = generateSampleReputaionItemsData(10)
+      let sampleData = generateSampleReputationItemsData(10)
       for (let x = 0; x < 5; x++) {
         await rocksDB.saveReputationItemAsync(sampleData[x])
       }
@@ -70,14 +76,14 @@ describe('RocksDB Methods', () => {
       for (let x = 5; x < 10; x++) {
         await rocksDB.saveReputationItemAsync(sampleData[x])
       }
-      let queriedItems = await rocksDB.getReputationItemsBetweenAsync(Date.now() - 1000, Date.now())
+      let queriedItems = await rocksDB.getReputationItemsBetweenAsync(Date.now() - 1000, Date.now() + 10000)
       let mostRecentItem = await rocksDB.getMostRecentReputationItemAsync()
       expect(queriedItems).to.deep.equal(sampleData.slice(5))
       expect(mostRecentItem).to.deep.equal(sampleData[sampleData.length - 1])
     })
 
     it('should return the subset of data that was inserted', async () => {
-      let sampleData = generateSampleReputaionItemsData(10)
+      let sampleData = generateSampleReputationItemsData(10)
       for (let x = 0; x < 4; x++) {
         await rocksDB.saveReputationItemAsync(sampleData[x])
       }
@@ -96,11 +102,79 @@ describe('RocksDB Methods', () => {
     })
 
     it('should update and return the correct recent item', async () => {
-      let sampleData = generateSampleReputaionItemsData(10)
+      let sampleData = generateSampleReputationItemsData(10)
       for (let x = 0; x < 10; x++) {
         await rocksDB.saveReputationItemAsync(sampleData[x])
         let mostRecentItem = await rocksDB.getMostRecentReputationItemAsync()
         expect(mostRecentItem).to.deep.equal(sampleData[x])
+      }
+    })
+
+    it('should return null proof with unknown height', async () => {
+      let proof = await rocksDB.getReputationItemProofByHeightAsync(234)
+      expect(proof).to.equal(null)
+    })
+
+    it('should return proof with known height', async () => {
+      let data = '{ data: 0 }'
+      let height = 234
+      await rocksDB.saveReputationItemProofAsync(height, data)
+      let proof = await rocksDB.getReputationItemProofByHeightAsync(height)
+      expect(proof).to.equal(data)
+    })
+
+    it('should throw error with invalid range', async () => {
+      let results = await rocksDB.getReputationItemProofsRangeByHeightsAsync('invalid', 123)
+      expect(results)
+        .to.be.a('array')
+        .and.to.have.length(0)
+    })
+
+    it('should return valid partial range with offset', async () => {
+      let min = 666
+      let max = 777
+      for (let x = min; x <= max; x++) {
+        let data = `{ data: ${x} }`
+        let height = x
+        await rocksDB.saveReputationItemProofAsync(height, data)
+      }
+      let results = await rocksDB.getReputationItemProofsRangeByHeightsAsync(min - 50, max - 50)
+      expect(results)
+        .to.be.a('array')
+        .and.to.have.length(max - min + 1 - 50)
+      for (let x = 0; x <= max - min - 50; x++) {
+        expect(results[x]).to.have.property('id')
+        expect(results[x]).to.have.property('proof')
+        expect(results[x].id)
+          .to.be.a('number')
+          .and.to.equal(x + min)
+        expect(results[x].proof)
+          .to.be.a('string')
+          .and.to.equal(`{ data: ${x + min} }`)
+      }
+    })
+
+    it('should return valid full range', async () => {
+      let min = 888
+      let max = 999
+      for (let x = min; x <= max; x++) {
+        let data = `{ data: ${x} }`
+        let height = x
+        await rocksDB.saveReputationItemProofAsync(height, data)
+      }
+      let results = await rocksDB.getReputationItemProofsRangeByHeightsAsync(min, max)
+      expect(results)
+        .to.be.a('array')
+        .and.to.have.length(max - min + 1)
+      for (let x = 0; x <= max - min; x++) {
+        expect(results[x]).to.have.property('id')
+        expect(results[x]).to.have.property('proof')
+        expect(results[x].id)
+          .to.be.a('number')
+          .and.to.equal(x + min)
+        expect(results[x].proof)
+          .to.be.a('string')
+          .and.to.equal(`{ data: ${x + min} }`)
       }
     })
   })
@@ -254,7 +328,7 @@ describe('RocksDB Methods', () => {
 })
 
 // support functions
-function generateSampleReputaionItemsData(count) {
+function generateSampleReputationItemsData(count) {
   let results = []
 
   for (let x = 0; x < count; x++) {
