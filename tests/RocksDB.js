@@ -41,7 +41,7 @@ describe('RocksDB Methods', () => {
   describe('Reputation Functions', () => {
     let sampleData = generateSampleReputationItemsData(10)
 
-    it('should return the same data that was inserted and the correct items at specified heights', async () => {
+    it('should return the same data that was inserted and the correct items at specified ids', async () => {
       for (let x = 0; x < 5; x++) {
         await rocksDB.saveReputationItemAsync(sampleData[x])
       }
@@ -54,16 +54,16 @@ describe('RocksDB Methods', () => {
       expect(queriedItems).to.deep.equal(sampleData)
       expect(mostRecentItem).to.deep.equal(sampleData[sampleData.length - 1])
 
-      let item0 = await rocksDB.getReputationItemByHeightAsync(0)
-      let items3to7 = await rocksDB.getReputationItemsRangeByHeightsAsync(3, 7)
-      let item9 = await rocksDB.getReputationItemByHeightAsync(9)
+      let item0 = await rocksDB.getReputationItemByIdAsync(0)
+      let items3to7 = await rocksDB.getReputationItemsRangeByIdsAsync(3, 7)
+      let item9 = await rocksDB.getReputationItemByIdAsync(9)
       expect(item0).to.deep.equal(sampleData[0])
       expect(items3to7).to.deep.equal(sampleData.slice(3, 8))
       expect(item9).to.deep.equal(sampleData[9])
     })
 
-    it('should return not found with unknown height', async () => {
-      let item = await rocksDB.getReputationItemByHeightAsync(12000)
+    it('should return not found with unknown id', async () => {
+      let item = await rocksDB.getReputationItemByIdAsync(12000)
       expect(item).to.equal(null)
     })
 
@@ -110,21 +110,21 @@ describe('RocksDB Methods', () => {
       }
     })
 
-    it('should return null proof with unknown height', async () => {
-      let proof = await rocksDB.getReputationItemProofByHeightAsync(234)
+    it('should return null proof with unknown Id', async () => {
+      let proof = await rocksDB.getReputationItemProofByRepIdAsync(234)
       expect(proof).to.equal(null)
     })
 
-    it('should return proof with known height', async () => {
+    it('should return proof with known id', async () => {
       let data = '{ data: 0 }'
-      let height = 234
-      await rocksDB.saveReputationItemProofAsync(height, data)
-      let proof = await rocksDB.getReputationItemProofByHeightAsync(height)
+      let id = 234
+      await rocksDB.saveReputationItemProofAsync(id, data)
+      let proof = await rocksDB.getReputationItemProofByRepIdAsync(id)
       expect(proof).to.equal(data)
     })
 
     it('should throw error with invalid range', async () => {
-      let results = await rocksDB.getReputationItemProofsRangeByHeightsAsync('invalid', 123)
+      let results = await rocksDB.getReputationItemProofsRangeByRepIdsAsync('invalid', 123)
       expect(results)
         .to.be.a('array')
         .and.to.have.length(0)
@@ -135,10 +135,10 @@ describe('RocksDB Methods', () => {
       let max = 777
       for (let x = min; x <= max; x++) {
         let data = `{ data: ${x} }`
-        let height = x
-        await rocksDB.saveReputationItemProofAsync(height, data)
+        let id = x
+        await rocksDB.saveReputationItemProofAsync(id, data)
       }
-      let results = await rocksDB.getReputationItemProofsRangeByHeightsAsync(min - 50, max - 50)
+      let results = await rocksDB.getReputationItemProofsRangeByRepIdsAsync(min - 50, max - 50)
       expect(results)
         .to.be.a('array')
         .and.to.have.length(max - min + 1 - 50)
@@ -159,10 +159,10 @@ describe('RocksDB Methods', () => {
       let max = 999
       for (let x = min; x <= max; x++) {
         let data = `{ data: ${x} }`
-        let height = x
-        await rocksDB.saveReputationItemProofAsync(height, data)
+        let id = x
+        await rocksDB.saveReputationItemProofAsync(id, data)
       }
-      let results = await rocksDB.getReputationItemProofsRangeByHeightsAsync(min, max)
+      let results = await rocksDB.getReputationItemProofsRangeByRepIdsAsync(min, max)
       expect(results)
         .to.be.a('array')
         .and.to.have.length(max - min + 1)

@@ -168,26 +168,26 @@ describe('Reputation Chain Methods', () => {
   })
 
   describe('retrieveAndStoreProofAsync', () => {
-    let saveHeight, saveProof
+    let saveId, saveProof
     let data = { data: 0 }
     before(() => {
       repChain.setRP(async () => {
         return [{ proof: data }]
       })
       repChain.setRocksDB({
-        saveReputationItemProofAsync: (height, proof) => {
-          saveHeight = height
+        saveReputationItemProofAsync: (id, proof) => {
+          saveId = id
           saveProof = proof
         }
       })
     })
     it('should store the expected value', async () => {
-      let height = 123
+      let id = 123
       let hashIdNode = '3de6d66e-4bd8-11e9-8646-d663bd873d93'
-      await repChain.retrieveAndStoreProofAsync(height, hashIdNode)
-      expect(saveHeight)
+      await repChain.retrieveAndStoreProofAsync(id, hashIdNode)
+      expect(saveId)
         .to.be.a('number')
-        .and.to.equal(height)
+        .and.to.equal(id)
       expect(saveProof)
         .to.be.a('string')
         .and.to.equal(JSON.stringify(data))
@@ -199,7 +199,7 @@ describe('Reputation Chain Methods', () => {
     let ETH_PK = '0xc7bf6cecfc996d68f320dc5e384322ee8b985a7f940b4aafb07fb5b5b2285b51'
     let hashIdNode = '3de6d66e-4bd8-11e9-8646-d663bd873d93'
     let hintTime = new Date().toISOString()
-    let saveHeight, saveProof, saveItem
+    let saveId, saveProof, saveItem
     let data = { data: 0 }
     let repItemHash = 'c9ee7f0b005eb6ef26dc09eb1c99f0402ef2fdb3acd214634e8b70a21bcab465'
     before(() => {
@@ -218,8 +218,8 @@ describe('Reputation Chain Methods', () => {
             repItemHash: 'd6f253786233e9ee0e91f894cc51d7c79a5455dbc7ee509c5b9ca7bc669e02c1'
           }
         },
-        saveReputationItemProofAsync: (height, proof) => {
-          saveHeight = height
+        saveReputationItemProofAsync: (id, proof) => {
+          saveId = id
           saveProof = proof
         },
         saveReputationItemAsync: newRepItem => {
@@ -243,7 +243,7 @@ describe('Reputation Chain Methods', () => {
     })
     it('should generate and store new item as expected', async () => {
       await repChain.generateReputationEntryAsync()
-      expect(saveHeight).to.equal(34559)
+      expect(saveId).to.equal(34559)
       expect(saveProof).to.equal(JSON.stringify(data))
       expect(saveItem).to.be.a('object')
       expect(saveItem)
