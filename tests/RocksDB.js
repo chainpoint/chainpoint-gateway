@@ -339,7 +339,7 @@ function generateSampleReputationItemsData(count) {
       prevRepItemHash: crypto.randomBytes(32).toString('hex'),
       hashIdNode: uuidv1(),
       repItemHash: crypto.randomBytes(32).toString('hex'),
-      signature: crypto.randomBytes(64).toString('hex')
+      signature: `0x${crypto.randomBytes(64).toString('hex')}`
     })
   }
 
