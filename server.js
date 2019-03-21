@@ -22,6 +22,7 @@ const rocksDB = require('./lib/models/RocksDB.js')
 const utils = require('./lib/utils.js')
 const cachedProofs = require('./lib/cached-proofs.js')
 const cores = require('./lib/cores.js')
+const repChain = require('./lib/rep-chain.js')
 
 // establish a connection with the database
 async function openStorageConnectionAsync() {
@@ -70,6 +71,9 @@ async function startAsync() {
 
     // start the interval processes for saving event metrics data
     eventMetrics.startPersistDataInterval()
+
+    // start the reputation chain generation process with current API ports
+    repChain.startRepInterval()
 
     console.log(`INFO : App : Startup : Complete`)
   } catch (err) {
