@@ -62,6 +62,16 @@ describe('RocksDB Methods', () => {
       expect(item9).to.deep.equal(sampleData[9])
     })
 
+    it('should return an empty dataset', async () => {
+      let items = await rocksDB.getReputationItemsRangeByIdsAsync(234, 345)
+      expect(items).to.deep.equal([])
+    })
+
+    it('should return the correct partial dataset', async () => {
+      let items8to25 = await rocksDB.getReputationItemsRangeByIdsAsync(8, 25)
+      expect(items8to25).to.deep.equal(sampleData.slice(8))
+    })
+
     it('should return not found with unknown id', async () => {
       let item = await rocksDB.getReputationItemByIdAsync(12000)
       expect(item).to.equal(null)
