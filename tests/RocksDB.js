@@ -344,7 +344,7 @@ function generateSampleReputationItemsData(count) {
   for (let x = 0; x < count; x++) {
     results.push({
       id: x,
-      calBlockHeight: 100000 + x,
+      calBlockHeight: 4294967295 + x,
       calBlockHash: crypto.randomBytes(32).toString('hex'),
       prevRepItemHash: crypto.randomBytes(32).toString('hex'),
       hashIdNode: uuidv1(),
