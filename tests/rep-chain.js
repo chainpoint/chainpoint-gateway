@@ -163,7 +163,7 @@ describe('Reputation Chain Methods', () => {
       let hash = repChain.calculateReputationItemHash(repItemSample)
       expect(hash)
         .to.be.a('string')
-        .and.to.equal('aee3c63d9f9bbf389181f4e81b36d26bb4d2497dd4e763bf05442a3f2bfb1370')
+        .and.to.equal('c9ee7f0b005eb6ef26dc09eb1c99f0402ef2fdb3acd214634e8b70a21bcab465')
     })
   })
 
@@ -201,7 +201,7 @@ describe('Reputation Chain Methods', () => {
     let hintTime = new Date().toISOString()
     let saveId, saveProof, saveItem
     let data = { data: 0 }
-    let repItemHash = 'aee3c63d9f9bbf389181f4e81b36d26bb4d2497dd4e763bf05442a3f2bfb1370'
+    let repItemHash = 'c9ee7f0b005eb6ef26dc09eb1c99f0402ef2fdb3acd214634e8b70a21bcab465'
     before(() => {
       repChain.setCores({
         getLatestCalBlockInfoAsync: () => {
