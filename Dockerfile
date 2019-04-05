@@ -39,10 +39,12 @@ COPY ./lib/endpoints/*.js /home/node/app/lib/endpoints/
 RUN mkdir -p /home/node/app/lib/models
 COPY ./lib/models/*.js /home/node/app/lib/models/
 
+ADD scripts /home/node/app/scripts
+
 RUN mkdir -p /home/node/app/rocksdb
 
 EXPOSE 8080
 
 ENTRYPOINT ["gosu", "node:node", "/tini", "--"]
 
-CMD ["yarn", "start"]
+CMD ["/bin/bash", "-c", "/home/node/app/scripts/run.sh"]
