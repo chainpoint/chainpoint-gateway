@@ -1,0 +1,26 @@
+
+version: '2.1'
+
+networks:
+  chainpoint-node:
+    driver: bridge
+
+services:
+
+  chainpoint-node:
+    restart: on-failure
+    volumes:
+      - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
+      - ./keys:/home/node/app/keys
+      - ./.data/rocksdb:/home/node/app/.data/rocksdb
+    build: .
+    ports:
+      - "9090:8080"
+    networks:
+      - chainpoint-node
+    environment:
+      NODE_ETH_ADDRESS: "${NODE_ETH_ADDRESS}"
+      NODE_ETH_PRIVATE_KEY: "${NODE_ETH_PRIVATE_KEY}"
+      CHAINPOINT_NODE_PUBLIC_URI: "${CHAINPOINT_NODE_PUBLIC_URI:-http://0.0.0.0}"
+      CHAINPOINT_CORE_API_BASE_URI: "${CHAINPOINT_CORE_API_BASE_URI:-http://0.0.0.0}"
+      CHAINPOINT_NODE_UI_PASSWORD: "${CHAINPOINT_NODE_UI_PASSWORD:-empty}"
