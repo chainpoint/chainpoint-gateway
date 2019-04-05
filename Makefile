@@ -10,7 +10,7 @@ ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 # Specify the binary dependencies
 REQUIRED_BINS := docker docker-compose gcloud
 $(foreach bin,$(REQUIRED_BINS),\
-    $(if $(shell command -v $(bin) 2> /dev/null),$(),$(error Please install `$(bin)` first!)))
+	$(if $(shell command -v $(bin) 2> /dev/null),$(),$(error Please install `$(bin)` first!)))
 
 .PHONY : help
 help : Makefile
@@ -44,16 +44,15 @@ restart: down up
 .PHONY : build
 build:
 	docker build -t chainpoint-node .
-	docker tag chainpoint-node gcr.io/chainpoint-registry/github-chainpoint-chainpoint-ntpd
+	docker tag chainpoint-node gcr.io/chainpoint-registry/github-chainpoint-chainpoint-node-src:latest
 	docker container prune -f
-	docker-compose build
 
 ## build-config    : Copy the .env config from .env.sample
 .PHONY : build-config
 build-config:
 	@[ ! -f ./.env ] && \
-	cp .env.sample .env && \
-	echo 'Copied config .env.sample to .env' || true
+		cp .env.sample .env && \
+		echo 'Copied config .env.sample to .env' || true
 
 ## build-rocksdb   : Ensure the RocksDB data dir exists
 .PHONY : build-rocksdb
@@ -73,4 +72,34 @@ git-pull:
 ## upgrade         : Same as `make down && git pull && make up`
 .PHONY : upgrade
 upgrade: down git-pull up
+
+## init						: Bring up yarn, swarm, and generate secrets
+init: init-yarn init-swarm init-secrets
+
+## init-yarn				: Initialize dependencies
+init-yarn:
+	@yarn
+
+## init-swarm               : Initialize a docker swarm
+.PHONY : init-swarm
+init-swarm:
+	@docker swarm init || echo "Swarm already initialized"
+
+## init-secrets             : Generate necessary secrets
+.PHONY : init-secrets
+init-secrets:
+	scripts/generate_eth_account.sh
+
+## rm-secrets               : Remove secrets 
+.PHONY : rm-secrets
+rm-secrets:
+	scripts/remove_eth_account.sh
+
+## deploy					: deploys a swarm stack
+deploy:
+	docker stack deploy -c swarm-compose.yaml chainpoint-node
+
+## stop						: removes a swarm stack
+stop:
+	docker stack rm chainpoint-node
 

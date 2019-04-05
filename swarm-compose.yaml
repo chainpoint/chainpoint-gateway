@@ -1,9 +1,13 @@
-
-version: '2.1'
+version: '3.7'
 
 networks:
   chainpoint-node:
-    driver: bridge
+
+secrets:
+  NODE_ETH_ADDRESS:
+    external: true
+  NODE_ETH_PRIVATE_KEY:
+    external: true
 
 services:
 
@@ -13,6 +17,7 @@ services:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ./keys:/home/node/app/keys
       - ./.data/rocksdb:/home/node/app/.data/rocksdb
+    image: gcr.io/chainpoint-registry/github-chainpoint-chainpoint-node-src:latest
     build: .
     ports:
       - "80:80"
@@ -20,8 +25,11 @@ services:
     networks:
       - chainpoint-node
     environment:
-      NODE_ETH_ADDRESS: "${NODE_ETH_ADDRESS}"
-      NODE_ETH_PRIVATE_KEY: "${NODE_ETH_PRIVATE_KEY}"
+      NODE_ETH_ADDRESS: DOCKER-SECRET->NODE_ETH_ADDRESS
+      NODE_ETH_PRIVATE_KEY: DOCKER-SECRET->NODE_ETH_PRIVATE_KEY
       CHAINPOINT_NODE_PUBLIC_URI: "${CHAINPOINT_NODE_PUBLIC_URI:-http://0.0.0.0}"
       CHAINPOINT_CORE_API_BASE_URI: "${CHAINPOINT_CORE_API_BASE_URI:-http://0.0.0.0}"
       CHAINPOINT_NODE_UI_PASSWORD: "${CHAINPOINT_NODE_UI_PASSWORD:-empty}"
+    secrets:
+      - NODE_ETH_ADDRESS
+      - NODE_ETH_PRIVATE_KEY
