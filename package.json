@@ -82,6 +82,7 @@
     "uuid": "^3.3.2",
     "uuid-time": "^1.0.0",
     "uuid-validate": "^0.0.3",
-    "validator": "^10.11.0"
+    "validator": "^10.11.0",
+    "web3": "^1.0.0-beta.52"
   }
 }

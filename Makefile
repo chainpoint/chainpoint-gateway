@@ -90,6 +90,14 @@ init-swarm:
 init-secrets:
 	node cli/init.js
 
+## stake					: Stake Node to Chainpoint Network
+stake: node-stake
+
+## node-stake             : Stake Node
+.PHONY : node-stake
+node-stake:
+	node cli/stake.js
+
 ## rm-secrets               : Remove secrets
 .PHONY : rm-secrets
 rm-secrets:
