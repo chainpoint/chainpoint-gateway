@@ -63,6 +63,7 @@
     "ip": "^1.1.5",
     "jmespath": "^0.15.0",
     "js-binary": "^1.2.0",
+    "jsonwebtoken": "^8.5.1",
     "level-rocksdb": "^3.0.1",
     "lodash": "^4.17.11",
     "merkle-tools": "^1.4.0",

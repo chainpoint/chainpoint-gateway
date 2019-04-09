@@ -23,6 +23,7 @@ const utils = require('./lib/utils.js')
 const cachedProofs = require('./lib/cached-proofs.js')
 const cores = require('./lib/cores.js')
 const repChain = require('./lib/rep-chain.js')
+const usageToken = require('./lib/usage-token.js')
 
 // establish a connection with the database
 async function openStorageConnectionAsync() {
@@ -47,9 +48,12 @@ async function startAsync() {
       utils.validateReflectedUri(env.CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE)
     }
 
-    // TODO:  Replace commented code below with code for new registration model
-    // let hmacKey = await registerNodeAsync(nodeUri)
-    // apiServer.setHmacKey(hmacKey)
+    // get the active JWT usage token, refesh/acquire as needed, report any errors on startup
+    try {
+      await usageToken.getActiveUsageTokenAsync()
+    } catch (err) {
+      console.log(`WARN : Usage Token : ${err.message}`)
+    }
 
     await eventMetrics.loadMetricsAsync()
     await apiServer.startAsync()
