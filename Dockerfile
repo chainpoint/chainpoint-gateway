@@ -47,4 +47,4 @@ EXPOSE 8080
 
 ENTRYPOINT ["gosu", "node:node", "/tini", "--"]
 
-CMD ["/bin/bash", "-c", "/home/node/app/scripts/run.sh"]
+CMD ["/bin/bash", "-c", "/home/node/app/cli/run.sh"]

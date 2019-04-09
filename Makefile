@@ -88,12 +88,12 @@ init-swarm:
 ## init-secrets             : Generate necessary secrets
 .PHONY : init-secrets
 init-secrets:
-	scripts/generate_eth_account.sh
+	node cli/init.js
 
-## rm-secrets               : Remove secrets 
+## rm-secrets               : Remove secrets
 .PHONY : rm-secrets
 rm-secrets:
-	scripts/remove_eth_account.sh
+	cli/scripts/remove_eth_account.sh
 
 ## deploy					: deploys a swarm stack
 deploy:
