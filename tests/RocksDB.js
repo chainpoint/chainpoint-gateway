@@ -321,6 +321,15 @@ describe('RocksDB Methods', () => {
     })
   })
 
+  describe('Usage Token Functions', () => {
+    it('should return the same value that was inserted', async () => {
+      let token = 'token'
+      await rocksDB.setUsageTokenAsync(token)
+      let storedValue = await rocksDB.getUsageTokenAsync()
+      expect(storedValue).to.equal(token)
+    })
+  })
+
   describe('Other Functions', () => {
     it('hexToUUIDv1 should return null with invalid hex value', done => {
       let result = rocksDB.hexToUUIDv1('deadbeefcafe')
