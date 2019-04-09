@@ -673,4 +673,32 @@ describe('Cores Methods', () => {
       expect(cacheResult.a.expiresAt).to.be.a('number')
     })
   })
+
+  describe('refreshUsageTokenAsync', () => {
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setRP(async () => {
+        return null
+      })
+    })
+    it('should return null with no response/bad response', async () => {
+      let response = await cores.refreshUsageTokenAsync('token')
+      expect(response).to.equal(null)
+    })
+  })
+
+  describe('refreshUsageTokenAsync', () => {
+    let token = 'token'
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setRP(async () => {
+        return { body: { token: token } }
+      })
+    })
+    it('should return token on success', async () => {
+      let response = await cores.refreshUsageTokenAsync('token')
+      expect(response).to.be.a('string')
+      expect(response).to.equal(token)
+    })
+  })
 })
