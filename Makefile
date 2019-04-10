@@ -105,7 +105,7 @@ rm-secrets:
 
 ## deploy					: deploys a swarm stack
 deploy:
-	docker stack deploy -c swarm-compose.yaml chainpoint-node
+	set -a && source .env && set +a && docker stack deploy -c swarm-compose.yaml chainpoint-node
 
 ## stop						: removes a swarm stack
 stop:
