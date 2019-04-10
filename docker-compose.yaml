@@ -15,8 +15,8 @@ services:
       - ./.data/rocksdb:/home/node/app/.data/rocksdb
     build: .
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "8080:8080"
+      - "8443:8443"
     networks:
       - chainpoint-node
     environment:

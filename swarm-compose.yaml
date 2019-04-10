@@ -20,8 +20,8 @@ services:
     image: gcr.io/chainpoint-registry/github-chainpoint-chainpoint-node-src:latest
     build: .
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "8080:8080"
+      - "8443:8443"
     networks:
       - chainpoint-node
     environment:
