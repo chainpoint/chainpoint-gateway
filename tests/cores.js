@@ -707,7 +707,7 @@ describe('Cores Methods', () => {
     })
   })
 
-  describe('getETHStatsAsync', () => {
+  describe('getETHStatsByAddressAsync', () => {
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1'])
       cores.setRP(async () => {
@@ -717,15 +717,15 @@ describe('Cores Methods', () => {
     it('should return null with no response/bad response', async () => {
       let errResponse = null
       try {
-        await cores.getETHStatsAsync('nodeAddr')
+        await cores.getETHStatsByAddressAsync('nodeAddr')
       } catch (err) {
         errResponse = err
       }
-      expect(errResponse.message).to.equal('Invalid response on GET /ethstats/{address}')
+      expect(errResponse.message).to.equal('Invalid response on GET /eth/{address}/stats')
     })
   })
 
-  describe('getETHStatsAsync', () => {
+  describe('getETHStatsByAddressAsync', () => {
     let nodeAddr = '0x41Be343B94f860124dC4fEe278FDCBD38C102D88'
     let stats = { creditPrice: 1000, gasPrice: 20000, nonce: 127 }
     before(() => {
@@ -735,7 +735,7 @@ describe('Cores Methods', () => {
       })
     })
     it('should return object on success', async () => {
-      let response = await cores.getETHStatsAsync(nodeAddr)
+      let response = await cores.getETHStatsByAddressAsync(nodeAddr)
       expect(response).to.be.a('object')
       expect(response).to.deep.equal(stats)
     })
