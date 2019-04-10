@@ -91,11 +91,11 @@ init-secrets:
 	node cli/init.js
 
 ## stake					: Stake Node to Chainpoint Network
-stake: node-stake
+register: node-registration
 
 ## node-stake             : Stake Node
-.PHONY : node-stake
-node-stake:
+.PHONY : node-registration
+node-registration:
 	node cli/stake.js
 
 ## rm-secrets               : Remove secrets
@@ -111,3 +111,5 @@ deploy:
 stop:
 	docker stack rm chainpoint-node
 
+%:      # Enables support for cli arguments used in commands like "make stake"
+    @:

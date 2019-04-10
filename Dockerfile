@@ -39,7 +39,7 @@ COPY ./lib/endpoints/*.js /home/node/app/lib/endpoints/
 RUN mkdir -p /home/node/app/lib/models
 COPY ./lib/models/*.js /home/node/app/lib/models/
 
-ADD scripts /home/node/app/scripts
+ADD cli /home/node/app/cli
 
 RUN mkdir -p /home/node/app/rocksdb
 
