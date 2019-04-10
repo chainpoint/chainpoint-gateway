@@ -96,7 +96,7 @@ register: node-registration
 ## node-stake             : Stake Node
 .PHONY : node-registration
 node-registration:
-	node cli/stake.js
+	node cli/register.js
 
 ## rm-secrets               : Remove secrets
 .PHONY : rm-secrets
