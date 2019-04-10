@@ -10,7 +10,7 @@ const updateOrCreateEnv = require('./scripts/1_update_env')
 async function main() {
   cliHelloLogger()
 
-  console.log(fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_ADDRESS', 'utf-8')))
+  console.log(fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_ADDRESS'), 'utf-8'))
 
   console.log(chalk.bold.yellow('Stake your Node:'))
 
