@@ -3,7 +3,7 @@ const path = require('path')
 // const chalk = require('chalk')
 const { pipeP } = require('ramda')
 const ethers = require('ethers')
-const { getETHStatsByAddressAsync } = require('../../lib/cores')
+const { getETHStatsByAddressAsync, broadcastEthTxAsync } = require('../../lib/cores')
 // const tap = require('./utils/tap')
 
 // const ChainpointRegistryABI = require('../../artifacts/ethcontracts/ChainpointRegistry.json').abi
@@ -44,5 +44,6 @@ async function register() {
 module.exports.register = register
 module.exports.approve = pipeP(
   getETHStatsByAddressAsync.bind(null, wallet.address),
-  approve
+  approve,
+  broadcastEthTxAsync
 )
