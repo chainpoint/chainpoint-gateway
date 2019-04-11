@@ -65,6 +65,7 @@
     "executive": "^1.6.3",
     "inquirer": "^6.2.2",
     "ip": "^1.1.5",
+    "ip-to-int": "^0.3.1",
     "jmespath": "^0.15.0",
     "js-binary": "^1.2.0",
     "jsonwebtoken": "^8.5.1",

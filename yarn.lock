@@ -2124,6 +2124,10 @@ ip-regex@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/ip-regex/-/ip-regex-3.0.0.tgz#0a934694b4066558c46294244a23cc33116bf732"
 
+ip-to-int@^0.3.1:
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/ip-to-int/-/ip-to-int-0.3.1.tgz#4eb315c2d0e604010047515db499e38b1fb3ef40"
+
 ip@^1.1.5:
   version "1.1.5"
   resolved "https://registry.yarnpkg.com/ip/-/ip-1.1.5.tgz#bdded70114290828c0a039e72ef25f5aaec4354a"
