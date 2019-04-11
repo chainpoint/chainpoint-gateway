@@ -17,18 +17,21 @@ services:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ./keys:/home/node/app/keys
       - ./.data/rocksdb:/home/node/app/.data/rocksdb
-    image: gcr.io/chainpoint-registry/github-chainpoint-chainpoint-node-src:latest
+    image: gcr.io/chainpoint-registry/github-chainpoint-chainpoint-node-src:e287aaf56f5a0cf628dd04fbcc7561e17118b2d2
     build: .
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:8080"
+      - "8443:8443"
     networks:
       - chainpoint-node
     environment:
+      HTTP_PORT: "${HTTP_PORT:-8080}"
+      HTTPS_PORT: "${HTTPS_PORT:-8443}"
       NODE_ETH_ADDRESS: DOCKER-SECRET->NODE_ETH_ADDRESS
       NODE_ETH_PRIVATE_KEY: DOCKER-SECRET->NODE_ETH_PRIVATE_KEY
       CHAINPOINT_NODE_PUBLIC_URI: "${CHAINPOINT_NODE_PUBLIC_URI:-http://0.0.0.0}"
-      CHAINPOINT_CORE_API_BASE_URI: "${CHAINPOINT_CORE_API_BASE_URI:-http://0.0.0.0}"
+      CHAINPOINT_CORE_API_BASE_URI: "${CHAINPOINT_CORE_API_BASE_URI:-http://35.245.211.97}"
+      CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST:-http://35.245.211.97}"
       CHAINPOINT_NODE_UI_PASSWORD: "${CHAINPOINT_NODE_UI_PASSWORD:-empty}"
     secrets:
       - NODE_ETH_ADDRESS

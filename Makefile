@@ -88,18 +88,28 @@ init-swarm:
 ## init-secrets             : Generate necessary secrets
 .PHONY : init-secrets
 init-secrets:
-	scripts/generate_eth_account.sh
+	node cli/init.js
 
-## rm-secrets               : Remove secrets 
+## stake					: Stake Node to Chainpoint Network
+register: node-registration
+
+## node-stake             : Stake Node
+.PHONY : node-registration
+node-registration:
+	node cli/register.js
+
+## rm-secrets               : Remove secrets
 .PHONY : rm-secrets
 rm-secrets:
-	scripts/remove_eth_account.sh
+	cli/scripts/remove_eth_account.sh
 
 ## deploy					: deploys a swarm stack
 deploy:
-	docker stack deploy -c swarm-compose.yaml chainpoint-node
+	set -a && source .env && set +a && docker stack deploy -c swarm-compose.yaml chainpoint-node
 
 ## stop						: removes a swarm stack
 stop:
 	docker stack rm chainpoint-node
 
+%:      # Enables support for cli arguments used in commands like "make stake"
+    @:
