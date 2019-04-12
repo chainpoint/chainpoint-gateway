@@ -15,7 +15,7 @@ async function main() {
   console.log(chalk.bold.yellow('Stake your Node:'))
 
   try {
-    await pipeP(
+    let registrationParams = await pipeP(
       () =>
         inquirer.prompt([
           stakingQuestions['NODE_ETH_REWARDS_ADDRESS'],
@@ -29,7 +29,7 @@ async function main() {
     )()
 
     console.log(chalk.green('\n===================================='))
-    console.log(chalk.green('==   SUCCESSFULLY STAKED NODE!    =='))
+    console.log(chalk.green(registrationParams, '==   SUCCESSFULLY STAKED NODE!    =='))
     console.log(chalk.green('====================================', '\n'))
   } catch (error) {
     console.log(chalk.red('Failed to Stake Node to Chainpoint Network. Please try again.'))
