@@ -6,8 +6,6 @@ async function updateOrCreateEnv(valuePairs) {
     let env = envfile.parseFileSync('.env')
 
     fs.writeFileSync('.env', envfile.stringifySync(Object.assign({}, env, valuePairs)))
-
-    return Promise.resolve()
   } else {
     // .env has yet to be created, create from .env.sample
     let env = envfile.parseFileSync('.env.sample')

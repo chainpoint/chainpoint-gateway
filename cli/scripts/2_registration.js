@@ -11,7 +11,7 @@ const TierionNetworkTokenABI = require('../../artifacts/ethcontracts/TierionNetw
 const tokenAddress = fs.readFileSync(path.resolve(__dirname, '../../artifacts/ethcontracts/token.txt'), 'utf8')
 const registryAddress = fs.readFileSync(path.resolve(__dirname, '../../artifacts/ethcontracts/registry.txt'), 'utf8')
 const chainId = fs.readFileSync(path.resolve(__dirname, '../../artifacts/ethcontracts/chainId.txt'), 'utf8')
-const privateKey = fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_PRIVATE_KEY', 'utf8'))
+const privateKey = fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_PRIVATE_KEY'), 'utf8')
 
 const wallet = new ethers.Wallet(privateKey)
 const tokenContract = web3.eth.Contract(TierionNetworkTokenABI, tokenAddress)
@@ -26,7 +26,7 @@ async function approve(txData) {
     data: funcSigEncoded,
     to: tokenAddress,
     nonce: txData.nonce,
-    chainId
+    chainId: parseInt(chainId, 10)
   }
 
   return wallet.sign(tx)
@@ -44,9 +44,9 @@ async function register([txData, registrationParams]) {
     gasPrice: txData.gasPrice,
     gasLimit: 185000,
     data: funcSigEncoded,
-    to: tokenAddress,
+    to: registryAddress,
     nonce: txData.nonce,
-    chainId
+    chainId: parseInt(chainId, 10)
   }
 
   return wallet.sign(tx)
