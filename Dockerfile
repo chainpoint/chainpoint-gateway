@@ -46,8 +46,6 @@ ADD cli /home/node/app/cli
 
 RUN mkdir -p /home/node/app/rocksdb
 
-EXPOSE 8080
-
-ENTRYPOINT ["gosu", "node:node", "/tini", "--"]
+EXPOSE 80
 
 CMD ["/bin/bash", "-c", "/home/node/app/cli/run.sh"]
