@@ -727,7 +727,7 @@ describe('Cores Methods', () => {
 
   describe('getETHStatsByAddressAsync', () => {
     let nodeAddr = '0x41Be343B94f860124dC4fEe278FDCBD38C102D88'
-    let stats = { creditPrice: 1000, gasPrice: 20000, nonce: 127 }
+    let stats = { creditPrice: 1000, gasPrice: 20000, transactionCount: 127 }
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1'])
       cores.setRP(async () => {
