@@ -11,7 +11,6 @@ services:
     restart: on-failure
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
-      - ./keys:/home/node/app/keys
       - ./.data/rocksdb:/home/node/app/.data/rocksdb
     build: .
     ports:

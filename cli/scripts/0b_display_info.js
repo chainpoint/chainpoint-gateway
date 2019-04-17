@@ -12,7 +12,7 @@ async function displayWalletInfo(wallet) {
     chalk.white(
       `  a) PLEASE SEND 5000 TNT TO YOUR NEW ADDRESS (${chalk.bold.gray(
         wallet.address
-      )}) IN ORDER TO STAKE, THEN RUN "make stake"\n`
+      )}) IN ORDER TO REGISTER, THEN RUN "make register"\n`
     )
   )
 }
