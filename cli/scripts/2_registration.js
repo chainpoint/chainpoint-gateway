@@ -34,10 +34,7 @@ async function approve(txData) {
 
 async function register([txData, registrationParams]) {
   const funcSigEncoded = registryContract.methods
-    .stake(
-      ipToInt(registrationParams.NODE_PUBLIC_IP_ADDRESS).toInt(),
-      '0x48656c6c6f20576f726c64210000000000000000000000000000000000000000' // TODO: don't hardcode
-    )
+    .stake(ipToInt(registrationParams.NODE_PUBLIC_IP_ADDRESS).toInt(), registrationParams.NODE_ETH_REWARDS_ADDRESS)
     .encodeABI()
 
   const tx = {

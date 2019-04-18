@@ -32,10 +32,6 @@ async function main() {
       // TODO: /eth/broadcast
     )()
 
-    console.log('====================================')
-    console.log(registrationParams, 'A')
-    console.log('====================================')
-
     // Create & broadcast `approve()` Tx
     let approveResult = await pipeP(
       getETHStatsByAddressAsync,
@@ -54,7 +50,10 @@ async function main() {
       broadcastEthTxAsync
     )([txData, registrationParams])
 
-    console.log(stakeResult)
+    console.log('====================================')
+    console.log(stakeResult, 'approveResult')
+    console.log('====================================')
+    console.log('\n')
 
     await console.log(chalk.green('\n===================================='))
     console.log(chalk.green('==   SUCCESSFULLY STAKED NODE!    =='))
