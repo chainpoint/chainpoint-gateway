@@ -5,7 +5,8 @@ async function createDockerSecrets(wallet) {
   try {
     await exec.quiet([
       `printf ${wallet.address} | docker secret create NODE_ETH_ADDRESS -`,
-      `printf ${wallet.privateKey} | docker secret create NODE_ETH_PRIVATE_KEY -`
+      `printf ${wallet.privateKey} | docker secret create NODE_ETH_PRIVATE_KEY -`,
+      `echo ${wallet.address} > eth-address.txt`
     ])
 
     return wallet

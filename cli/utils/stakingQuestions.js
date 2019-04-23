@@ -1,5 +1,6 @@
 const Web3 = require('web3')
 const validator = require('validator')
+const { isEmpty } = require('lodash')
 
 const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8546', null, {})
 
@@ -20,7 +21,8 @@ module.exports = {
       } else {
         return true
       }
-    }
+    },
+    externalValidate: input => !isEmpty(input) && validator.isIP(input, 4)
   },
   AUTO_REFILL_ENABLED: {
     type: 'list',
@@ -36,6 +38,12 @@ module.exports = {
         value: false
       }
     ],
+    validate: input => {
+      if (isEmpty(input)) return false
+
+      if (input === true || input === 'true') return true
+      else return false
+    },
     default: true
   },
   AUTO_REFILL_AMOUNT: {
@@ -44,7 +52,7 @@ module.exports = {
     message: 'Enter Auto Refill Amount - specify in number of Credits (optional: specify if auto refill is enabled)',
     default: 720,
     validate: (val, answers) => {
-      if (answers['AUTO_REFILL_ENABLED'] == true) {
+      if (answers['AUTO_REFILL_ENABLED'] == true || answers['AUTO_REFILL_ENABLED'] == 'true') {
         return val >= 1 && val <= 8760
       } else {
         return val >= 0 && val <= 8760

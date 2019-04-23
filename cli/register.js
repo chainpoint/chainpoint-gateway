@@ -1,6 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const chalk = require('chalk')
+const { isEmpty, has } = require('lodash')
 const { pipeP } = require('ramda')
 const inquirer = require('inquirer')
 const cliHelloLogger = require('./utils/cliHelloLogger')
@@ -10,6 +11,24 @@ const { approve, register } = require('./scripts/2_registration')
 const { connectAsync, getETHStatsByAddressAsync, broadcastEthTxAsync } = require('../lib/cores')
 
 const ethAddress = fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_ADDRESS'), 'utf8')
+
+const args = process.argv
+  .slice(2)
+  .map(currVal => {
+    let kv = currVal.split('=')
+
+    return { [kv[0]]: kv[1] }
+  })
+  .filter(currVal => !isEmpty(currVal[Object.keys(currVal)[0]]))
+  .reduce((acc, currVal) => {
+    return Object.assign({}, acc, currVal)
+  }, {})
+
+const joinArgs = (function(args = {}) {
+  return function(valuePairs) {
+    return Promise.resolve(Object.assign({}, args, valuePairs))
+  }
+})(args)
 
 async function main() {
   cliHelloLogger()
@@ -21,12 +40,12 @@ async function main() {
   try {
     let registrationParams = await pipeP(
       () =>
-        inquirer.prompt([
-          stakingQuestions['NODE_ETH_REWARDS_ADDRESS'],
-          stakingQuestions['NODE_PUBLIC_IP_ADDRESS'],
-          stakingQuestions['AUTO_REFILL_ENABLED'],
-          stakingQuestions['AUTO_REFILL_AMOUNT']
-        ]),
+        inquirer.prompt(
+          ['NODE_ETH_REWARDS_ADDRESS', 'NODE_PUBLIC_IP_ADDRESS', 'AUTO_REFILL_ENABLED', 'AUTO_REFILL_AMOUNT']
+            .filter(currVal => !has(args, currVal))
+            .map(q => stakingQuestions[q])
+        ),
+      joinArgs,
       updateOrCreateEnv
       // TODO: /eth/:addr/txdata
       // TODO: /eth/broadcast
@@ -59,7 +78,7 @@ async function main() {
     console.log(chalk.green('==   SUCCESSFULLY STAKED NODE!    =='))
     console.log(chalk.green('====================================', '\n'))
   } catch (error) {
-    console.log(chalk.red('Failed to Stake Node to Chainpoint Network. Please try again.' + error.message))
+    console.log(chalk.red('Failed to Stake Node to Chainpoint Network. Please try again. ' + error.message))
   }
 }
 
