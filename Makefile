@@ -68,6 +68,7 @@ pull:
 .PHONY : git-pull
 git-pull:
 	@git pull --all
+	@git submodule update --init --remote --recursive
 
 ## upgrade         : Same as `make down && git pull && make up`
 .PHONY : upgrade
