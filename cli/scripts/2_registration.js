@@ -6,11 +6,14 @@ const ipToInt = require('ip-to-int')
 
 const web3 = new Web3(new Web3.providers.HttpProvider(`https://ropsten.infura.io/v3/foobar`))
 
-const ChainpointRegistryABI = require('../../artifacts/ethcontracts/ChainpointRegistry.json').abi
-const TierionNetworkTokenABI = require('../../artifacts/ethcontracts/TierionNetworkToken.json').abi
-const tokenAddress = fs.readFileSync(path.resolve(__dirname, '../../artifacts/ethcontracts/token.txt'), 'utf8')
-const registryAddress = fs.readFileSync(path.resolve(__dirname, '../../artifacts/ethcontracts/registry.txt'), 'utf8')
-const chainId = fs.readFileSync(path.resolve(__dirname, '../../artifacts/ethcontracts/chainId.txt'), 'utf8')
+let tknDefinition = require('../../artifacts/ethcontracts/TierionNetworkToken.json')
+let regDefinition = require('../../artifacts/ethcontracts/ChainpointRegistry.json')
+
+const TierionNetworkTokenABI = tknDefinition.abi
+const ChainpointRegistryABI = regDefinition.abi
+const tokenAddress = tknDefinition.networks['3'].address
+const registryAddress = regDefinition.networks['3'].address
+const chainId = 3
 const privateKey = fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_PRIVATE_KEY'), 'utf8')
 
 const wallet = new ethers.Wallet(privateKey)
