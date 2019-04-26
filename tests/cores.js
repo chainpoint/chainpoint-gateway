@@ -763,7 +763,7 @@ describe('Cores Methods', () => {
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1'])
       cores.setRP(async () => {
-        return { body: { usageToken: 'usagetokencontent' } }
+        return { body: { token: 'usagetokencontent' } }
       })
     })
     it('should return token string on success', async () => {
