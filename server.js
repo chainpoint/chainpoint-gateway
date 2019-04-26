@@ -76,7 +76,8 @@ async function startAsync() {
     // start the interval processes for saving event metrics data
     eventMetrics.startPersistDataInterval()
 
-    // start the reputation chain generation process with current API ports
+    // start the reputation chain generation process
+    repChain.generateReputationEntryAsync()
     repChain.startRepInterval()
 
     console.log(`INFO : App : Startup : Complete`)
