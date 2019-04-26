@@ -23,6 +23,8 @@ const registryContract = web3.eth.Contract(ChainpointRegistryABI, registryAddres
 async function approve(txData) {
   const funcSigEncoded = tokenContract.methods.approve(registryAddress, 500000000000).encodeABI()
 
+  console.log(JSON.stringify(txData), 'approve txData')
+
   const tx = {
     gasPrice: txData.gasPrice,
     gasLimit: 185000,
@@ -39,6 +41,8 @@ async function register([txData, registrationParams]) {
   const funcSigEncoded = registryContract.methods
     .stake(ipToInt(registrationParams.NODE_PUBLIC_IP_ADDRESS).toInt(), registrationParams.NODE_ETH_REWARDS_ADDRESS)
     .encodeABI()
+
+  console.log(JSON.stringify(txData), 'register txData')
 
   const tx = {
     gasPrice: txData.gasPrice,
