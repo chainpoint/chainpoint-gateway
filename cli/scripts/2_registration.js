@@ -30,7 +30,7 @@ async function approve(txData) {
     gasLimit: 185000,
     data: funcSigEncoded,
     to: tokenAddress,
-    nonce: txData.nonce,
+    nonce: txData.transactionCount,
     chainId: parseInt(chainId, 10)
   }
 
@@ -49,7 +49,7 @@ async function register([txData, registrationParams]) {
     gasLimit: 185000,
     data: funcSigEncoded,
     to: registryAddress,
-    nonce: txData.nonce,
+    nonce: txData.transactionCount,
     chainId: parseInt(chainId, 10)
   }
 
