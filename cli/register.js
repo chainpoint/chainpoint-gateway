@@ -70,7 +70,7 @@ async function main() {
     )([txData, registrationParams])
 
     console.log(chalk.green('\n======================================'))
-    console.log(chalk.green('==   SUCCESSFULLY REGISTEREX NODE!    =='))
+    console.log(chalk.green('==   SUCCESSFULLY REGISTERED NODE!  =='))
     console.log(chalk.green('======================================', '\n'))
   } catch (error) {
     console.log(chalk.red('Failed to Stake Node to Chainpoint Network. Please try again. ' + error.message))
