@@ -95,6 +95,10 @@ init-secrets:
 register:
 	docker exec -ti `docker ps -q` bash -c "source cli/scripts/env_secrets_expand.sh && node cli/register.js NODE_ETH_REWARDS_ADDRESS=$(NODE_ETH_REWARDS_ADDRESS) NODE_PUBLIC_IP_ADDRESS=$(NODE_PUBLIC_IP_ADDRESS) AUTO_REFILL_ENABLED=$(AUTO_REFILL_ENABLED) AUTO_REFILL_AMOUNT=$(AUTO_REFILL_AMOUNT)"
 
+## De-Register					: De-Register Node to Chainpoint Network
+deregister:
+	docker exec -ti `docker ps -q` bash -c "source cli/scripts/env_secrets_expand.sh && node cli/deregister.js"
+
 ## rm-secrets               : Remove secrets
 .PHONY : rm-secrets
 rm-secrets:

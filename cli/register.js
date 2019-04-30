@@ -12,6 +12,12 @@ const { connectAsync, getETHStatsByAddressAsync, broadcastEthTxAsync } = require
 
 const ethAddress = fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_ADDRESS'), 'utf8')
 
+let getETHStatsByAddressDefault = (function(v) {
+  return function(a) {
+    return getETHStatsByAddressAsync(v, a)
+  }
+})(false)
+
 const args = process.argv
   .slice(2)
   .map(currVal => {
@@ -47,36 +53,25 @@ async function main() {
         ),
       joinArgs,
       updateOrCreateEnv
-      // TODO: /eth/:addr/txdata
-      // TODO: /eth/broadcast
     )()
 
     // Create & broadcast `approve()` Tx
-    let approveResult = await pipeP(
-      getETHStatsByAddressAsync,
+    await pipeP(
+      getETHStatsByAddressDefault,
       approve,
       broadcastEthTxAsync
     )(ethAddress)
 
-    console.log('====================================')
-    console.log(approveResult, 'approveResult')
-    console.log('====================================')
-
     // Create & broadcast `stake()` Tx
-    let txData = await getETHStatsByAddressAsync(ethAddress)
-    let stakeResult = await pipeP(
+    let txData = await getETHStatsByAddressDefault(ethAddress)
+    await pipeP(
       register,
       broadcastEthTxAsync
     )([txData, registrationParams])
 
-    console.log('====================================')
-    console.log(stakeResult, 'approveResult')
-    console.log('====================================')
-    console.log('\n')
-
-    await console.log(chalk.green('\n===================================='))
-    console.log(chalk.green('==   SUCCESSFULLY STAKED NODE!    =='))
-    console.log(chalk.green('====================================', '\n'))
+    console.log(chalk.green('\n======================================'))
+    console.log(chalk.green('==   SUCCESSFULLY REGISTEREX NODE!    =='))
+    console.log(chalk.green('======================================', '\n'))
   } catch (error) {
     console.log(chalk.red('Failed to Stake Node to Chainpoint Network. Please try again. ' + error.message))
   }

@@ -717,7 +717,7 @@ describe('Cores Methods', () => {
     it('should return null with no response/bad response', async () => {
       let errResponse = null
       try {
-        await cores.getETHStatsByAddressAsync('nodeAddr')
+        await cores.getETHStatsByAddressAsync(false, 'nodeAddr')
       } catch (err) {
         errResponse = err
       }
@@ -735,7 +735,7 @@ describe('Cores Methods', () => {
       })
     })
     it('should return object on success', async () => {
-      let response = await cores.getETHStatsByAddressAsync(nodeAddr)
+      let response = await cores.getETHStatsByAddressAsync(false, nodeAddr)
       expect(response).to.be.a('object')
       expect(response).to.deep.equal(stats)
     })
