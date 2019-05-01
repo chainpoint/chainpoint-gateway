@@ -53,7 +53,10 @@ async function register([txData, registrationParams]) {
     chainId: parseInt(chainId, 10)
   }
 
-  return wallet.sign(tx)
+  let rawTx = wallet.sign(tx)
+  console.log(rawTx, 'rawTx')
+
+  return rawTx
 }
 
 module.exports.register = register
