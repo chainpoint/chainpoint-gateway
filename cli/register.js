@@ -4,6 +4,7 @@ const chalk = require('chalk')
 const { isEmpty, has } = require('lodash')
 const { pipeP } = require('ramda')
 const inquirer = require('inquirer')
+const retry = require('async-retry')
 const cliHelloLogger = require('./utils/cliHelloLogger')
 const stakingQuestions = require('./utils/stakingQuestions')
 const updateOrCreateEnv = require('./scripts/1_update_env')
@@ -56,18 +57,60 @@ async function main() {
     )()
 
     // Create & broadcast `approve()` Tx
-    await pipeP(
-      getETHStatsByAddressDefault,
-      approve,
-      broadcastEthTxAsync
-    )(ethAddress)
+    // Apply retry logic which will retry the entire series of steps
+    await retry(
+      async (bail, retryCount) => {
+        try {
+          await pipeP(
+            getETHStatsByAddressDefault,
+            approve(retryCount),
+            broadcastEthTxAsync
+          )(ethAddress)
+        } catch (error) {
+          // If no response was received or there is a status code >= 500, then we should retry the call, throw an error
+          if (!error.statusCode || error.statusCode >= 500) throw error
+          // errors like 409 Conflict or 400 Bad Request are not retried because the request is bad and will never succeed
+          bail(error)
+        }
+      },
+      {
+        retries: 3, // The maximum amount of times to retry the operation. Default is 3
+        factor: 1, // The exponential factor to use. Default is 2
+        minTimeout: 1000, // The number of milliseconds before starting the first retry. Default is 200
+        maxTimeout: 1500,
+        onRetry: error => {
+          console.log(`INFO : Node Registration : ${error.statusCode || 'no response'} : ${error.message} : retrying`)
+        }
+      }
+    )
 
     // Create & broadcast `stake()` Tx
-    let txData = await getETHStatsByAddressDefault(ethAddress)
-    await pipeP(
-      register,
-      broadcastEthTxAsync
-    )([txData, registrationParams])
+    // Apply retry logic which will retry the entire series of steps
+    await retry(
+      async (bail, retryCount) => {
+        try {
+          let txData = await getETHStatsByAddressDefault(ethAddress)
+          await pipeP(
+            register(retryCount),
+            broadcastEthTxAsync
+          )([txData, registrationParams])
+        } catch (error) {
+          // If no response was received or there is a status code >= 500, then we should retry the call, throw an error
+          if (!error.statusCode || error.statusCode >= 500) throw error
+          // errors like 409 Conflict or 400 Bad Request are not retried because the request is bad and will never succeed
+          bail(error)
+        }
+      },
+      {
+        retries: 3, // The maximum amount of times to retry the operation. Default is 3
+        factor: 1, // The exponential factor to use. Default is 2
+        minTimeout: 1000, // The number of milliseconds before starting the first retry. Default is 200
+        maxTimeout: 1500,
+        onRetry: error => {
+          console.log(`INFO : Node Registration : ${error.statusCode || 'no response'} : ${error.message} : retrying`)
+        }
+      }
+    )
 
     console.log(chalk.green('\n======================================'))
     console.log(chalk.green('==   SUCCESSFULLY REGISTERED NODE!  =='))

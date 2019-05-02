@@ -126,13 +126,13 @@ describe('Environment variables', () => {
     it('should throw error with number', done => {
       expect(() => {
         parseEnv.valAutoAcquire(0)
-      }).to.throw('The AUTO_ACQUIRE_ENABLED value is invalid')
+      }).to.throw('The AUTO_REFILL_ENABLED value is invalid')
       done()
     })
     it('should throw error with not true/false string', done => {
       expect(() => {
         parseEnv.valAutoAcquire('maybe')
-      }).to.throw('The AUTO_ACQUIRE_ENABLED value is invalid')
+      }).to.throw('The AUTO_REFILL_ENABLED value is invalid')
       done()
     })
     it('should return true on TRUE', done => {

@@ -20,43 +20,47 @@ const wallet = new ethers.Wallet(privateKey)
 const tokenContract = web3.eth.Contract(TierionNetworkTokenABI, tokenAddress)
 const registryContract = web3.eth.Contract(ChainpointRegistryABI, registryAddress)
 
-async function approve(txData) {
-  const funcSigEncoded = tokenContract.methods.approve(registryAddress, 500000000000).encodeABI()
+function approve(retryCount = 1) {
+  return async function(txData) {
+    const funcSigEncoded = tokenContract.methods.approve(registryAddress, 500000000000).encodeABI()
 
-  console.log(JSON.stringify(txData), 'approve txData')
+    console.log(JSON.stringify(txData), 'approve txData')
 
-  const tx = {
-    gasPrice: txData.gasPrice,
-    gasLimit: 185000,
-    data: funcSigEncoded,
-    to: tokenAddress,
-    nonce: txData.transactionCount,
-    chainId: parseInt(chainId, 10)
+    const tx = {
+      gasPrice: txData.gasPrice + (retryCount - 1),
+      gasLimit: 185000,
+      data: funcSigEncoded,
+      to: tokenAddress,
+      nonce: txData.transactionCount,
+      chainId: parseInt(chainId, 10)
+    }
+
+    return wallet.sign(tx)
   }
-
-  return wallet.sign(tx)
 }
 
-async function register([txData, registrationParams]) {
-  const funcSigEncoded = registryContract.methods
-    .stake(ipToInt(registrationParams.NODE_PUBLIC_IP_ADDRESS).toInt(), registrationParams.NODE_ETH_REWARDS_ADDRESS)
-    .encodeABI()
+function register(retryCount = 1) {
+  return async function([txData, registrationParams]) {
+    const funcSigEncoded = registryContract.methods
+      .stake(ipToInt(registrationParams.NODE_PUBLIC_IP_ADDRESS).toInt(), registrationParams.NODE_ETH_REWARDS_ADDRESS)
+      .encodeABI()
 
-  console.log(JSON.stringify(txData), 'register txData')
+    console.log(JSON.stringify(txData), 'register txData')
 
-  const tx = {
-    gasPrice: txData.gasPrice,
-    gasLimit: 185000,
-    data: funcSigEncoded,
-    to: registryAddress,
-    nonce: txData.transactionCount,
-    chainId: parseInt(chainId, 10)
+    const tx = {
+      gasPrice: txData.gasPrice + (retryCount - 1),
+      gasLimit: 185000,
+      data: funcSigEncoded,
+      to: registryAddress,
+      nonce: txData.transactionCount,
+      chainId: parseInt(chainId, 10)
+    }
+
+    let rawTx = await wallet.sign(tx)
+    console.log(rawTx, 'rawTx')
+
+    return rawTx
   }
-
-  let rawTx = wallet.sign(tx)
-  console.log(rawTx, 'rawTx')
-
-  return rawTx
 }
 
 module.exports.register = register

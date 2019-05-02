@@ -106,8 +106,8 @@ describe('Usage Token Methods', () => {
         purchaseCreditsAsync: () => newToken
       })
       usageToken.setENV({
-        AUTO_ACQUIRE_ENABLED: false,
-        AUTO_ACQUIRE_AMOUNT: 100,
+        AUTO_REFILL_ENABLED: false,
+        AUTO_REFILL_AMOUNT: 100,
         NODE_ETH_ADDRESS: '0x99Be343B94f860125bC4fEe278FDCBD38C102D88',
         NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02'
       })
@@ -138,8 +138,8 @@ describe('Usage Token Methods', () => {
         purchaseCreditsAsync: () => null
       })
       usageToken.setENV({
-        AUTO_ACQUIRE_ENABLED: true,
-        AUTO_ACQUIRE_AMOUNT: 100,
+        AUTO_REFILL_ENABLED: true,
+        AUTO_REFILL_AMOUNT: 100,
         NODE_ETH_ADDRESS: '0x99Be343B94f860125bC4fEe278FDCBD38C102D88',
         NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02'
       })
@@ -180,8 +180,8 @@ describe('Usage Token Methods', () => {
         purchaseCreditsAsync: () => newToken
       })
       usageToken.setENV({
-        AUTO_ACQUIRE_ENABLED: true,
-        AUTO_ACQUIRE_AMOUNT: 100,
+        AUTO_REFILL_ENABLED: true,
+        AUTO_REFILL_AMOUNT: 100,
         NODE_ETH_ADDRESS: '0x99Be343B94f860125bC4fEe278FDCBD38C102D88',
         NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02'
       })
@@ -223,8 +223,8 @@ describe('Usage Token Methods', () => {
         purchaseCreditsAsync: () => newToken
       })
       usageToken.setENV({
-        AUTO_ACQUIRE_ENABLED: true,
-        AUTO_ACQUIRE_AMOUNT: 100,
+        AUTO_REFILL_ENABLED: true,
+        AUTO_REFILL_AMOUNT: 100,
         NODE_ETH_ADDRESS: '0x99Be343B94f860125bC4fEe278FDCBD38C102D88',
         NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02'
       })
