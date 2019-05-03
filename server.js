@@ -33,7 +33,7 @@ async function openStorageConnectionAsync() {
 
 async function checkRegistrationAsync() {
   let attempt = 1
-  let attemptCount = 5
+  let attemptCount = 8
   while (attempt <= attemptCount) {
     try {
       let stats = await cores.getETHStatsByAddressAsync(true, env.NODE_ETH_ADDRESS)
@@ -48,7 +48,7 @@ async function checkRegistrationAsync() {
     } catch (error) {
       logger.error(`App : Startup : Could not retrieve ETH stats : ${env.NODE_ETH_ADDRESS} : ${error.message}`)
     }
-    if (attempt++ < attemptCount) await utils.sleepAsync(15000)
+    if (attempt++ < attemptCount) await utils.sleepAsync(30000)
   }
   throw new Error('Cannot start an unregistered Node')
 }
