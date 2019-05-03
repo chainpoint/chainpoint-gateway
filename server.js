@@ -47,9 +47,8 @@ async function checkRegistrationAsync() {
       }
     } catch (error) {
       logger.error(`App : Startup : Could not retrieve ETH stats : ${env.NODE_ETH_ADDRESS} : ${error.message}`)
-    } finally {
-      if (attempt++ < attemptCount) await utils.sleepAsync(15000)
     }
+    if (attempt++ < attemptCount) await utils.sleepAsync(15000)
   }
   throw new Error('Cannot start an unregistered Node')
 }
