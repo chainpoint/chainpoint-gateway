@@ -36,3 +36,4 @@ services:
     secrets:
       - NODE_ETH_ADDRESS
       - NODE_ETH_PRIVATE_KEY
+    tty: true

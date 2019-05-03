@@ -24,6 +24,7 @@ const cachedProofs = require('./lib/cached-proofs.js')
 const cores = require('./lib/cores.js')
 const repChain = require('./lib/rep-chain.js')
 const usageToken = require('./lib/usage-token.js')
+const logger = require('./lib/logger.js')
 
 // establish a connection with the database
 async function openStorageConnectionAsync() {
@@ -33,7 +34,7 @@ async function openStorageConnectionAsync() {
 // process all steps need to start the application
 async function startAsync() {
   try {
-    console.log(`INFO : App : Startup : Version ${version}`)
+    logger.info(`App : Startup : Version ${version}`)
     await openStorageConnectionAsync()
 
     // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
@@ -48,11 +49,11 @@ async function startAsync() {
       utils.validateReflectedUri(env.CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE)
     }
 
-    // get the active JWT usage token, refesh/acquire as needed, report any errors on startup
+    // get the active JWT usage token, refresh/acquire as needed, report any errors on startup
     try {
       await usageToken.getActiveUsageTokenAsync()
     } catch (err) {
-      console.log(`WARN : Usage Token : ${err.message}`)
+      logger.error(`Usage Token : ${err.message}`)
     }
 
     await eventMetrics.loadMetricsAsync()
@@ -80,9 +81,9 @@ async function startAsync() {
     repChain.generateReputationEntryAsync()
     repChain.startRepInterval()
 
-    console.log(`INFO : App : Startup : Complete`)
+    logger.info(`App : Startup : Complete`)
   } catch (err) {
-    console.error(`ERROR : App : Startup : ${err}`)
+    logger.error(`App : Startup : ${err}`)
     // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
     // won't force a restart since this situation will not resolve itself.
     process.exit(0)
