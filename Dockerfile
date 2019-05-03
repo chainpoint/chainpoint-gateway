@@ -3,7 +3,7 @@
 # see: https://hub.docker.com/_/node/
 FROM node:8.11.3-stretch
 
-LABEL MAINTAINER="Glenn Rempe <glenn@tierion.com>"
+LABEL MAINTAINER="Jacob Henderson <jacob@tierion.com>"
 
 # gosu : https://github.com/tianon/gosu
 RUN apt-get update && apt-get install -y git gosu
