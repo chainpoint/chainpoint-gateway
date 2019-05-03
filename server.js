@@ -31,6 +31,29 @@ async function openStorageConnectionAsync() {
   await rocksDB.openConnectionAsync()
 }
 
+async function checkRegistrationAsync() {
+  let attempt = 1
+  let attemptCount = 5
+  while (attempt <= attemptCount) {
+    try {
+      let stats = await cores.getETHStatsByAddressAsync(true, env.NODE_ETH_ADDRESS)
+      if (stats.registration.isStaked) {
+        logger.info(`App : Startup : Verified registration for Node : ${env.NODE_ETH_ADDRESS}`)
+        return
+      } else {
+        logger.warn(
+          `App : Startup : Node not yet registered : Attempt ${attempt} of ${attemptCount} : Retrying in 15 seconds`
+        )
+      }
+    } catch (error) {
+      logger.error(`App : Startup : Could not retrieve ETH stats : ${env.NODE_ETH_ADDRESS} : ${error.message}`)
+    } finally {
+      if (attempt++ < attemptCount) await utils.sleepAsync(15000)
+    }
+  }
+  throw new Error('Cannot start an unregistered Node')
+}
+
 // process all steps need to start the application
 async function startAsync() {
   try {
@@ -39,6 +62,10 @@ async function startAsync() {
 
     // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
     await cores.connectAsync()
+
+    // Ensure that this Node is registered, exit if not
+    // Perform a few retries in case the Node is in the process of being registered
+    await checkRegistrationAsync()
 
     // Validate CHAINPOINT_NODE_PUBLIC_URI, CHAINPOINT_NODE_PRIVATE_URI & CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE if either env variable is set in .env
     utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI, false)
@@ -83,7 +110,7 @@ async function startAsync() {
 
     logger.info(`App : Startup : Complete`)
   } catch (err) {
-    logger.error(`App : Startup : ${err}`)
+    logger.error(`App : Startup : ${err.message}`)
     // Unrecoverable Error : Exit cleanly (!), so Docker Compose `on-failure` policy
     // won't force a restart since this situation will not resolve itself.
     process.exit(0)
