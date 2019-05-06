@@ -1,15 +1,12 @@
-const Web3 = require('web3')
 const validator = require('validator')
 const { isEmpty } = require('lodash')
-
-const web3 = new Web3(Web3.givenProvider || 'ws://localhost:8546', null, {})
 
 module.exports = {
   NODE_ETH_REWARDS_ADDRESS: {
     type: 'input',
     name: 'NODE_ETH_REWARDS_ADDRESS',
     message: 'Enter a valid Ethereum Rewards Address',
-    validate: input => web3.utils.isAddress(input)
+    validate: input => /^0x[a-fA-F0-9]{40}$/.test(input)
   },
   NODE_PUBLIC_IP_ADDRESS: {
     type: 'input',
