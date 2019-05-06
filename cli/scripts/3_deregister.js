@@ -34,7 +34,7 @@ function deregister(retryCount = 1) {
     }
 
     let functionInfo = regContractInterface.functions.unStake
-    let functionData = functionInfo.encode()
+    let functionData = functionInfo.encode([])
     console.log(JSON.stringify(txData), 'deregister txData')
     const tx = {
       gasPrice: txData.gasPrice + (retryCount - 1),
