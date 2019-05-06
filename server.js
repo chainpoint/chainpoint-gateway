@@ -56,7 +56,10 @@ async function checkRegistrationAsync() {
 // process all steps need to start the application
 async function startAsync() {
   try {
-    logger.info(`App : Startup : Version ${version}`)
+    // display NODE_ENV value if not running in production mode
+    let envMode = env.NODE_ENV !== 'production' ? ` : ${env.NODE_ENV}` : ''
+    logger.info(`App : Startup : Version ${version}${envMode}`)
+
     await openStorageConnectionAsync()
 
     // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
