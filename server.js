@@ -32,6 +32,9 @@ async function openStorageConnectionAsync() {
 }
 
 async function checkRegistrationAsync() {
+  // If this is in Private Network Mode, skip Registration check, as it does not apply
+  if (env.PRIVATE_NETWORK) return
+
   let attempt = 1
   let attemptCount = 8
   while (attempt <= attemptCount) {
