@@ -152,7 +152,7 @@ describe('Cores Methods', () => {
       try {
         await cores.connectAsync()
       } catch (err) {
-        errResult = err
+        errResult = err.message
       }
       expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
@@ -174,7 +174,7 @@ describe('Cores Methods', () => {
       try {
         await cores.connectAsync()
       } catch (err) {
-        errResult = err
+        errResult = err.message
       }
       expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
@@ -196,7 +196,7 @@ describe('Cores Methods', () => {
       try {
         await cores.connectAsync()
       } catch (err) {
-        errResult = err
+        errResult = err.message
       }
       expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
@@ -306,7 +306,7 @@ describe('Cores Methods', () => {
       try {
         await cores.connectAsync()
       } catch (err) {
-        errResult = err
+        errResult = err.message
       }
       expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
@@ -328,7 +328,7 @@ describe('Cores Methods', () => {
       try {
         await cores.connectAsync()
       } catch (err) {
-        errResult = err
+        errResult = err.message
       }
       expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
@@ -350,7 +350,7 @@ describe('Cores Methods', () => {
       try {
         await cores.connectAsync()
       } catch (err) {
-        errResult = err
+        errResult = err.message
       }
       expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
