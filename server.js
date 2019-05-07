@@ -56,9 +56,11 @@ async function checkRegistrationAsync() {
 // process all steps need to start the application
 async function startAsync() {
   try {
+    logger.info(`App : Startup : Version ${version}`)
     // display NODE_ENV value if not running in production mode
-    let envMode = env.NODE_ENV !== 'production' ? ` : ${env.NODE_ENV}` : ''
-    logger.info(`App : Startup : Version ${version}${envMode}`)
+    if (env.NODE_ENV !== 'production') logger.info(`App : Startup : ENV : ${env.NODE_ENV}`)
+    // display Private Mode if running in private mode
+    if (env.PRIVATE_NETWORK) logger.info(`App : Startup : Private Network Mode`)
 
     await openStorageConnectionAsync()
 
