@@ -8,16 +8,16 @@ const retry = require('async-retry')
 const cliHelloLogger = require('./utils/cliHelloLogger')
 const stakingQuestions = require('./utils/stakingQuestions')
 const updateOrCreateEnv = require('./scripts/1_update_env')
-const { approve, register } = require('./scripts/2_registration')
+const { updateRegistration } = require('./scripts/3_update_registration')
 const { connectAsync, getETHStatsByAddressAsync, broadcastEthTxAsync } = require('../lib/cores')
 
 const ethAddress = fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_ADDRESS'), 'utf8')
 
-let getETHStatsByAddressDefault = (function(v) {
+let getETHStatsByAddressVerbose = (function(v) {
   return function(a) {
     return getETHStatsByAddressAsync(v, a)
   }
-})(false)
+})(true)
 
 const args = process.argv
   .slice(2)
@@ -42,59 +42,30 @@ async function main() {
 
   await connectAsync()
 
-  console.log(chalk.bold.yellow('Registering your Node:'))
+  console.log(chalk.bold.yellow("Updating Node's Registration:"))
 
   try {
     let registrationParams = await pipeP(
       () =>
         inquirer.prompt(
-          ['NODE_ETH_REWARDS_ADDRESS', 'NODE_PUBLIC_IP_ADDRESS', 'AUTO_REFILL_ENABLED', 'AUTO_REFILL_AMOUNT']
-            .filter(currVal => !has(args, currVal))
-            .map(q => stakingQuestions[q])
+          ['NODE_PUBLIC_IP_ADDRESS'].filter(currVal => !has(args, currVal)).map(q => stakingQuestions[q])
         ),
       joinArgs,
       updateOrCreateEnv
     )()
 
-    // Create & broadcast `approve()` Tx
-    // Apply retry logic which will retry the entire series of steps
-    await retry(
-      async (bail, retryCount) => {
-        try {
-          await pipeP(
-            getETHStatsByAddressDefault,
-            approve(retryCount),
-            broadcastEthTxAsync
-          )(ethAddress)
-        } catch (error) {
-          // If no response was received or there is a status code >= 500, then we should retry the call, throw an error
-          if (!error.statusCode || error.statusCode >= 500) throw error
-          // errors like 409 Conflict or 400 Bad Request are not retried because the request is bad and will never succeed
-          bail(error)
-        }
-      },
-      {
-        retries: 3, // The maximum amount of times to retry the operation. Default is 3
-        factor: 1, // The exponential factor to use. Default is 2
-        minTimeout: 1000, // The number of milliseconds before starting the first retry. Default is 200
-        maxTimeout: 1500,
-        onRetry: error => {
-          console.log(`INFO : Node Registration : ${error.statusCode || 'no response'} : ${error.message} : retrying`)
-        }
-      }
-    )
-
     // Create & broadcast `stake()` Tx
     // Apply retry logic which will retry the entire series of steps
     await retry(
       async (bail, retryCount) => {
-        console.log(retryCount, 'register -> retryCount')
         try {
-          let txData = await getETHStatsByAddressDefault(ethAddress)
-          await pipeP(
-            register(retryCount),
+          let txData = await getETHStatsByAddressVerbose(ethAddress)
+          let result = await pipeP(
+            updateRegistration(retryCount),
             broadcastEthTxAsync
           )([txData, registrationParams])
+
+          console.log(result, 'updateRegistration -> result')
         } catch (error) {
           // If no response was received or there is a status code >= 500, then we should retry the call, throw an error
           if (!error.statusCode || error.statusCode >= 500) throw error
@@ -108,19 +79,26 @@ async function main() {
         minTimeout: 1000, // The number of milliseconds before starting the first retry. Default is 200
         maxTimeout: 1500,
         onRetry: error => {
-          console.log(`INFO : Node Registration : ${error.statusCode || 'no response'} : ${error.message} : retrying`)
+          console.log(
+            `INFO : Node RegistrationUpdate : ${error.statusCode || 'no response'} : ${error.message} : retrying`
+          )
         }
       }
     )
 
-    console.log(chalk.green('\n======================================'))
-    console.log(chalk.green('==   SUCCESSFULLY REGISTERED NODE!  =='))
-    console.log(chalk.green('======================================', '\n'))
+    console.log(chalk.green('\n==========================================='))
+    console.log(chalk.green('==   SUCCESSFULLY UPDATED REGISTRATION!  =='))
+    console.log(chalk.green('===========================================', '\n'))
   } catch (error) {
-    console.log(chalk.red('Failed to Stake Node to Chainpoint Network. Please try again. ' + error.message))
+    console.log(chalk.red('Failed to Update Registration. Please try again. ' + error.message))
   }
 }
 
-main().then(() => {
-  process.exit(0)
-})
+main()
+  .then(() => {
+    process.exit(0)
+  })
+  .catch(err => {
+    console.error(err.message)
+    process.exit(1)
+  })
