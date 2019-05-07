@@ -156,4 +156,38 @@ describe('Environment variables', () => {
       done()
     })
   })
+  describe('valPrivateNetwork', () => {
+    it('should throw error with number', done => {
+      expect(() => {
+        parseEnv.valPrivateNetwork(0)
+      }).to.throw('The PRIVATE_NETWORK value is invalid')
+      done()
+    })
+    it('should throw error with not true/false string', done => {
+      expect(() => {
+        parseEnv.valPrivateNetwork('maybe')
+      }).to.throw('The PRIVATE_NETWORK value is invalid')
+      done()
+    })
+    it('should return true on TRUE', done => {
+      let result = parseEnv.valPrivateNetwork('TRUE')
+      expect(result).to.equal(true)
+      done()
+    })
+    it('should return true on true', done => {
+      let result = parseEnv.valPrivateNetwork('true')
+      expect(result).to.equal(true)
+      done()
+    })
+    it('should return false on FALSE', done => {
+      let result = parseEnv.valPrivateNetwork('FALSE')
+      expect(result).to.equal(false)
+      done()
+    })
+    it('should return false on False', done => {
+      let result = parseEnv.valPrivateNetwork('False')
+      expect(result).to.equal(false)
+      done()
+    })
+  })
 })
