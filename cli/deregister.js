@@ -61,7 +61,7 @@ main()
   })
   .catch(err => {
     console.log(chalk.red('\n===================================='))
-    console.log(chalk.red('==   FAILED TO DE-REGISTERE NODE!   =='))
+    console.log(chalk.red('==   FAILED TO DE-REGISTER NODE!  =='))
     console.log(chalk.red('===================================='))
     console.log(chalk.red('Reason:\n' + err.message))
 
