@@ -159,7 +159,7 @@ describe('Environment variables', () => {
   describe('valPrivateNetwork', () => {
     it('should throw error with number', done => {
       expect(() => {
-        parseEnv.valPrivateNetwork(0)
+        parseEnv.valPrivateNetwork(234)
       }).to.throw('The PRIVATE_NETWORK value is invalid')
       done()
     })

@@ -140,7 +140,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], PRIVATE_NETWORK: false })
       cores.setRP(async () => {
         throw 'Bad IP'
       })
@@ -162,7 +162,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], PRIVATE_NETWORK: false })
       cores.setRP(async () => {
         return { body: { sync_info: { catching_up: true } } }
       })
@@ -184,7 +184,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], PRIVATE_NETWORK: false })
       cores.setRP(async () => {
         return { body: { sync_info: { catching_up: false } } }
       })
@@ -206,7 +206,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], PRIVATE_NETWORK: false })
       cores.setRP(async () => {
         return { body: { sync_info: { catching_up: false } } }
       })
@@ -228,7 +228,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'], PRIVATE_NETWORK: false })
       let counter = 1
       cores.setRP(async () => {
         return { body: { sync_info: { catching_up: counter++ % 2 ? false : true } } }
@@ -251,7 +251,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'], PRIVATE_NETWORK: false })
       cores.setRP(async () => {
         return { body: { sync_info: { catching_up: false } } }
       })
@@ -274,7 +274,7 @@ describe('Cores Methods', () => {
   describe('connectAsync', () => {
     let options = null
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NODE_ETH_ADDRESS: 'addr' })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NODE_ETH_ADDRESS: 'addr', PRIVATE_NETWORK: false })
       cores.setRP(async o => {
         options = o
         return { body: { sync_info: { catching_up: false } } }
@@ -295,6 +295,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
+      cores.setENV({ PRIVATE_NETWORK: false })
       cores.setRP(async () => {
         throw 'Bad IP'
       })
@@ -316,6 +317,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
+      cores.setENV({ PRIVATE_NETWORK: false })
       cores.setRP(async opts => {
         if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
         throw 'Bad IP'
@@ -338,6 +340,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
+      cores.setENV({ PRIVATE_NETWORK: false })
       cores.setRP(async opts => {
         if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
         return { body: { sync_info: { catching_up: true } } }
@@ -360,6 +363,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
+      cores.setENV({ PRIVATE_NETWORK: false })
       cores.setRP(async opts => {
         if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
         return { body: { sync_info: { catching_up: false } } }
