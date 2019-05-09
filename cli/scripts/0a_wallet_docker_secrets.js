@@ -39,20 +39,43 @@ async function findOrCreate(obj) {
   }
 }
 
-async function createDockerSecrets() {
-  try {
-    let conditionalWallet = await createWallet()
-    let w = {}
+async function deleteSecrets(secrets = []) {
+  for (let i = 0; i < secrets.length; i++) {
+    const secret = secrets[i]
 
-    w.address = await findOrCreate({ key: 'NODE_ETH_ADDRESS', val: conditionalWallet.address })
-    w.privateKey = await findOrCreate({ key: 'NODE_ETH_PRIVATE_KEY', val: conditionalWallet.privateKey })
+    try {
+      // Delete Secrets
+      await exec.quiet([`docker secret rm ${secret}`])
 
-    return w
-  } catch (err) {
-    console.log(chalk.red('Error creating Docker secrets for ETH_ADDRESS & ETH_PRIVATE_KEY'))
+      let result = await find(secret)
+      if (!_.isEmpty(result)) {
+        throw new Error(`Docker Secret (${secret}) was NOT deleted`)
+      }
+    } catch (err) {
+      console.error(`Error attempting to delete Docker Secret: ${secret}`)
 
-    return Promise.reject(err)
+      return Promise.reject(err)
+    }
   }
 }
 
-module.exports = createDockerSecrets
+function createWalletAndDockerSecrets(force = false) {
+  return async function() {
+    try {
+      if (force) await deleteSecrets(['NODE_ETH_ADDRESS', 'NODE_ETH_PRIVATE_KEY'])
+      let conditionalWallet = await createWallet()
+      let w = {}
+
+      w.address = await findOrCreate({ key: 'NODE_ETH_ADDRESS', val: conditionalWallet.address })
+      w.privateKey = await findOrCreate({ key: 'NODE_ETH_PRIVATE_KEY', val: conditionalWallet.privateKey })
+
+      return w
+    } catch (err) {
+      console.log(chalk.red('Error creating Docker secrets for ETH_ADDRESS & ETH_PRIVATE_KEY'))
+
+      return Promise.reject(err)
+    }
+  }
+}
+
+module.exports = createWalletAndDockerSecrets

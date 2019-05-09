@@ -89,7 +89,7 @@ init-swarm:
 ## init-secrets             : Generate necessary secrets
 .PHONY : init-secrets
 init-secrets:
-	node cli/init.js
+	node cli/init.js FORCE=$(FORCE)
 
 ## Register					: Register Node to Chainpoint Network
 register:
