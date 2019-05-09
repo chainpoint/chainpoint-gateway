@@ -28,7 +28,9 @@ async function main() {
       ),
       resolve
     ),
-    tap(spinner.succeed.bind(spinner, chalk.bold.yellow('New Wallet:\n')), resolve),
+    tap(w => {
+      spinner.succeed(chalk.bold.yellow(`${w.privateKey !== '' ? 'New' : 'Existing'} Wallet:\n`))
+    }, resolve),
     displayWalletInfo
   )()
 }

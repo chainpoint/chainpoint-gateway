@@ -15,5 +15,14 @@ async function updateOrCreateEnv(valuePairs) {
   return Promise.resolve(valuePairs)
 }
 
+async function readEnv() {
+  if (fs.existsSync('.env')) {
+    return envfile.parseFileSync('.env')
+  } else {
+    return {}
+  }
+}
+
 module.exports = updateOrCreateEnv
 module.exports.updateOrCreateEnv = updateOrCreateEnv
+module.exports.readEnv = readEnv
