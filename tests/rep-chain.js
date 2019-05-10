@@ -11,6 +11,9 @@ const ethers = require('ethers')
 
 describe('Reputation Chain Methods', () => {
   describe('startRepInterval', () => {
+    before(() => {
+      repChain.setENV({ PRIVATE_NETWORK: false })
+    })
     it('should initiate interval as expected', async () => {
       let interval = repChain.startRepInterval()
       expect(interval).to.be.a('object')
@@ -28,6 +31,7 @@ describe('Reputation Chain Methods', () => {
         }
       })
       repChain.setRocksDB({ getMostRecentReputationItemAsync: () => null })
+      repChain.setENV({ PRIVATE_NETWORK: false })
     })
     it('should return new genesis rep item', async () => {
       let item = await repChain.initializeNewRepItemAsync()
@@ -69,6 +73,7 @@ describe('Reputation Chain Methods', () => {
           }
         }
       })
+      repChain.setENV({ PRIVATE_NETWORK: false })
     })
     it('should return new non-genesis rep item', async () => {
       let item = await repChain.initializeNewRepItemAsync()
@@ -104,6 +109,7 @@ describe('Reputation Chain Methods', () => {
             return { meta: { bad: 0 }, hashes: [] }
         }
       })
+      repChain.setENV({ PRIVATE_NETWORK: false })
     })
     it('should throw the expected error on failure', async () => {
       let hash = 'error'
@@ -138,7 +144,8 @@ describe('Reputation Chain Methods', () => {
     before(() => {
       repChain.setENV({
         NODE_ETH_ADDRESS: ETH_ADDR,
-        NODE_ETH_PRIVATE_KEY: ETH_PK
+        NODE_ETH_PRIVATE_KEY: ETH_PK,
+        PRIVATE_NETWORK: false
       })
     })
     it('should verifiably sign message using ETH private key as expected', async () => {
@@ -238,7 +245,8 @@ describe('Reputation Chain Methods', () => {
       })
       repChain.setENV({
         NODE_ETH_ADDRESS: ETH_ADDR,
-        NODE_ETH_PRIVATE_KEY: ETH_PK
+        NODE_ETH_PRIVATE_KEY: ETH_PK,
+        PRIVATE_NETWORK: false
       })
     })
     it('should generate and store new item as expected', async () => {

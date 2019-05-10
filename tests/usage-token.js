@@ -12,6 +12,9 @@ const usageToken = require('../lib/usage-token.js')
 
 describe('Usage Token Methods', () => {
   describe('getActiveUsageTokenAsync', () => {
+    before(() => {
+      usageToken.setENV({ PRIVATE_NETWORK: false })
+    })
     const payload = {
       exp: Math.ceil(Date.now() / 1000) + 60 * 60, // 1 hour in the future
       bal: 27
@@ -30,6 +33,9 @@ describe('Usage Token Methods', () => {
   })
 
   describe('getActiveUsageTokenAsync', () => {
+    before(() => {
+      usageToken.setENV({ PRIVATE_NETWORK: false })
+    })
     const payloadOld = {
       exp: Math.ceil(Date.now() / 1000) - 60 * 60, // 1 hour ago
       bal: 27
@@ -58,6 +64,9 @@ describe('Usage Token Methods', () => {
   })
 
   describe('getActiveUsageTokenAsync', () => {
+    before(() => {
+      usageToken.setENV({ PRIVATE_NETWORK: false })
+    })
     const payloadOld = {
       exp: Math.ceil(Date.now() / 1000) - 60 * 60, // 1 hour ago
       bal: 27
@@ -109,7 +118,8 @@ describe('Usage Token Methods', () => {
         AUTO_REFILL_ENABLED: false,
         AUTO_REFILL_AMOUNT: 100,
         NODE_ETH_ADDRESS: '0x99Be343B94f860125bC4fEe278FDCBD38C102D88',
-        NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02'
+        NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02',
+        PRIVATE_NETWORK: false
       })
       let updatedTknDefinition = usageToken.tknDefinition
       updatedTknDefinition.networks['1'] = updatedTknDefinition.networks['3']
@@ -141,7 +151,8 @@ describe('Usage Token Methods', () => {
         AUTO_REFILL_ENABLED: true,
         AUTO_REFILL_AMOUNT: 100,
         NODE_ETH_ADDRESS: '0x99Be343B94f860125bC4fEe278FDCBD38C102D88',
-        NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02'
+        NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02',
+        PRIVATE_NETWORK: false
       })
       let updatedTknDefinition = usageToken.tknDefinition
       updatedTknDefinition.networks['1'] = updatedTknDefinition.networks['3']
@@ -183,7 +194,8 @@ describe('Usage Token Methods', () => {
         AUTO_REFILL_ENABLED: true,
         AUTO_REFILL_AMOUNT: 100,
         NODE_ETH_ADDRESS: '0x99Be343B94f860125bC4fEe278FDCBD38C102D88',
-        NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02'
+        NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02',
+        PRIVATE_NETWORK: false
       })
       let updatedTknDefinition = usageToken.tknDefinition
       updatedTknDefinition.networks['1'] = updatedTknDefinition.networks['3']
@@ -226,7 +238,8 @@ describe('Usage Token Methods', () => {
         AUTO_REFILL_ENABLED: true,
         AUTO_REFILL_AMOUNT: 100,
         NODE_ETH_ADDRESS: '0x99Be343B94f860125bC4fEe278FDCBD38C102D88',
-        NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02'
+        NODE_ETH_PRIVATE_KEY: '0x308187020100301306072a8648ce3d020106082a8648ce3d030107046d306b02',
+        PRIVATE_NETWORK: false
       })
       let updatedTknDefinition = usageToken.tknDefinition
       updatedTknDefinition.networks['1'] = updatedTknDefinition.networks['3']
