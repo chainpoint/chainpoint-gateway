@@ -11,7 +11,7 @@ const uuidv1 = require('uuid/v1')
 const crypto = require('crypto')
 const utils = require('../lib/utils.js')
 
-const TEST_ROCKS_DIR = './.data/test_db'
+const TEST_ROCKS_DIR = './test_db'
 
 let insertedProofStateHashIdNodes = null
 
