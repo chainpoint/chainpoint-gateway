@@ -7,8 +7,11 @@ SHELL := /bin/bash
 # Get the location of this makefile.
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
+# Get home directory of current users
+NODE_DATADIR := $(shell eval printf "~$$USER")/.chainpoint/node
+
 # Specify the binary dependencies
-REQUIRED_BINS := docker docker-compose gcloud
+REQUIRED_BINS := docker docker-compose
 $(foreach bin,$(REQUIRED_BINS),\
 	$(if $(shell command -v $(bin) 2> /dev/null),$(),$(error Please install `$(bin)` first!)))
 
@@ -34,7 +37,8 @@ down:
 ## clean           : Shutdown and **destroy** all local Node data
 .PHONY : clean
 clean: down
-	@rm -rf ./.data/*
+	@sudo rm -rf ${NODE_DATADIR}/data/rocksdb/*
+	@sudo chmod 777 ${NODE_DATADIR}/data/rocksdb
 
 ## restart         : Restart Node
 .PHONY : restart
@@ -57,7 +61,7 @@ build-config:
 ## build-rocksdb   : Ensure the RocksDB data dir exists
 .PHONY : build-rocksdb
 build-rocksdb:
-	mkdir -p ./.data/rocksdb && chmod 777 ./.data/rocksdb
+	mkdir -p ${NODE_DATADIR}/data/rocksdb && chmod 777 ${NODE_DATADIR}/data/rocksdb
 
 ## pull            : Pull Docker images
 .PHONY : pull

@@ -18,8 +18,6 @@ COPY ./ui/build /home/node/app/ui
 
 WORKDIR /home/node/app
 
-ENV NODE_ENV production
-
 COPY package.json yarn.lock server.js /home/node/app/
 RUN yarn
 
@@ -35,9 +33,10 @@ COPY ./lib/models/*.js /home/node/app/lib/models/
 RUN mkdir -p /home/node/app/artifacts
 COPY artifacts /home/node/app/artifacts
 
-ADD cli /home/node/app/cli
+COPY ./cert.crt /home/node/app/
+COPY ./cert.key /home/node/app/
 
-RUN mkdir -p /home/node/app/.data/rocksdb
+ADD cli /home/node/app/cli
 
 EXPOSE 80
 
