@@ -772,6 +772,41 @@ describe('Cores Methods', () => {
     })
   })
 
+  describe('updateUsageTokenAudienceAsync', () => {
+    let coreIPs = ['65.1.1.1,65.1.1.2,65.1.1.3']
+    before(() => {
+      cores.setCoreConnectedIPs(coreIPs)
+      cores.setRP(async () => {
+        throw 'Error!'
+      })
+    })
+    it('should return null with no response/bad response', async () => {
+      let errResponse = null
+      try {
+        await cores.updateUsageTokenAudienceAsync(coreIPs.join(','), 'token')
+      } catch (err) {
+        errResponse = err
+      }
+      expect(errResponse.message).to.equal('Invalid response on POST /usagetoken/audience')
+    })
+  })
+
+  describe('updateUsageTokenAudienceAsync', () => {
+    let coreIPs = ['65.1.1.1,65.1.1.2,65.1.1.3']
+    let token = 'token'
+    before(() => {
+      cores.setCoreConnectedIPs(coreIPs)
+      cores.setRP(async () => {
+        return { body: { token: token } }
+      })
+    })
+    it('should return token on success', async () => {
+      let response = await cores.updateUsageTokenAudienceAsync(coreIPs.join(','), 'token')
+      expect(response).to.be.a('string')
+      expect(response).to.equal(token)
+    })
+  })
+
   describe('getETHStatsByAddressAsync', () => {
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1'])
