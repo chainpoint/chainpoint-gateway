@@ -13,6 +13,7 @@ paths:
   '/hashes':
     post:
       summary: 'Submit one or more hashes for anchoring'
+      operationId: 'submitHashes'
       requestBody:
         description: 'An array of hex string hashes to be anchored'
         required: true
@@ -38,6 +39,7 @@ paths:
   '/proofs/{hash_id_node}':
     get:
       summary: 'Retrieves a proof by hash_id_node'
+      operationId: 'getProof'
       parameters:
         - name: 'hash_id_node'
           in: 'path'
@@ -76,6 +78,7 @@ paths:
   '/proofs':
     get:
       summary: 'Retrieves one or more proofs by hashids supplied in header'
+      operationId: 'getProofs'
       parameters:
         - name: 'hashids'
           in: 'header'
@@ -119,6 +122,7 @@ paths:
   '/verify':
     post:
       summary: 'Submit one or more proofs for verification'
+      operationId: 'verifyProofs'
       requestBody:
         description: 'Array of one or more proofs to be verified'
         required: true
@@ -146,6 +150,7 @@ paths:
   '/calendar/{tx_id}/data':
     get:
       summary: 'Retrieves the the data embedded in a calendar transaction'
+      operationId: 'getCalendarTxData'
       parameters:
         - name: 'tx_id'
           in: 'path'
@@ -178,6 +183,7 @@ paths:
   '/reputation/{height}':
     get:
       summary: 'Retrieves a reputation entry by height'
+      operationId: 'getReputationEntry'
       parameters:
         - name: 'height'
           in: 'path'
@@ -209,6 +215,7 @@ paths:
   '/reputation/{min_height}/{max_height}':
     get:
       summary: 'Retrieves multiple reputation entries by minimum and maximum height'
+      operationId: 'getReputationEntriesRange'
       parameters:
         - name: 'min_height'
           in: 'path'
@@ -248,6 +255,7 @@ paths:
   '/reputation/recent':
     get:
       summary: 'Retrieves recent reputation entries over last 24 hours'
+      operationId: 'getReputationEntriesRecent'
       responses:
         '200':
           description: 'An array of the requested reputation entries'
@@ -268,6 +276,7 @@ paths:
   '/config':
     get:
       summary: 'Retrieves some basic information for the Node'
+      operationId: 'getNodeConfig'
       responses:
         '200':
           description: 'Basic information about the Node and it''s environment'
