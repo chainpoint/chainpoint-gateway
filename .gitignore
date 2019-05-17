@@ -1,6 +1,7 @@
 .env
 .DS_Store
 .data/
+.vscode
 .nyc_output
 node_modules/
 ui/node_modules/
