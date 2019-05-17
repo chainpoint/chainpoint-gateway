@@ -506,9 +506,9 @@ tags:
   - name: 'Verify'
     description: 'Verification process for your proofs'
   - name: 'Calendar'
-    description: 'Chainpoint calendar block data'
+    description: 'Chainpoint calendar transaction data'
   - name: 'Reputation'
-    description: 'Locally generated Reputation chain data'
+    description: 'Locally generated reputation chain data'
   - name: 'Config'
     description: 'Configuration information about the Node'
 externalDocs:
