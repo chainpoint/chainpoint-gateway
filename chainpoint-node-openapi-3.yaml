@@ -22,13 +22,13 @@ paths:
               $ref: '#/components/schemas/PostHashesRequest'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'An array of hash object and supporting meta information for that array'
           content:
             'application/json':
               schema:
                 $ref: '#/components/schemas/PostHashesResponse'
         '409':
-          description: 'invalid argument in request'
+          description: 'There was an invalid argument in the request'
           content:
             'application/json':
               schema:
@@ -48,7 +48,7 @@ paths:
             format: 'uuid'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'The requested proof object'
           content:
             'application/json':
               schema:
@@ -60,7 +60,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/GetProofsBase64Response'
         '409':
-          description: 'invalid argument in request'
+          description: 'There was an invalid argument in the request'
           content:
             'application/json':
               schema:
@@ -85,7 +85,7 @@ paths:
             type: 'string'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'An array of the requested proof objects'
           content:
             'application/json':
               schema:
@@ -103,7 +103,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/GetProofsBase64Response'
         '409':
-          description: 'invalid argument in request'
+          description: 'There was an invalid argument in the request'
           content:
             'application/json':
               schema:
@@ -128,7 +128,7 @@ paths:
               $ref: '#/components/schemas/PostVerifyRequest'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'An array of the verification results'
           content:
             'application/json':
               schema:
@@ -136,7 +136,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/PostVerifyResponse'
         '409':
-          description: 'invalid argument in request'
+          description: 'There was an invalid argument in the request'
           content:
             'application/json':
               schema:
@@ -155,20 +155,20 @@ paths:
             type: 'string'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'The data value embedded within the calendar transaction'
           content:
             'application/json':
               schema:
                 type: 'string'
                 example: 'f18bf0968b224f73528d99cc83ca9e79d467f34875e85f36e2c1f074ff2dc657'
         '404':
-          description: 'tx_id not found'
+          description: 'The requested transaction was not found'
           content:
             'application/json':
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '409':
-          description: 'invalid argument in request'
+          description: 'There was an invalid argument in the request'
           content:
             'application/json':
               schema:
@@ -187,19 +187,19 @@ paths:
             type: 'integer'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'The requested reputation entry'
           content:
             'application/json':
               schema:
                 $ref: '#/components/schemas/GetReputationEntryResponse'
         '404':
-          description: 'not found'
+          description: 'The requested reputation entry was not found'
           content:
             'application/json':
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '409':
-          description: 'invalid argument in request'
+          description: 'There was an invalid argument in the request'
           content:
             'application/json':
               schema:
@@ -224,7 +224,7 @@ paths:
             type: 'integer'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'An array of the requested reputation entries'
           content:
             'application/json':
               schema:
@@ -232,13 +232,13 @@ paths:
                 items:
                   $ref: '#/components/schemas/GetReputationEntryResponse'
         '404':
-          description: 'not found'
+          description: 'No reputation entries were found in that range'
           content:
             'application/json':
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '409':
-          description: 'invalid argument in request'
+          description: 'There was an invalid argument in the request'
           content:
             'application/json':
               schema:
@@ -250,7 +250,7 @@ paths:
       summary: 'Retrieves recent reputation entries over last 24 hours'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'An array of the requested reputation entries'
           content:
             'application/json':
               schema:
@@ -258,7 +258,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/GetReputationEntryResponse'
         '404':
-          description: 'not found'
+          description: 'No recent reputation entries were found'
           content:
             'application/json':
               schema:
@@ -270,7 +270,7 @@ paths:
       summary: 'Retrieves some basic information for the Node'
       responses:
         '200':
-          description: 'successful operation'
+          description: 'Basic information about the Node and it's environment'
           content:
             'application/json':
               schema:
@@ -431,6 +431,7 @@ components:
           example: '2.0.0'
         time:
           type: 'string'
+          format: 'date-time'
           example: '2019-05-17T19:53:49.140Z'
     GetReputationEntryResponse:
       type: 'object'
