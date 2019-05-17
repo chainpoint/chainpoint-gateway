@@ -270,7 +270,7 @@ paths:
       summary: 'Retrieves some basic information for the Node'
       responses:
         '200':
-          description: 'Basic information about the Node and it's environment'
+          description: 'Basic information about the Node and it''s environment'
           content:
             'application/json':
               schema:
