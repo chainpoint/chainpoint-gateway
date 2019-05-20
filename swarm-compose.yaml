@@ -17,7 +17,7 @@ services:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ~/.chainpoint/node/data/rocksdb:/root/.chainpoint/node/data/rocksdb
       - ./.env:/home/node/app/.env
-    image: gcr.io/chainpoint-registry/github-chainpoint-chainpoint-node-src:latest
+    image: gcr.io/chainpoint-registry/github_chainpoint_chainpoint-node-src:${DOCKER_TAG:-latest}
     build: .
     ports:
       - "80:80"
