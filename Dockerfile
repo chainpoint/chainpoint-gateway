@@ -33,8 +33,8 @@ COPY ./lib/models/*.js /home/node/app/lib/models/
 RUN mkdir -p /home/node/app/artifacts
 COPY artifacts /home/node/app/artifacts
 
-COPY ./cert.crt /home/node/app/
-COPY ./cert.key /home/node/app/
+#COPY ./cert.crt /home/node/app/
+#COPY ./cert.key /home/node/app/
 
 ADD cli /home/node/app/cli
 
