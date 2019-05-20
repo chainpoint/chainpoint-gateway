@@ -1,0 +1,12 @@
+steps:
+- name: 'gcr.io/cloud-builders/git'
+  args: ['submodule', 'update', '--init', '--recursive']
+- name: 'gcr.io/cloud-builders/docker'
+  args: [ 'build', '-f', 'Dockerfile', '-t', 'gcr.io/chainpoint-registry/$REPO_NAME:$COMMIT_SHA', '-t', 'gcr.io/chainpoint-registry/$REPO_NAME:latest', '.' ]
+  id: 'chainpoint-node-src'
+timeout: 1000s
+images:
+- 'gcr.io/chainpoint-registry/$REPO_NAME:latest'
+- 'gcr.io/chainpoint-registry/$REPO_NAME:$COMMIT_SHA'
+options:
+ machineType: 'N1_HIGHCPU_8'
