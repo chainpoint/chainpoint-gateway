@@ -37,6 +37,7 @@ async function checkRegistrationAsync() {
 
   let attempt = 1
   let attemptCount = 8
+  let retryDelaySeconds = 30
   while (attempt <= attemptCount) {
     try {
       let stats = await cores.getETHStatsByAddressAsync(true, env.NODE_ETH_ADDRESS)
@@ -45,13 +46,13 @@ async function checkRegistrationAsync() {
         return
       } else {
         logger.warn(
-          `App : Startup : Node not yet registered : Attempt ${attempt} of ${attemptCount} : Retrying in 15 seconds`
+          `App : Startup : Node not yet registered : Attempt ${attempt} of ${attemptCount} : Retrying in ${retryDelaySeconds} seconds`
         )
       }
     } catch (error) {
       logger.error(`App : Startup : Could not retrieve ETH stats : ${env.NODE_ETH_ADDRESS} : ${error.message}`)
     }
-    if (attempt++ < attemptCount) await utils.sleepAsync(30000)
+    if (attempt++ < attemptCount) await utils.sleepAsync(retryDelaySeconds * 1000)
   }
   throw new Error('Cannot start an unregistered Node')
 }
