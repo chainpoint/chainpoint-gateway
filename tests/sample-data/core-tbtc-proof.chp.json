@@ -1,0 +1,221 @@
+{
+  "@context": "https://w3id.org/chainpoint/v3",
+  "type": "Chainpoint",
+  "hash": "18af1184ae64160f8a4019f43ddc825db95f11a0e468f8da6cb9f8bbe1dbd784",
+  "hash_id_node": "000139a0-2e5c-11e9-bec9-01115ea738e6",
+  "hash_submitted_node_at": "2019-02-12T00:20:28Z",
+  "hash_id_core": "000139a0-2e5c-11e9-bec9-01115ea738e6",
+  "hash_submitted_core_at": "2019-02-12T00:20:28Z",
+  "branches": [
+    {
+      "label": "cal_anchor_branch",
+      "ops": [
+        {
+          "l": "core_id:000139a0-2e5c-11e9-bec9-01115ea738e6"
+        },
+        {
+          "op": "sha-256"
+        },
+        {
+          "l": "nistv2:1549930800000:bfecaeee123fb3eabf58791ad4bf142c919724a253658f4a2b44fc997700e6dbb0c43691810cfd3749cb31aa0a900f9f5c8a413175c41106de9504aaf7cfce3e"
+        },
+        {
+          "op": "sha-256"
+        },
+        {
+          "l": "87ed4683760418a70f1054db3f6c74262ab261b5d29c5dc96844d2970a3d01cf"
+        },
+        {
+          "op": "sha-256"
+        },
+        {
+          "r": "a78588d08be7e46c61b7dd3b5e60fdb7220bd27ca3ab9e43964774d46c2e64a2"
+        },
+        {
+          "op": "sha-256"
+        },
+        {
+          "r": "3cef66e643b856b74f5bd7cff2547c275eb167b386c160721ab2ecc225dea3a2"
+        },
+        {
+          "op": "sha-256"
+        },
+        {
+          "l": "92ad35e664813183e02bf2426482d039837eb2a97a71311d2b464a7d1f6f4410"
+        },
+        {
+          "op": "sha-256"
+        },
+        {
+          "l": "2697833:1549930833:1:https://a.chainpoint.org:cal:2697833"
+        },
+        {
+          "r": "456fd2c9ab38caf43642cddfb2f01651204a358e11da67a1cc286e8b7a6c6acf"
+        },
+        {
+          "op": "sha-256"
+        },
+        {
+          "anchors": [
+            {
+              "type": "tcal",
+              "anchor_id": "2697833",
+              "uris": ["https://a.chainpoint.org/calendar/2697833/hash"]
+            }
+          ]
+        }
+      ],
+      "branches": [
+        {
+          "label": "btc_anchor_branch",
+          "ops": [
+            {
+              "l": "456fd2c9ab38caf43642cddfb2f01651204a358e11da67a1cc286e8b7a6c6acf"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "r": "4b414a5f4e67f4255027e37e9889b6a1f7f94b9285dfe6c45dc9cc70ea83238b"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "l": "19e96821c648366829f9b4656f439497bf8109a59bd211f7dea5f7bc38faca52"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "l": "3a22c564ca8be07c0d51a67874e5ef104ca37dc255b9c5e8043beecd2137343a"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "l": "56bb7aa1d380608cfc7328310020d79d90dadf8c8b93a4dc0c887ef080b30208"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "l": "2d52f99e44e3a6aed97e7a4c2b2580094f3df598e71ad60ce3e4c80b83289fc0"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "l": "2e1e454f149402f668e940b095e01303f2976b0c851de896c54d77d1b0ab7e76"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "r": "62726a2392223ad6793414fca1c87e2932421315690f4ebb9094243b4d75fc65"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "r": "0659c270d03e0ed74b183966f7a8ce35b31b51b861cb44a2d8a9e4c2144d7b11"
+            },
+            {
+              "op": "sha-256"
+            },
+            {
+              "l": "0100000001f74c607aec4e8552e97f5c6705331bd40971fee4615463e44dc237909eda8561010000006b4830450221009dea9d7cfef167627ae1d9fe5fae19ea23c4d262d35c951d15f282089a25f71502204e8ab4c0778e206e06a9512c2fbfa5092d5dbfe79394b6bd7523e6b17482b6b10121032695ca0d3c0f7f8082a6ef66e7127e48d4eb99bef86be99432b897c485962fa8ffffffff020000000000000000226a20"
+            },
+            {
+              "r": "cb1ee800000000001976a9149f1f4038857beedd34cc5ba9f26ac7a20c04d51988ac00000000"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "r": "6530dedcdef49f2ba8ffad45cc2a3da9163c545cc25293fbdd38243cff32c856"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "r": "3eb37791f8e63616aacc0c0a305bcb527696e7bac90f2f7e503b506a4c43faa6"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "l": "5c32a9aa6c2d51cdf40a6abb84e310a915710a2eb68505f01e50f5f1a7f25d1b"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "r": "52d7ead6f09051315f6508b5691fa6213643510ced81066e3ca6717151ebc6d4"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "l": "2007ea7ac74528f25264e50f5ba848675c7a2f28e7dd196e33874a50c05107b5"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "l": "755908c4d69007fc1f0df3e6211d1041850a81afe32b262f9a9a7ed9c2abf0a4"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "r": "e75bb3c9dccd54b626579f08d1e517b458716cc308a6257a7fbe2697c749bc96"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "l": "98e2e5e17003189b4ef1a1fdf8de94af1a0bbb7b9e9d6310ad953719385f4a1e"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "l": "a7af3e0d38da4c2b3bc958c63176d349a53379f1467c4be65a86ef5e3f91747b"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "r": "a2a69c02444bc5f396d87537be7e15ee29dada648c95f9ce731a9d0db285dc91"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "r": "1b3c4074444b6926f5ac2fc5c9d4a7cb91bdb6dcd90356abf2c3fda5d20b655a"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "l": "25bfc69c9c2a6026eaef5b528c9b354dfaf6f313f614dd41f88d8d4f0c046aa8"
+            },
+            {
+              "op": "sha-256-x2"
+            },
+            {
+              "anchors": [
+                {
+                  "type": "tbtc",
+                  "anchor_id": "562658",
+                  "uris": ["https://a.chainpoint.org/calendar/2698364/data"]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

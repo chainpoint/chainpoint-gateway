@@ -70,11 +70,11 @@ describe('Utils Methods', () => {
     })
   })
 
-  describe('Proof parsing function', () => {
+  describe('Proof parsing function - mainnet', () => {
     it('parseAnchorsComplete should return correct result for cal proof', done => {
       let proofJSON = fs.readFileSync('./tests/sample-data/cal-proof.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj)
+      let res = app.parseAnchorsComplete(proofObj, 'mainnet')
       expect(res.length).to.equal(1)
       expect(res[0]).to.equal('cal')
       done()
@@ -82,10 +82,29 @@ describe('Utils Methods', () => {
     it('parseAnchorsComplete should return correct result for btc proof', done => {
       let proofJSON = fs.readFileSync('./tests/sample-data/btc-proof.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj)
+      let res = app.parseAnchorsComplete(proofObj, 'mainnet')
       expect(res.length).to.equal(2)
       expect(res[0]).to.equal('cal')
       expect(res[1]).to.equal('btc')
+      done()
+    })
+  })
+  describe('Proof parsing function - testnet', () => {
+    it('parseAnchorsComplete should return correct result for tcal proof', done => {
+      let proofJSON = fs.readFileSync('./tests/sample-data/tcal-proof.chp.json')
+      let proofObj = JSON.parse(proofJSON)
+      let res = app.parseAnchorsComplete(proofObj, 'testnet')
+      expect(res.length).to.equal(1)
+      expect(res[0]).to.equal('tcal')
+      done()
+    })
+    it('parseAnchorsComplete should return correct result for tbtc proof', done => {
+      let proofJSON = fs.readFileSync('./tests/sample-data/tbtc-proof.chp.json')
+      let proofObj = JSON.parse(proofJSON)
+      let res = app.parseAnchorsComplete(proofObj, 'testnet')
+      expect(res.length).to.equal(2)
+      expect(res[0]).to.equal('tcal')
+      expect(res[1]).to.equal('tbtc')
       done()
     })
   })

@@ -183,7 +183,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, cached hash_ids', () => {
+  describe('getCachedCoreProofsAsync with valid, cached hash_ids  - mainnet', () => {
     let in15Minutes = Date.now() + 15 * 60 * 1000
     let hashId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let hashId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -211,6 +211,7 @@ describe('Cached Proofs Methods', () => {
           throw 'Do not call!'
         }
       })
+      cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
       let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
@@ -253,6 +254,77 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
+  describe('getCachedCoreProofsAsync with valid, cached hash_ids  - testnet', () => {
+    let in15Minutes = Date.now() + 15 * 60 * 1000
+    let hashId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
+    let hashId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
+    let submitId1 = '77a34bd0-f4e7-11e7-a52b-016a36a9d789'
+    let submitId2 = '77bd6380-f4e7-11e7-895d-0176dc2220aa'
+    let ip = '65.1.1.1'
+    let submission1 = {
+      submitId: submitId1,
+      cores: [{ ip: ip, hashIdCore: hashId1 }]
+    }
+    let submission2 = {
+      submitId: submitId2,
+      cores: [{ ip: ip, hashIdCore: hashId2 }]
+    }
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tcal-proof.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tbtc-proof.chp.json'))
+    let cacheContents = {
+      [submitId1]: { coreProof: proofObj1, expiresAt: in15Minutes },
+      [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
+    }
+    before(() => {
+      cachedProofs.setCoreProofCache(cacheContents)
+      cachedProofs.setCores({
+        getProofsAsync: () => {
+          throw 'Do not call!'
+        }
+      })
+      cachedProofs.setENV({ NETWORK: 'testnet' })
+    })
+    it('should return expected value', async () => {
+      let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
+      let cache = cachedProofs.getCoreProofCache()
+      expect(results).to.be.a('array')
+      expect(results.length).to.equal(2)
+      expect(results[0]).to.be.a('object')
+      expect(results[0])
+        .to.have.property('submitId')
+        .and.to.equal(submitId1)
+      expect(results[0])
+        .to.have.property('proof')
+        .and.to.deep.equal(proofObj1)
+      expect(results[0])
+        .to.have.property('anchorsComplete')
+        .and.to.be.a('array')
+      expect(results[0].anchorsComplete.length).to.equal(1)
+      expect(results[0].anchorsComplete[0])
+        .to.be.a('string')
+        .and.to.equal('tcal')
+      expect(results[1]).to.be.a('object')
+      expect(results[1])
+        .to.have.property('submitId')
+        .and.to.equal(submitId2)
+      expect(results[1])
+        .to.have.property('proof')
+        .and.to.deep.equal(proofObj2)
+      expect(results[1])
+        .to.have.property('anchorsComplete')
+        .and.to.be.a('array')
+      expect(results[1].anchorsComplete.length).to.equal(2)
+      expect(results[1].anchorsComplete[0])
+        .to.be.a('string')
+        .and.to.equal('tcal')
+      expect(results[1].anchorsComplete[1])
+        .to.be.a('string')
+        .and.to.equal('tbtc')
+      expect(cache).to.be.a('object')
+      expect(cache).to.deep.equal(cacheContents)
+    })
+  })
+
   describe('getCachedCoreProofsAsync with valid, non-cached hash_ids', () => {
     let hashId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let hashId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -274,6 +346,7 @@ describe('Cached Proofs Methods', () => {
       cachedProofs.setCores({
         getProofsAsync: () => [{ hash_id: hashId1, proof: proofObj1 }, { hash_id: hashId2, proof: proofObj2 }]
       })
+      cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
       let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
@@ -358,6 +431,7 @@ describe('Cached Proofs Methods', () => {
       cachedProofs.setCores({
         getProofsAsync: () => [{ hash_id: hashId1, proof: proofObj1 }]
       })
+      cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
       let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
@@ -438,6 +512,7 @@ describe('Cached Proofs Methods', () => {
       cachedProofs.setCores({
         getProofsAsync: () => [{ hash_id: hashId1, proof: null }]
       })
+      cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
       let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
@@ -494,6 +569,7 @@ describe('Cached Proofs Methods', () => {
       cachedProofs.setCores({
         getProofsAsync: () => [{ hash_id: hashId1, proof: null }, { hash_id: hashId2, proof: proofObj2 }]
       })
+      cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
       let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
@@ -563,6 +639,7 @@ describe('Cached Proofs Methods', () => {
           return [{ hash_id: hashId1b, proof: proofObj1 }, { hash_id: hashId2b, proof: proofObj2 }]
         }
       })
+      cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
       let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
@@ -647,6 +724,7 @@ describe('Cached Proofs Methods', () => {
           return [{ hash_id: hashId2b, proof: proofObj2 }]
         }
       })
+      cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
       let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
@@ -728,6 +806,7 @@ describe('Cached Proofs Methods', () => {
           if (ip == ip2c) return [{ hash_id: hashId2c, proof: proofObj2 }]
         }
       })
+      cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
       let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
