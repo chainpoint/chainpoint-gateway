@@ -26,6 +26,7 @@ services:
       - chainpoint-node
     environment:
       NODE_ENV: ${NODE_ENV}
+      NETWORK: ${NETWORK}
       HTTP_PORT: "${HTTP_PORT:-80}"
       HTTPS_PORT: "${HTTPS_PORT:-443}"
       AUTO_REFILL_ENABLED: "${AUTO_REFILL_ENABLED:-true}"

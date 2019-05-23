@@ -11,7 +11,7 @@ let regDefinition = require('../../artifacts/ethcontracts/ChainpointRegistry.jso
 
 const TierionNetworkTokenABI = tknDefinition.abi
 const ChainpointRegistryABI = regDefinition.abi
-const network = env.NODE_ENV === 'production' ? 'homestead' : 'ropsten'
+const network = env.NETWORK === 'mainnet' ? 'homestead' : 'ropsten'
 const chainId = network === 'homestead' ? '1' : '3'
 const tokenAddress = tknDefinition.networks[chainId].address
 const registryAddress = regDefinition.networks[chainId].address

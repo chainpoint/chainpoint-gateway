@@ -9,7 +9,7 @@ const ipToInt = require('ip-to-int')
 let regDefinition = require('../../artifacts/ethcontracts/ChainpointRegistry.json')
 
 const ChainpointRegistryABI = regDefinition.abi
-const network = env.NODE_ENV === 'production' ? 'homestead' : 'ropsten'
+const network = env.NETWORK === 'mainnet' ? 'homestead' : 'ropsten'
 const chainId = network === 'homestead' ? '1' : '3'
 const registryAddress = regDefinition.networks[chainId].address
 const privateKey = fs.readFileSync(path.resolve('/run/secrets/NODE_ETH_PRIVATE_KEY'), 'utf8')

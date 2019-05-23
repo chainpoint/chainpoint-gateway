@@ -140,7 +140,7 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NODE_ENV: 'test', PRIVATE_NETWORK: false })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NETWORK: 'testnet', PRIVATE_NETWORK: false })
       cores.setRP(async () => {
         throw 'Bad IP'
       })
@@ -162,9 +162,9 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NODE_ENV: 'test', PRIVATE_NETWORK: false })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NETWORK: 'testnet', PRIVATE_NETWORK: false })
       cores.setRP(async () => {
-        return { body: { environment: 'test', mode: 'public', sync_info: { catching_up: true } } }
+        return { body: { network: 'testnet', mode: 'public', sync_info: { catching_up: true } } }
       })
     })
     it('should not connect and throw error with IP list and non-synched Core', async () => {
@@ -184,9 +184,9 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NODE_ENV: 'test', PRIVATE_NETWORK: false })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NETWORK: 'testnet', PRIVATE_NETWORK: false })
       cores.setRP(async () => {
-        return { body: { environment: 'test', mode: 'public', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', mode: 'public', sync_info: { catching_up: false } } }
       })
     })
     it('should not connect and throw error with IP list and synched Core, insufficient count', async () => {
@@ -206,9 +206,9 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NODE_ENV: 'test', PRIVATE_NETWORK: false })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NETWORK: 'testnet', PRIVATE_NETWORK: false })
       cores.setRP(async () => {
-        return { body: { environment: 'test', mode: 'public', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', mode: 'public', sync_info: { catching_up: false } } }
       })
     })
     it('should connect with IP list and synched Core, sufficient count 1', async () => {
@@ -230,13 +230,13 @@ describe('Cores Methods', () => {
     before(() => {
       cores.setENV({
         CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'],
-        NODE_ENV: 'test',
+        NETWORK: 'testnet',
         PRIVATE_NETWORK: false
       })
       let counter = 1
       cores.setRP(async () => {
         return {
-          body: { environment: 'test', mode: 'public', sync_info: { catching_up: counter++ % 2 ? false : true } }
+          body: { network: 'testnet', mode: 'public', sync_info: { catching_up: counter++ % 2 ? false : true } }
         }
       })
     })
@@ -259,11 +259,11 @@ describe('Cores Methods', () => {
     before(() => {
       cores.setENV({
         CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'],
-        NODE_ENV: 'test',
+        NETWORK: 'testnet',
         PRIVATE_NETWORK: false
       })
       cores.setRP(async () => {
-        return { body: { environment: 'test', mode: 'public', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', mode: 'public', sync_info: { catching_up: false } } }
       })
     })
     it('should connect with IP list and synched Core, sufficient count 3', async () => {
@@ -287,12 +287,12 @@ describe('Cores Methods', () => {
       cores.setENV({
         CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'],
         NODE_ETH_ADDRESS: 'addr',
-        NODE_ENV: 'test',
+        NETWORK: 'testnet',
         PRIVATE_NETWORK: false
       })
       cores.setRP(async o => {
         options = o
-        return { body: { environment: 'test', mode: 'public', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', mode: 'public', sync_info: { catching_up: false } } }
       })
     })
     it('should use proper headers on Core requests', async () => {
@@ -378,13 +378,13 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ NODE_ENV: 'production', PRIVATE_NETWORK: false })
+      cores.setENV({ NETWORK: 'mainnet', PRIVATE_NETWORK: false })
       cores.setRP(async opts => {
         if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
-        return { body: { environment: 'test', mode: 'public', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', mode: 'public', sync_info: { catching_up: false } } }
       })
     })
-    it('should not connect with Core discovery and synched IP, env mismatch', async () => {
+    it('should not connect with Core discovery and synched IP, network mismatch', async () => {
       let coreConnectionCount = 1
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -401,10 +401,10 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ NODE_ENV: 'test', PRIVATE_NETWORK: true })
+      cores.setENV({ NETWORK: 'testnet', PRIVATE_NETWORK: true })
       cores.setRP(async opts => {
         if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
-        return { body: { environment: 'test', mode: 'public', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', mode: 'public', sync_info: { catching_up: false } } }
       })
     })
     it('should not connect with Core discovery and synched IP, mode mismatch', async () => {
@@ -424,10 +424,10 @@ describe('Cores Methods', () => {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ NODE_ENV: 'test', PRIVATE_NETWORK: false })
+      cores.setENV({ NETWORK: 'testnet', PRIVATE_NETWORK: false })
       cores.setRP(async opts => {
         if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
-        return { body: { environment: 'test', mode: 'public', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', mode: 'public', sync_info: { catching_up: false } } }
       })
     })
     it('should connect with Core discovery and synched IP', async () => {

@@ -61,8 +61,8 @@ async function checkRegistrationAsync() {
 async function startAsync() {
   try {
     logger.info(`App : Startup : Version ${version}`)
-    // display NODE_ENV value if not running in production mode
-    if (env.NODE_ENV !== 'production') logger.info(`App : Startup : ENV : ${env.NODE_ENV}`)
+    // display NETWORK value
+    logger.info(`App : Startup : Network : ${env.NETWORK}`)
     // display Private Mode if running in private mode
     if (env.PRIVATE_NETWORK) logger.info(`App : Startup : Private Network Mode`)
 

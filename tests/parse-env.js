@@ -156,6 +156,37 @@ describe('Environment variables', () => {
       done()
     })
   })
+
+  describe('valNetwork', () => {
+    it('should throw error with number', done => {
+      expect(() => {
+        parseEnv.valNetwork(234)
+      }).to.throw('The NETWORK value is invalid')
+      done()
+    })
+    it('should throw error with boolean', done => {
+      expect(() => {
+        parseEnv.valNetwork(true)
+      }).to.throw('The NETWORK value is invalid')
+      done()
+    })
+    it('should return mainnet on empty', done => {
+      let result = parseEnv.valNetwork('')
+      expect(result).to.equal('mainnet')
+      done()
+    })
+    it('should return mainnet on mainnet', done => {
+      let result = parseEnv.valNetwork('mainnet')
+      expect(result).to.equal('mainnet')
+      done()
+    })
+    it('should return testnet on testnet', done => {
+      let result = parseEnv.valNetwork('testnet')
+      expect(result).to.equal('testnet')
+      done()
+    })
+  })
+
   describe('valPrivateNetwork', () => {
     it('should throw error with number', done => {
       expect(() => {
