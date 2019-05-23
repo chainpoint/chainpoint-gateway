@@ -59,8 +59,10 @@
           "anchors": [
             {
               "type": "cal",
-              "anchor_id": "985635",
-              "uris": ["https://a.chainpoint.org/calendar/985635/hash"]
+              "anchor_id": "9f656ff0aa53b2cf7c85b8dbe3127ef9e141fdd25c70d2dc01768b3cf798261d",
+              "uris": [
+                "https://a.chainpoint.org/calendar/9f656ff0aa53b2cf7c85b8dbe3127ef9e141fdd25c70d2dc01768b3cf798261d/data"
+              ]
             }
           ]
         }

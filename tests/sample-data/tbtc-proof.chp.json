@@ -59,8 +59,10 @@
           "anchors": [
             {
               "type": "tcal",
-              "anchor_id": "985635",
-              "uris": ["https://a.chainpoint.org/calendar/985635/hash"]
+              "anchor_id": "9f656ff0aa53b2cf7c85b8dbe3127ef9e141fdd25c70d2dc01768b3cf798261d",
+              "uris": [
+                "https://a.chainpoint.org/calendar/9f656ff0aa53b2cf7c85b8dbe3127ef9e141fdd25c70d2dc01768b3cf798261d/data"
+              ]
             }
           ]
         }
@@ -190,8 +192,10 @@
               "anchors": [
                 {
                   "type": "tbtc",
-                  "anchor_id": "503275",
-                  "uris": ["https://a.chainpoint.org/calendar/985814/data"]
+                  "anchor_id": "549ea0ff2382858b9b29e3f3615afe2a537a4dbf76c1e58f73fe0e2b0220365e",
+                  "uris": [
+                    "https://a.chainpoint.org/calendar/549ea0ff2382858b9b29e3f3615afe2a537a4dbf76c1e58f73fe0e2b0220365e/data"
+                  ]
                 }
               ]
             }

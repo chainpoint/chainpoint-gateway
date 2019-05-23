@@ -24,10 +24,10 @@ describe('Verify Controller', () => {
     verify.setCores({
       getCachedTransactionAsync: async txId => {
         switch (txId) {
-          case '985635': {
+          case '9f656ff0aa53b2cf7c85b8dbe3127ef9e141fdd25c70d2dc01768b3cf798261d': {
             return { tx: { data: '4690932f928fb7f7ce6e6c49ee95851742231709360be28b7ce2af7b92cfa95b' } }
           }
-          case '985814': {
+          case '549ea0ff2382858b9b29e3f3615afe2a537a4dbf76c1e58f73fe0e2b0220365e': {
             return { tx: { data: 'c617f5faca34474bea7020d75c39cb8427a32145f9646586ecb9184002131ad9' } }
           }
           default: {
@@ -195,6 +195,32 @@ describe('Verify Controller', () => {
             .and.to.equal(
               `This is a 'mainnet' Node supporting 'cal' and 'btc' anchor types. Cannot verify 'tcal' anchors.`
             )
+          done()
+        })
+    })
+
+    it('should return successful result with invalid cal proof (json) and legacy anchor', done => {
+      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof-l.chp.json'))
+      calProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
+      request(insecureServer)
+        .post('/verify')
+        .set('Content-type', 'application/json')
+        .send({ proofs: [calProof] })
+        .expect('Content-type', /json/)
+        .expect(200)
+        .end((err, res) => {
+          expect(err).to.equal(null)
+          expect(res.body)
+            .to.be.a('array')
+            .and.to.have.length(1)
+          expect(res.body[0])
+            .to.have.property('proof_index')
+            .and.to.be.a('number')
+            .and.to.equal(0)
+          expect(res.body[0])
+            .to.have.property('status')
+            .and.to.be.a('string')
+            .and.to.equal(`Cannot verify legacy anchors.`)
           done()
         })
     })
@@ -969,6 +995,32 @@ describe('Verify Controller', () => {
             .and.to.equal(
               `This is a 'testnet' Node supporting 'tcal' and 'tbtc' anchor types. Cannot verify 'cal' anchors.`
             )
+          done()
+        })
+    })
+
+    it('should return successful result with invalid tbtc proof (json) and legacy anchor', done => {
+      let tbtcProof = JSON.parse(fs.readFileSync('./tests/sample-data/tbtc-proof-l.chp.json'))
+      tbtcProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
+      request(insecureServer)
+        .post('/verify')
+        .set('Content-type', 'application/json')
+        .send({ proofs: [tbtcProof] })
+        .expect('Content-type', /json/)
+        .expect(200)
+        .end((err, res) => {
+          expect(err).to.equal(null)
+          expect(res.body)
+            .to.be.a('array')
+            .and.to.have.length(1)
+          expect(res.body[0])
+            .to.have.property('proof_index')
+            .and.to.be.a('number')
+            .and.to.equal(0)
+          expect(res.body[0])
+            .to.have.property('status')
+            .and.to.be.a('string')
+            .and.to.equal(`Cannot verify legacy anchors.`)
           done()
         })
     })
