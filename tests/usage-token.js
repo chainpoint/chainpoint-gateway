@@ -258,6 +258,43 @@ describe('Usage Token Methods', () => {
   })
 
   describe('getActiveUsageTokenAsync', () => {
+    let audIPs = ['65.1.1.1', '65.1.1.2', '65.1.1.3']
+    let coreIPs = ['65.1.1.2', '65.1.1.3', '65.1.1.1']
+    const payloadOld = {
+      exp: Math.ceil(Date.now() / 1000) - 60 * 60, // 1 hour ago
+      bal: 27,
+      aud: audIPs.join(',')
+    }
+    const payloadNew = {
+      exp: Math.ceil(Date.now() / 1000) + 60 * 60, // 1 hour in the future
+      bal: 26,
+      aud: audIPs.join(',')
+    }
+    const privateKey = ECDSA.generateKey()
+    const oldToken = jwt.sign(payloadOld, privateKey.toPEM(), { algorithm: 'ES256' })
+    const newToken = jwt.sign(payloadNew, privateKey.toPEM(), { algorithm: 'ES256' })
+    let storedToken = ''
+    before(() => {
+      usageToken.setENV({ PRIVATE_NETWORK: false })
+      usageToken.setRocksDB({
+        getUsageTokenAsync: () => oldToken,
+        setUsageTokenAsync: val => {
+          storedToken = val
+        }
+      })
+      usageToken.setCores({
+        getCoreConnectedIPs: () => coreIPs,
+        refreshUsageTokenAsync: () => newToken
+      })
+    })
+    it('should refresh expired token with balance and aud IPs in different order', async () => {
+      let activeToken = await usageToken.getActiveUsageTokenAsync()
+      expect(activeToken).to.equal(newToken)
+      expect(storedToken).to.equal(newToken)
+    })
+  })
+
+  describe('getActiveUsageTokenAsync', () => {
     let coreIPs = ['65.1.1.1', '65.1.1.2', '65.1.1.3']
     const payloadOld = {
       exp: Math.ceil(Date.now() / 1000) + 60 * 60, // 1 hour in the future
