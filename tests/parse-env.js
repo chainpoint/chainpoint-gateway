@@ -116,6 +116,12 @@ describe('Environment variables', () => {
       }).to.throw('The Core IP list is invalid')
       done()
     })
+    it('should throw error with duplicate IP in group', done => {
+      expect(() => {
+        parseEnv.valCoreIPList('65.1.1.1,65.1.1.1,10.165.32.31')
+      }).to.throw('The Core IPs cannot contain duplicates')
+      done()
+    })
     it('should return success with valid IP list', done => {
       let result = parseEnv.valCoreIPList('65.1.1.1,FE80::0202:B3FF:FE1E:8329,10.165.32.31')
       expect(result).to.deep.equal(['65.1.1.1', 'FE80::0202:B3FF:FE1E:8329', '10.165.32.31'])
