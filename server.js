@@ -36,7 +36,7 @@ async function checkRegistrationAsync() {
   if (env.PRIVATE_NETWORK) return
 
   let attempt = 1
-  let attemptCount = 20
+  let attemptCount = 8
   let retryDelaySeconds = 30
   while (attempt <= attemptCount) {
     try {
