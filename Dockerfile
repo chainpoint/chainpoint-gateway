@@ -36,7 +36,8 @@ COPY artifacts /home/node/app/artifacts
 #COPY ./cert.crt /home/node/app/
 #COPY ./cert.key /home/node/app/
 
-ADD cli /home/node/app/cli
+RUN mkdir -p /home/node/app/cli
+COPY cli /home/node/app/cli
 
 EXPOSE 80
 
