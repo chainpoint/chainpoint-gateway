@@ -10,7 +10,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
+if (process.env.NODE_ENV === 'development' || process.env.NETWORK === 'testnet') {
+  require('@google-cloud/profiler').start({
+    serviceContext: {
+      service: 'chainpoint-node-v2',
+      version: '2.0.0'
+    }
+  })
+}
 // load environment variables
 const env = require('./lib/parse-env.js').env
 
