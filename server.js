@@ -10,16 +10,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// load environment variables
+const env = require('./lib/parse-env.js').env
+
 if (process.env.NODE_ENV === 'development' || process.env.NETWORK === 'testnet') {
   require('@google-cloud/profiler').start({
     serviceContext: {
-      service: 'chainpoint-node-v2',
+      service: `chainpoint-node-v2-${env.NODE_PUBLIC_IP_ADDRESS}`,
       version: '2.0.0'
     }
   })
 }
-// load environment variables
-const env = require('./lib/parse-env.js').env
 
 const apiServer = require('./lib/api-server.js')
 const aggregator = require('./lib/aggregator.js')
