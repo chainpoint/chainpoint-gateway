@@ -547,7 +547,7 @@ describe('Cores Methods', () => {
       } catch (err) {
         errResponse = err
       }
-      expect(errResponse.message).to.equal('Invalid response on GET proof : 500')
+      expect(errResponse.message).to.equal('Invalid response on GET proof : 500 : Bad IP!!!!!')
     })
   })
 
@@ -565,7 +565,7 @@ describe('Cores Methods', () => {
       } catch (err) {
         errResponse = err
       }
-      expect(errResponse.message).to.equal('Invalid response received on GET proof')
+      expect(errResponse.message).to.equal('Invalid response received on GET proof : Error!')
     })
   })
 
