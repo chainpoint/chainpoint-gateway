@@ -42,3 +42,8 @@ services:
       - NODE_ETH_ADDRESS
       - NODE_ETH_PRIVATE_KEY
     tty: true
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://logs.papertrailapp.com:27635"
+        tag: "chp-node/{{.Name}}/{{.ID}}"
