@@ -9,7 +9,9 @@ const cores = require('../lib/cores.js')
 
 const { version } = require('../package.json')
 
-describe('Cores Methods', () => {
+describe('Cores Methods', function() {
+  this.timeout(5000)
+
   describe('startPruneExpiredItemsInterval', () => {
     it('should initiate interval as expected', async () => {
       let interval = cores.startPruneExpiredItemsInterval()

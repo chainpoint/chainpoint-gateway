@@ -179,7 +179,24 @@ describe('Cached Proofs Methods', () => {
         .and.to.equal(null)
       expect(results[1]).to.not.have.property('anchorsComplete')
       expect(cache).to.be.a('object')
-      expect(cache).to.deep.equal({})
+      expect(cache).to.have.property(submitId1)
+      expect(cache[submitId1]).to.be.a('object')
+      expect(cache[submitId1]).to.have.property('coreProof')
+      expect(cache[submitId1].coreProof).to.equal(null)
+      expect(cache[submitId1]).to.have.property('expiresAt')
+      expect(cache[submitId1].expiresAt)
+        .to.be.a('number')
+        .and.to.be.greaterThan(Date.now() + 0.9 * 60 * 1000)
+        .and.to.be.lessThan(Date.now() + 1.5 * 60 * 1000)
+      expect(cache).to.have.property(submitId2)
+      expect(cache[submitId2]).to.be.a('object')
+      expect(cache[submitId2]).to.have.property('coreProof')
+      expect(cache[submitId2].coreProof).to.equal(null)
+      expect(cache[submitId2]).to.have.property('expiresAt')
+      expect(cache[submitId2].expiresAt)
+        .to.be.a('number')
+        .and.to.be.greaterThan(Date.now() + 0.9 * 60 * 1000)
+        .and.to.be.lessThan(Date.now() + 1.1 * 60 * 1000)
     })
   })
 
@@ -406,12 +423,14 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, cached and non-cached hash_ids', () => {
-    let in15Minutes = Date.now() + 15 * 60 * 1000
+  describe('getCachedCoreProofsAsync with valid, cached and non-cached hash_ids, cache a null result', () => {
+    let in15Minutes = Date.now() + 15 * 60 * 100
     let hashId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let hashId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
+    let hashId3 = '66bd6380-f4e7-11e7-895d-0176dc2220ff'
     let submitId1 = '77a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let submitId2 = '77bd6380-f4e7-11e7-895d-0176dc2220aa'
+    let submitId3 = '77bd6380-f4e7-11e7-895d-0176dc2220ff'
     let ip = '65.1.1.1'
     let submission1 = {
       submitId: submitId1,
@@ -421,6 +440,10 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, hashIdCore: hashId2 }]
     }
+    let submission3 = {
+      submitId: submitId3,
+      cores: [{ ip: ip, hashIdCore: hashId3 }]
+    }
     let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
     let cacheContents = {
@@ -429,15 +452,15 @@ describe('Cached Proofs Methods', () => {
     before(() => {
       cachedProofs.setCoreProofCache(cacheContents)
       cachedProofs.setCores({
-        getProofsAsync: () => [{ hash_id: hashId1, proof: proofObj1 }]
+        getProofsAsync: () => [{ hash_id: hashId1, proof: proofObj1 }, { hash_id: hashId3, proof: null }]
       })
       cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
     it('should return expected value', async () => {
-      let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2])
+      let results = await cachedProofs.getCachedCoreProofsAsync([submission1, submission2, submission3])
       let cache = cachedProofs.getCoreProofCache()
       expect(results).to.be.a('array')
-      expect(results.length).to.equal(2)
+      expect(results.length).to.equal(3)
       expect(results[0]).to.be.a('object')
       expect(results[0])
         .to.have.property('submitId')
@@ -469,6 +492,13 @@ describe('Cached Proofs Methods', () => {
       expect(results[1].anchorsComplete[1])
         .to.be.a('string')
         .and.to.equal('btc')
+      expect(results[2]).to.be.a('object')
+      expect(results[2])
+        .to.have.property('submitId')
+        .and.to.equal(submitId3)
+      expect(results[2])
+        .to.have.property('proof')
+        .and.to.equal(null)
       expect(cache).to.be.a('object')
       expect(cache).to.have.property(submitId1)
       expect(cache[submitId1]).to.be.a('object')
@@ -485,10 +515,19 @@ describe('Cached Proofs Methods', () => {
       expect(cache[submitId2].coreProof).to.deep.equal(proofObj2)
       expect(cache[submitId2]).to.have.property('expiresAt')
       expect(cache[submitId2].expiresAt).to.equal(in15Minutes)
+      expect(cache).to.have.property(submitId3)
+      expect(cache[submitId3]).to.be.a('object')
+      expect(cache[submitId3]).to.have.property('coreProof')
+      expect(cache[submitId3].coreProof).to.equal(null)
+      expect(cache[submitId3]).to.have.property('expiresAt')
+      expect(cache[submitId3].expiresAt)
+        .to.be.a('number')
+        .and.to.be.greaterThan(Date.now() + 0.9 * 60 * 1000)
+        .and.to.be.lessThan(Date.now() + 1.1 * 60 * 1000)
     })
   })
 
-  describe('getCachedCoreProofsAsync with mixed, cached and unknown hash_ids', () => {
+  describe('getCachedCoreProofsAsync with mixed, cached and unknown hash_ids, cache a null result', () => {
     let in15Minutes = Date.now() + 15 * 60 * 1000
     let hashId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let hashId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -545,7 +584,21 @@ describe('Cached Proofs Methods', () => {
         .to.be.a('string')
         .and.to.equal('btc')
       expect(cache).to.be.a('object')
-      expect(cache).to.deep.equal(cacheContents)
+      expect(cache).to.have.property(submitId2)
+      expect(cache[submitId2]).to.be.a('object')
+      expect(cache[submitId2]).to.have.property('coreProof')
+      expect(cache[submitId2].coreProof).to.deep.equal(proofObj2)
+      expect(cache[submitId2]).to.have.property('expiresAt')
+      expect(cache[submitId2].expiresAt).to.equal(in15Minutes)
+      expect(cache).to.have.property(submitId1)
+      expect(cache[submitId1]).to.be.a('object')
+      expect(cache[submitId1]).to.have.property('coreProof')
+      expect(cache[submitId1].coreProof).to.equal(null)
+      expect(cache[submitId1]).to.have.property('expiresAt')
+      expect(cache[submitId1].expiresAt)
+        .to.be.a('number')
+        .and.to.be.greaterThan(Date.now() + 0.9 * 60 * 1000)
+        .and.to.be.lessThan(Date.now() + 1.5 * 60 * 1000)
     })
   })
 
@@ -602,8 +655,19 @@ describe('Cached Proofs Methods', () => {
         .to.be.a('string')
         .and.to.equal('btc')
       expect(cache).to.be.a('object')
+      expect(cache).to.have.property(submitId1)
+      expect(cache[submitId1]).to.be.a('object')
+      expect(cache[submitId1]).to.have.property('coreProof')
+      expect(cache[submitId1].coreProof).to.equal(null)
+      expect(cache[submitId1]).to.have.property('expiresAt')
+      expect(cache[submitId1].expiresAt)
+        .to.be.a('number')
+        .and.to.be.greaterThan(Date.now() + 0.9 * 60 * 1000)
+        .and.to.be.lessThan(Date.now() + 1.1 * 60 * 60 * 1000)
       expect(cache).to.have.property(submitId2)
       expect(cache[submitId2]).to.be.a('object')
+      expect(cache[submitId2]).to.have.property('coreProof')
+      expect(cache[submitId2].coreProof).to.equal(proofObj2)
       expect(cache[submitId2]).to.have.property('expiresAt')
       expect(cache[submitId2].expiresAt)
         .to.be.a('number')
