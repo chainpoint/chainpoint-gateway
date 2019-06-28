@@ -79,7 +79,7 @@
     "ramda": "^0.26.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
-    "restify": "^7.7.0",
+    "restify": "^8.3.3",
     "restify-cors-middleware": "^1.1.1",
     "restify-errors": "^6.1.1",
     "url": "^0.11.0",
