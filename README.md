@@ -70,6 +70,7 @@ At minimum, the following software is required for any installation of Core:
 - `*Nix-based OS (Ubuntu Linux and MacOS have been tested)`
 - `BASH`
 - `Git`
+- `Docker`
 
 Provided BASH is installed, a script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be found [here](https://github.com/chainpoint/chainpoint-core/blob/master/cli/scripts/install_deps.sh).
 
@@ -87,57 +88,38 @@ The above make command will download all other dependencies and run an interacti
 
 ### Configuration
 
-After running the installation commands above, you will need to send an appropriate balance of ETH & \$TKN. Your newly generated hot wallet will need an adequate amount of ETH to cover future Ethereum transaction fees for registering into the Chainpoint Network, and purchase Usage Tokens that grant your Node access to participate in the Network for durations of time.
+First, you will have to run the following command to initate your Node:
 
-Chainpoint Node currently uses Docker Swarm when running in Production mode. Running `make init` will initialize a Docker Swarm node on the host machine and generate a new hot wallet. It is important that you securely store your new Ethereum private key. Subsequent `make` commands will continue the configuration and Chainpoint Network registration process. All secrets will be stored in Swarm's secrets system.
-This command will also copy `.env.sample` to `.env`. The `.env` file will be used by `docker-compose` to set required environment variables.
-
-There are further settings found in the `.env.sample` and `swarm-compose.yaml` file.
-These are more permanent and altering them may cause problems connecting to the public Chainpoint testnets and mainnet.
-However, they may be invaluable for setting up a private Chainpoint Network with different parameters, for example by configuring more frequent bitcoin anchoring or excluding the smart contract registration requirement.
-
-## Development
-
-### Prerequisites
-
-In order to run a Node in development these instructions assume
-you have already installed both the `docker` and `docker-compose`
-commands as appropriate for your system.
-
-### Code Formatting & Linting
-
-This project makes use of [Prettier](https://prettier.io/) & [ESLint](https://eslint.org/) to maintain clean, and consistently styled, code.
-
-You can run ESLint manually using the CLI:
-
-For the Chainpoint Node JS Source:
-
-```sh
-./node_modules/.bin/eslint . --ignore-pattern '/ui/'
+```
+make init
 ```
 
-For the Chainpoint Node UI:
+After running the initiation command above, you will now have a newly generated Ethereum hot wallet. This wallet will need an adequate amount of ETH to cover future Ethereum transaction fees for registering into the Chainpoint Network, and the purchase Usage Tokens that grant your Node access to participate in the Network for durations of time.
 
-```sh
-./node_modules/.bin/eslint ./ui/
+Chainpoint Node currently uses Docker Swarm when running in Production mode. Running `make init` will initialize a Docker Swarm node on the host machine. It is important that you securely store your new Ethereum private key displayed in the console after running the init command. Your Ethereum hot wallet address and private key will be stored as Docker Swarm secrets and accessed by the Chainpoint Node when needed. Subsequent `make` commands will use these new secrets to copmlete the Chainpoint Network registration process and assume its duties as an operating Chainpoint Node. The init command will also copy `.env.sample` to `.env`. The `.env` file will be used by `docker-compose` to set required environment variables. Please open the `.env` file and where appropriate edit any missing or default values.
+
+Reference the `.env.sample` for detailed descriptions and examples of global environment variables Chainpoint Nodes use during operation.
+
+### Registering Your Chainpoint Node
+
+After configuring your Node, if you wish to join a public network, you must complete the registration steps listed below.
+
+An interactive registration process can be prompted by running the following commnad:
+
+```
+make register
 ```
 
-You can run Prettier manually to see which files would be re-formatted by it. For example:
+Please fill out the interactive form to begin the registration process. Note, make sure you have sent a small amount of Ethereum and enough \$TKNs to cover the registration amount to your Node's ethereum hot wallet address before attempting to register.
 
-```sh
-./node_modules/.bin/prettier -l lib/**/*.js
-```
+The registration process consists of two Ethereum transactions created by your Chainpoint Node and broadcast to the Ethereum Network: 1) Invoking the `approve()` method of the $TKN contract to allow the Chainpoint Registry contract to transfer a predefined amount of $TKNs for registration, 2) Invoking the `stake()` method of the Chainpoint Registry contract to create a record for your Node within the Chainpoint Registry and stake your \$TKNs for the duration of your Node's registration.
 
-This project is coded in the [Visual Studio Code](https://code.visualstudio.com/) IDE and we use the following plugins to auto-format and report on linting issues during development:
-
-[vscode-eslint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
-
-[EditorConfig](https://marketplace.visualstudio.com/items?itemName=EditorConfig.EditorConfig)
+The registration process can take up to a few minutes. If your Node experiences trouble registering, please reference the FAQ section.
 
 ### Running The Server
 
 ```sh
-cd chainpoint-node
+cd chainpoint-node-src
 
 # Copy the `.env.sample` to `.env`
 make build-config
