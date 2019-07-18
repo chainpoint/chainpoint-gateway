@@ -116,24 +116,15 @@ The registration process consists of two Ethereum transactions created by your C
 
 The registration process can take up to a few minutes. If your Node experiences trouble registering, please reference the FAQ section.
 
-### Running The Server
+### Starting Your Chainpoint Node
 
-```sh
-cd chainpoint-node-src
+After initializing & configuring your Node, you can start your Node by running the following:
 
-# Copy the `.env.sample` to `.env`
-make build-config
-
-# Edit the .env file as appropriate
-# Note that in development you'll likely want
-# to leave the `CHAINPOINT_NODE_PUBLIC_URI`
-# value empty to run a private Node.
-vi .env
-
-make up
+```
+make deploy
 ```
 
-Run `make help` to learn about additional control and build commands.
+This command will start your Node and grant it the ability to start interacting with the Chainpoint Network and accept incoming hashes from clients.
 
 ### Connect to Node Dashboard
 
@@ -148,6 +139,50 @@ Node Dashboard Password Scenarios:
 ## Node Public API
 
 Every Node provides a public HTTP API. This is documented in greater detail on the [Node HTTP API wiki](https://github.com/chainpoint/chainpoint-node/wiki/Node-HTTP-API)
+
+# FAQs
+
+## Initializing Your Node
+
+### How is the Chainpoint Node using Docker Swarm Secrets?
+
+The Chainpoint Node currently creates two secrets managed by Docker Swarm: 1) ETH_ADDRESS, 2) ETH_PRIVATE_KEY. You can view your systems secrets by running the following command: `docker secret ls`.
+
+### How can I generate a new Ethereum Hot Wallet for my Node?
+
+Start by purging existing Docker swarm secrets by running:
+
+```
+docker swarm leave --force
+```
+
+After leaving the swarm, you can run `make init` to re-initiazlie your Node and create a new Ethereum hot wallet. NOTE: that after running the above commands, your node containing new Ethereum credentials will not be registered onto the Chainpoint Network, thus must follow the registration steps listed above - "Registering Your Chainpoint Node"
+
+## Registering Your Node
+
+### Why is my Node failing to register?
+
+The two most common reasons why your node is failing to register are as follows: 1) you have forgotten to send a small amount of ETH to cover ethereum transaction gas costs, 2) you have forgotten to send the min. amount of \$TKNs to meet the staking requirement.
+
+Please make sure that your Node's Ethereum hot wallet address has the appropriate amount of ETH & \$TKN
+
+### My Node has enough ETH & \$TKNs to cover registration but is still failing to register. Why?
+
+Please make sure that you have not previously registered onto the Chainpoint Network using previously. The Chainpoint Network enforces a unique pair of Ethereum Address and IPv4 addresses to successfully register. You can query the Chainpoint Registry smart contract to verify if the Ethereum address and IPv4 address are unique.
+
+### I'm still experiencing Node Registration problems, what can I do?
+
+If you are experiencing persistent registration issues, try following the steps towards re-initializing your node which will result in a new Ethereum Hot Wallet that you can use to attempt to register onto the Chainpoint Network
+
+## Usage Tokens
+
+### How do I acquire a Usage Token for my Node?
+
+The acquisition of Usage Tokens is an automated process that begins once your Chainpoint Node has been fully bootstrapped and started. There is a cost associated in purchasing Usage Tokens so make sure that your Node's Ethereum Hot Wallet has enough \$TKNs to cover the purchase cost.
+
+### What happens when my Node's Usage Token runs out of Credit(s)?
+
+The Node will automatically identify when its Usage Token has expired and will trigger an automatic process to purchase a new Usage Token. Please make sure that your Node's Ethereum hot wallet has a sufficient amount of \$TKNs to cover the purchase cost.
 
 ## License
 
