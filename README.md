@@ -86,7 +86,7 @@ make init
 
 The above make command will download all other dependencies and run an interactive setup wizard. The process is detailed in `Configuration` below.
 
-### Configuration
+### Initiating Your Chainpoint Node
 
 First, you will have to run the following command to initate your Node:
 
