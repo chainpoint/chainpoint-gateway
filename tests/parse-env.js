@@ -52,26 +52,6 @@ describe('Environment variables', () => {
     })
   })
 
-  describe('valNodeUIPassword', () => {
-    it('should allow and return empty string', done => {
-      let result = parseEnv.valNodeUIPassword('')
-      expect(result).to.equal('')
-      done()
-    })
-    it('should throw error when not alpha-numeric', done => {
-      expect(() => {
-        parseEnv.valNodeUIPassword('bad_password')
-      }).to.throw('The CHAINPOINT_NODE_UI_PASSWORD is invalid')
-      done()
-    })
-    it('should return password when valid', done => {
-      let pw = 'goodpw1234'
-      let result = parseEnv.valNodeUIPassword(pw)
-      expect(result).to.equal(pw)
-      done()
-    })
-  })
-
   describe('valCoreIPList', () => {
     it('should return success with empty string', done => {
       let result = parseEnv.valCoreIPList('')

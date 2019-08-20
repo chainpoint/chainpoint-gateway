@@ -124,16 +124,6 @@ make deploy
 
 This command will start your Node and grant it the ability to start interacting with the Chainpoint Network and accept incoming hashes from clients.
 
-### Connect to Node Dashboard
-
-Navigate to `http://<node_ip_address>` in a web browser. Your Node's Dashboard can be password protected if desired. By default you will need to supply the valid Ethereum Address you have used to register the particular node you are connecting to in order to authenticate successfully.
-
-Node Dashboard Password Scenarios:
-
-1. Default: Password is initially set to your Ethereum Address
-2. Using a Custom Password: If you wish to specify your own password. Edit the '.env' file and add a new environment variable named 'CHAINPOINT_NODE_UI_PASSWORD' with the value of your new password assigned to it (ex. CHAINPOINT_NODE_UI_PASSWORD=password1)
-3. PUBLIC Dashboard: You can optionally make your Node's Dashboard public to the web. Simply set 'CHAINPOINT_NODE_UI_PASSWORD=false'
-
 ## Node Public API
 
 Every Node provides a public HTTP API. This is documented in greater detail on the [Node HTTP API wiki](https://github.com/chainpoint/chainpoint-node/wiki/Node-HTTP-API)
