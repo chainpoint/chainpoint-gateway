@@ -11,7 +11,7 @@ module.exports = {
   NODE_PUBLIC_IP_ADDRESS: {
     type: 'input',
     name: 'NODE_PUBLIC_IP_ADDRESS',
-    message: "Enter your Node's Public IP Address (optional: leave blank if private Node)",
+    message: "Enter your Node's Public IP Address",
     validate: input => {
       if (input) {
         return validator.isIP(input, 4)

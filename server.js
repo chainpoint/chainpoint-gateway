@@ -29,9 +29,6 @@ async function openStorageConnectionAsync() {
 }
 
 async function checkRegistrationAsync() {
-  // If this is in Private Network Mode, skip Registration check, as it does not apply
-  if (env.PRIVATE_NETWORK) return
-
   let attempt = 1
   let attemptCount = 2000
   let retryDelaySeconds = 30
@@ -60,8 +57,6 @@ async function startAsync() {
     logger.info(`App : Startup : Version ${version}`)
     // display NETWORK value
     logger.info(`App : Startup : Network : ${env.NETWORK}`)
-    // display Private Mode if running in private mode
-    if (env.PRIVATE_NETWORK) logger.info(`App : Startup : Private Network Mode`)
 
     await openStorageConnectionAsync()
 
@@ -72,14 +67,8 @@ async function startAsync() {
     // Perform a few retries in case the Node is in the process of being registered
     await checkRegistrationAsync()
 
-    // Validate CHAINPOINT_NODE_PUBLIC_URI, CHAINPOINT_NODE_PRIVATE_URI & CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE if either env variable is set in .env
-    utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI, false)
-    if (env.CHAINPOINT_NODE_PRIVATE_URI !== '') {
-      utils.validateNodeUri(env.CHAINPOINT_NODE_PRIVATE_URI, true)
-    }
-    if (env.CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE !== '') {
-      utils.validateReflectedUri(env.CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE)
-    }
+    // Validate CHAINPOINT_NODE_PUBLIC_URI set in .env
+    utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI)
 
     await eventMetrics.loadMetricsAsync()
     await apiServer.startAsync()
