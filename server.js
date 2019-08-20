@@ -21,7 +21,6 @@ const rocksDB = require('./lib/models/RocksDB.js')
 const utils = require('./lib/utils.js')
 const cachedProofs = require('./lib/cached-proofs.js')
 const cores = require('./lib/cores.js')
-const usageToken = require('./lib/usage-token.js')
 const logger = require('./lib/logger.js')
 
 // establish a connection with the database
@@ -80,13 +79,6 @@ async function startAsync() {
     }
     if (env.CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE !== '') {
       utils.validateReflectedUri(env.CHAINPOINT_NODE_REFLECT_PUBLIC_OR_PRIVATE)
-    }
-
-    // get the active JWT usage token, refresh/acquire as needed, report any errors on startup
-    try {
-      await usageToken.getActiveUsageTokenAsync()
-    } catch (err) {
-      logger.error(`Usage Token : ${err.message}`)
     }
 
     await eventMetrics.loadMetricsAsync()

@@ -455,7 +455,7 @@ describe('Cores Methods', function() {
       })
     })
     it('should return [] on 1 of 1 item failure', async () => {
-      let result = await cores.submitHashAsync('deadbeefcafe', 'token')
+      let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(0)
     })
@@ -469,7 +469,7 @@ describe('Cores Methods', function() {
       })
     })
     it('should succeed on 1 of 1 item submitted', async () => {
-      let result = await cores.submitHashAsync('deadbeefcafe', 'token')
+      let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(1)
       expect(result[0]).to.be.a('object')
@@ -490,7 +490,7 @@ describe('Cores Methods', function() {
       })
     })
     it('should succeed on 2 of 3 item submitted, one bad IP', async () => {
-      let result = await cores.submitHashAsync('deadbeefcafe', 'token')
+      let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(2)
       expect(result[0]).to.be.a('object')
@@ -514,7 +514,7 @@ describe('Cores Methods', function() {
       })
     })
     it('should succeed on 3 of 3 item submitted', async () => {
-      let result = await cores.submitHashAsync('deadbeefcafe', 'token')
+      let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(3)
       expect(result[0]).to.be.a('object')
@@ -741,74 +741,6 @@ describe('Cores Methods', function() {
     })
   })
 
-  describe('refreshUsageTokenAsync', () => {
-    before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
-      cores.setRP(async () => {
-        throw 'Error!'
-      })
-    })
-    it('should return null with no response/bad response', async () => {
-      let errResponse = null
-      try {
-        await cores.refreshUsageTokenAsync('token')
-      } catch (err) {
-        errResponse = err
-      }
-      expect(errResponse.message).to.equal('Invalid response on POST /usagetoken/refresh')
-    })
-  })
-
-  describe('refreshUsageTokenAsync', () => {
-    let token = 'token'
-    before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
-      cores.setRP(async () => {
-        return { body: { token: token } }
-      })
-    })
-    it('should return token on success', async () => {
-      let response = await cores.refreshUsageTokenAsync('token')
-      expect(response).to.be.a('string')
-      expect(response).to.equal(token)
-    })
-  })
-
-  describe('updateUsageTokenAudienceAsync', () => {
-    let coreIPs = ['65.1.1.1,65.1.1.2,65.1.1.3']
-    before(() => {
-      cores.setCoreConnectedIPs(coreIPs)
-      cores.setRP(async () => {
-        throw 'Error!'
-      })
-    })
-    it('should return null with no response/bad response', async () => {
-      let errResponse = null
-      try {
-        await cores.updateUsageTokenAudienceAsync(coreIPs.join(','), 'token')
-      } catch (err) {
-        errResponse = err
-      }
-      expect(errResponse.message).to.equal('Invalid response on POST /usagetoken/audience')
-    })
-  })
-
-  describe('updateUsageTokenAudienceAsync', () => {
-    let coreIPs = ['65.1.1.1,65.1.1.2,65.1.1.3']
-    let token = 'token'
-    before(() => {
-      cores.setCoreConnectedIPs(coreIPs)
-      cores.setRP(async () => {
-        return { body: { token: token } }
-      })
-    })
-    it('should return token on success', async () => {
-      let response = await cores.updateUsageTokenAudienceAsync(coreIPs.join(','), 'token')
-      expect(response).to.be.a('string')
-      expect(response).to.equal(token)
-    })
-  })
-
   describe('getETHStatsByAddressAsync', () => {
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1'])
@@ -840,38 +772,6 @@ describe('Cores Methods', function() {
       let response = await cores.getETHStatsByAddressAsync(false, nodeAddr)
       expect(response).to.be.a('object')
       expect(response).to.deep.equal(stats)
-    })
-  })
-
-  describe('purchaseCreditsAsync', () => {
-    before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
-      cores.setRP(async () => {
-        throw 'Error!'
-      })
-    })
-    it('should return null with no response/bad response', async () => {
-      let errResponse = null
-      try {
-        await cores.purchaseCreditsAsync('txHex')
-      } catch (err) {
-        errResponse = err
-      }
-      expect(errResponse.message).to.equal('Invalid response on POST /usagetoken/credit')
-    })
-  })
-
-  describe('purchaseCreditsAsync', () => {
-    before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
-      cores.setRP(async () => {
-        return { body: { token: 'usagetokencontent' } }
-      })
-    })
-    it('should return token string on success', async () => {
-      let response = await cores.purchaseCreditsAsync('txHex')
-      expect(response).to.be.a('string')
-      expect(response).to.equal('usagetokencontent')
     })
   })
 })

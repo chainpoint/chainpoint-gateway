@@ -20,40 +20,5 @@ module.exports = {
       }
     },
     externalValidate: input => !isEmpty(input) && validator.isIP(input, 4)
-  },
-  AUTO_REFILL_ENABLED: {
-    type: 'list',
-    name: 'AUTO_REFILL_ENABLED',
-    message: 'Enable automatic acquisition of credit when balance reaches 0?',
-    choices: [
-      {
-        name: 'Enable',
-        value: true
-      },
-      {
-        name: 'Disable',
-        value: false
-      }
-    ],
-    validate: input => {
-      if (isEmpty(input)) return false
-
-      if (input === true || input === 'true') return true
-      else return false
-    },
-    default: true
-  },
-  AUTO_REFILL_AMOUNT: {
-    type: 'number',
-    name: 'AUTO_REFILL_AMOUNT',
-    message: 'Enter Auto Refill Amount - specify in number of Credits (optional: specify if auto refill is enabled)',
-    default: 720,
-    validate: (val, answers) => {
-      if (answers['AUTO_REFILL_ENABLED'] == true || answers['AUTO_REFILL_ENABLED'] == 'true') {
-        return val >= 1 && val <= 8760
-      } else {
-        return val >= 0 && val <= 8760
-      }
-    }
   }
 }

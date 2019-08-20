@@ -94,8 +94,6 @@ First, you will have to run the following command to initate your Node:
 make init
 ```
 
-After running the initiation command above, you will now have a newly generated Ethereum hot wallet. This wallet will need an adequate amount of ETH to cover future Ethereum transaction fees for registering into the Chainpoint Network, and the purchase Usage Tokens that grant your Node access to participate in the Network for durations of time.
-
 Chainpoint Node currently uses Docker Swarm when running in Production mode. Running `make init` will initialize a Docker Swarm node on the host machine. It is important that you securely store your new Ethereum private key displayed in the console after running the init command. Your Ethereum hot wallet address and private key will be stored as Docker Swarm secrets and accessed by the Chainpoint Node when needed. Subsequent `make` commands will use these new secrets to copmlete the Chainpoint Network registration process and assume its duties as an operating Chainpoint Node. The init command will also copy `.env.sample` to `.env`. The `.env` file will be used by `docker-compose` to set required environment variables. Please open the `.env` file and where appropriate edit any missing or default values.
 
 Reference the `.env.sample` for detailed descriptions and examples of global environment variables Chainpoint Nodes use during operation.
@@ -173,16 +171,6 @@ Please make sure that you have not previously registered onto the Chainpoint Net
 ### I'm still experiencing Node Registration problems, what can I do?
 
 If you are experiencing persistent registration issues, try following the steps towards re-initializing your node which will result in a new Ethereum Hot Wallet that you can use to attempt to register onto the Chainpoint Network
-
-## Usage Tokens
-
-### How do I acquire a Usage Token for my Node?
-
-The acquisition of Usage Tokens is an automated process that begins once your Chainpoint Node has been fully bootstrapped and started. There is a cost associated in purchasing Usage Tokens so make sure that your Node's Ethereum Hot Wallet has enough \$TKNs to cover the purchase cost.
-
-### What happens when my Node's Usage Token runs out of Credit(s)?
-
-The Node will automatically identify when its Usage Token has expired and will trigger an automatic process to purchase a new Usage Token. Please make sure that your Node's Ethereum hot wallet has a sufficient amount of \$TKNs to cover the purchase cost.
 
 ## License
 

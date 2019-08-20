@@ -128,40 +128,6 @@ describe('Environment variables', () => {
       done()
     })
   })
-  describe('valAutoAcquire', () => {
-    it('should throw error with number', done => {
-      expect(() => {
-        parseEnv.valAutoAcquire(0)
-      }).to.throw('The AUTO_REFILL_ENABLED value is invalid')
-      done()
-    })
-    it('should throw error with not true/false string', done => {
-      expect(() => {
-        parseEnv.valAutoAcquire('maybe')
-      }).to.throw('The AUTO_REFILL_ENABLED value is invalid')
-      done()
-    })
-    it('should return true on TRUE', done => {
-      let result = parseEnv.valAutoAcquire('TRUE')
-      expect(result).to.equal(true)
-      done()
-    })
-    it('should return true on true', done => {
-      let result = parseEnv.valAutoAcquire('true')
-      expect(result).to.equal(true)
-      done()
-    })
-    it('should return false on FALSE', done => {
-      let result = parseEnv.valAutoAcquire('FALSE')
-      expect(result).to.equal(false)
-      done()
-    })
-    it('should return false on False', done => {
-      let result = parseEnv.valAutoAcquire('False')
-      expect(result).to.equal(false)
-      done()
-    })
-  })
 
   describe('valNetwork', () => {
     it('should throw error with number', done => {

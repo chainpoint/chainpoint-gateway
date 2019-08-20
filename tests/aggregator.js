@@ -90,9 +90,6 @@ describe('Aggregator Methods', () => {
       aggregator.setEventMetrics({
         captureEvent: () => {}
       })
-      aggregator.setUsageToken({
-        getActiveUsageTokenAsync: () => 'tkn'
-      })
     })
     after(() => {})
     it('should complete successfully', async () => {

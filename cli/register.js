@@ -48,7 +48,7 @@ async function main() {
     let registrationParams = await pipeP(
       () =>
         inquirer.prompt(
-          ['NODE_ETH_REWARDS_ADDRESS', 'NODE_PUBLIC_IP_ADDRESS', 'AUTO_REFILL_ENABLED', 'AUTO_REFILL_AMOUNT']
+          ['NODE_ETH_REWARDS_ADDRESS', 'NODE_PUBLIC_IP_ADDRESS']
             .filter(currVal => !has(args, currVal))
             .map(q => stakingQuestions[q])
         ),
