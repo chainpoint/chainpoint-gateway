@@ -180,99 +180,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
       - 'Calendar'
-  '/reputation/{height}':
-    get:
-      summary: 'Retrieves a reputation entry by height'
-      operationId: 'getReputationEntry'
-      parameters:
-        - name: 'height'
-          in: 'path'
-          required: true
-          description: 'The height of the reputation entry to retrieve'
-          schema:
-            type: 'integer'
-      responses:
-        '200':
-          description: 'The requested reputation entry'
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/GetReputationEntryResponse'
-        '404':
-          description: 'The requested reputation entry was not found'
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: 'There was an invalid argument in the request'
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-      - 'Reputation'
-  '/reputation/{min_height}/{max_height}':
-    get:
-      summary: 'Retrieves multiple reputation entries by minimum and maximum height'
-      operationId: 'getReputationEntriesRange'
-      parameters:
-        - name: 'min_height'
-          in: 'path'
-          required: true
-          description: 'The minimum height of reputation entries to retrieve'
-          schema:
-            type: 'integer'
-        - name: 'max_height'
-          in: 'path'
-          required: true
-          description: 'The maximum height of reputation entries to retrieve'
-          schema:
-            type: 'integer'
-      responses:
-        '200':
-          description: 'An array of the requested reputation entries'
-          content:
-            'application/json':
-              schema:
-                type: 'array'
-                items:
-                  $ref: '#/components/schemas/GetReputationEntryResponse'
-        '404':
-          description: 'No reputation entries were found in that range'
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '409':
-          description: 'There was an invalid argument in the request'
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-      - 'Reputation'
-  '/reputation/recent':
-    get:
-      summary: 'Retrieves recent reputation entries over last 24 hours'
-      operationId: 'getReputationEntriesRecent'
-      responses:
-        '200':
-          description: 'An array of the requested reputation entries'
-          content:
-            'application/json':
-              schema:
-                type: 'array'
-                items:
-                  $ref: '#/components/schemas/GetReputationEntryResponse'
-        '404':
-          description: 'No recent reputation entries were found'
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-      tags:
-      - 'Reputation'
   '/config':
     get:
       summary: 'Retrieves some basic information for the Node'
@@ -442,55 +349,6 @@ components:
           type: 'string'
           format: 'date-time'
           example: '2019-05-17T19:53:49.140Z'
-    GetReputationEntryResponse:
-      type: 'object'
-      properties:
-        id:
-          type: 'integer'
-          example: 0
-        calBlockHeight:
-          type: 'integer'
-          example: 261
-        calBlockHash:
-          type: 'string'
-          example: 'aff53a68339cfa93e4e7c00526463e92587395d6eaeff516504c83972ec529a6'
-        prevRepItemHash:
-          type: 'string'
-          example: '0000000000000000000000000000000000000000000000000000000000000000'
-        hashIdNode:
-          type: 'string'
-          format: 'uuid'
-          example: 'bf1c9e70-6d17-11e9-9cfc-0154c5c2d129'
-        repItemHash:
-          type: 'string'
-          example: 'ce111c9efb61da139211e56a699bf28fea5e7a3946239f4048e390fb1e801197'
-        signature:
-          type: 'string'
-          example: '0x57338cb5193e6b5c1b0f57584ac0b36f6299c02770f9710640e7772ec5ce4efe1c4f877212b5ff29443285d7f08cd36cf198de1a615e240b43d4c74a86e967ac1c'
-        proof:
-          type: 'object'
-          example:
-            '@context': 'https://w3id.org/chainpoint/v3'
-            type: 'Chainpoint'
-            hash: '0000000000000000000000000000000000000000000000000000000000000000'
-            hash_id_node: 'bf1c9e70-6d17-11e9-9cfc-0154c5c2d129'
-            hash_submitted_node_at: '2019-05-02T20:20:36Z'
-            hash_id_core: 'e2d97bd0-6d17-11e9-9420-01f5f26c4bf0'
-            hash_submitted_core_at: '2019-05-02T20:21:36Z'
-            branches:
-              - label: 'cal_anchor_branch'
-                ops:
-                  - l: 'node_id:bf1c9e70-6d17-11e9-9cfc-0154c5c2d129'
-                  - op: 'sha-256'
-                  - l: 'core_id:e2d97bd0-6d17-11e9-9420-01f5f26c4bf0'
-                  - op: 'sha-256'
-                  - l: 'nistv2:1556828400:cc779856534d370e4b9ce99f37689c52c1ae44bac4a7d52a6e68b04854123c4fdf099731d7fe831900a0ec76d756ac4d7620424a911b1aac382cef1fd613683d'
-                  - op: 'sha-256'
-                  - anchors:
-                      - type: 'cal'
-                        anchor_id: 'b220c0443b5f8b1394a38a102892590b4c21d8ad1382cd9e4d59b9834f6a769f'
-                        uris:
-                          - 'http://35.245.9.90/calendar/b220c0443b5f8b1394a38a102892590b4c21d8ad1382cd9e4d59b9834f6a769f/data'
     ErrorResponse:
       type: 'object'
       properties:
@@ -507,8 +365,6 @@ tags:
     description: 'Verification process for your proofs'
   - name: 'Calendar'
     description: 'Chainpoint calendar transaction data'
-  - name: 'Reputation'
-    description: 'Locally generated reputation chain data'
   - name: 'Config'
     description: 'Configuration information about the Node'
 externalDocs:
