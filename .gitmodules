@@ -1,4 +1,0 @@
-[submodule "artifacts/ethcontracts"]
-	path = artifacts/ethcontracts
-	url = https://source.developers.google.com/p/chainpoint-registry/r/github_chainpoint_go-hydra-smart-contract-files
-  branch = master
