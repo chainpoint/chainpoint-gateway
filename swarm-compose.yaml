@@ -20,11 +20,14 @@ services:
     networks:
       - chainpoint-node
     environment:
-      NODE_ENV: ${NODE_ENV}
-      NETWORK: ${NETWORK:-mainnet}
-      HTTP_PORT: "${HTTP_PORT:-80}"
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
-      UV_THREADPOOL_SIZE: 128
+      CHAINPOINT_NODE_HTTP_PORT: "${CHAINPOINT_NODE_HTTP_PORT}"
+      PROOF_EXPIRE_MINUTES: "${PROOF_EXPIRE_MINUTES}"
+      POST_HASHES_MAX: "${POST_HASHES_MAX}"
+      POST_VERIFY_PROOFS_MAX: "${POST_VERIFY_PROOFS_MAX}"
+      GET_PROOFS_MAX: "${GET_PROOFS_MAX}"
+      NETWORK: ${NETWORK}
+      NODE_ENV: ${NODE_ENV}
     secrets:
     tty: true
     logging:
