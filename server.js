@@ -17,7 +17,6 @@ const apiServer = require('./lib/api-server.js')
 const aggregator = require('./lib/aggregator.js')
 const { version } = require('./package.json')
 const rocksDB = require('./lib/models/RocksDB.js')
-const utils = require('./lib/utils.js')
 const cachedProofs = require('./lib/cached-proofs.js')
 const cores = require('./lib/cores.js')
 const logger = require('./lib/logger.js')
@@ -38,9 +37,6 @@ async function startAsync() {
 
     // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
     await cores.connectAsync()
-
-    // Validate CHAINPOINT_NODE_PUBLIC_URI set in .env
-    utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI)
 
     await apiServer.startAsync()
 
