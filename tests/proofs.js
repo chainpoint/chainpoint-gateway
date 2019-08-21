@@ -14,9 +14,6 @@ describe('Proofs Controller', () => {
   let insecureServer = null
   beforeEach(async () => {
     insecureServer = await app.startInsecureRestifyServerAsync()
-    proofs.setEventMetrics({
-      captureEvent: () => {}
-    })
     proofs.setRocksDB({
       getProofStatesBatchByHashIdNodesAsync: async hashIds => {
         switch (hashIds[0]) {

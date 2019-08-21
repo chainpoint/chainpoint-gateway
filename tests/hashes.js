@@ -13,10 +13,6 @@ describe('Hashes Controller', () => {
   let insecureServer = null
   beforeEach(async () => {
     insecureServer = await app.startInsecureRestifyServerAsync()
-    hashes.setEventMetrics({
-      captureEvent: () => {},
-      logRecentHash: () => {}
-    })
     hashes.setRocksDB({
       queueIncomingHashObjectsAsync: async () => {}
     })

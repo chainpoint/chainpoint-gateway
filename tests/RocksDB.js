@@ -9,7 +9,6 @@ const rocksDB = require('../lib/models/RocksDB.js')
 const rmrf = require('rimraf')
 const uuidv1 = require('uuid/v1')
 const crypto = require('crypto')
-const utils = require('../lib/utils.js')
 
 const TEST_ROCKS_DIR = './test_db'
 
@@ -50,27 +49,6 @@ describe('RocksDB Methods', () => {
     })
     after(async () => {
       await db.batch(delOps)
-    })
-  })
-
-  describe('Event Metrics Functions', () => {
-    it('should return the same count metrics that were inserted', async () => {
-      let sampleData = generateCountMetrics(100)
-      await rocksDB.saveCountMetricsAsync(sampleData.objects, [])
-      // retrieve what has just been written, confirm
-      let getResults = await rocksDB.getCountMetricsAsync()
-      expect(getResults).to.have.deep.members(sampleData.objects)
-      // delete what has just been written, confirm
-      await rocksDB.saveCountMetricsAsync([], sampleData.keys)
-      getResults = await rocksDB.getCountMetricsAsync()
-      expect(getResults).to.deep.equal([])
-    })
-
-    it('should return the same recent hashes that were inserted', async () => {
-      let sampleData = generateRecentHashes(100)
-      await rocksDB.saveRecentHashDataAsync(sampleData)
-      let getResults = await rocksDB.getRecentHashDataAsync()
-      expect(getResults).to.deep.equal(sampleData)
     })
   })
 
@@ -240,36 +218,6 @@ function generateSampleHashObjects(batchSize) {
     results.push({
       hash_id_node: uuidv1(),
       hash: crypto.randomBytes(32).toString('hex')
-    })
-  }
-
-  return results
-}
-
-function generateCountMetrics(batchSize) {
-  let results = {}
-  results.objects = []
-  results.keys = []
-
-  for (let x = 0; x < batchSize; x++) {
-    let newKey = `nodestats:counter:${crypto.randomBytes(32).toString('hex')}`
-    results.objects.push({
-      key: newKey,
-      value: Math.ceil(Math.random() * 1000)
-    })
-    results.keys.push(newKey)
-  }
-
-  return results
-}
-
-function generateRecentHashes(batchSize) {
-  let results = []
-  for (let x = 0; x < batchSize; x++) {
-    results.push({
-      hashIdNode: uuidv1(),
-      hash: crypto.randomBytes(32).toString('hex'),
-      submittedAt: utils.formatDateISO8601NoMs(new Date())
     })
   }
 

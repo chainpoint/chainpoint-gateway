@@ -87,9 +87,6 @@ describe('Aggregator Methods', () => {
           ]
         }
       })
-      aggregator.setEventMetrics({
-        captureEvent: () => {}
-      })
     })
     after(() => {})
     it('should complete successfully', async () => {

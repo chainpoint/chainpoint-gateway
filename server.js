@@ -16,7 +16,6 @@ const env = require('./lib/parse-env.js').env
 const apiServer = require('./lib/api-server.js')
 const aggregator = require('./lib/aggregator.js')
 const { version } = require('./package.json')
-const eventMetrics = require('./lib/event-metrics.js')
 const rocksDB = require('./lib/models/RocksDB.js')
 const utils = require('./lib/utils.js')
 const cachedProofs = require('./lib/cached-proofs.js')
@@ -70,7 +69,6 @@ async function startAsync() {
     // Validate CHAINPOINT_NODE_PUBLIC_URI set in .env
     utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI)
 
-    await eventMetrics.loadMetricsAsync()
     await apiServer.startAsync()
 
     // start the interval processes for refreshing the IP blocklist
@@ -87,9 +85,6 @@ async function startAsync() {
 
     // start the interval processes for pruning cached transaction data from memory
     cores.startPruneExpiredItemsInterval()
-
-    // start the interval processes for saving event metrics data
-    eventMetrics.startPersistDataInterval()
 
     logger.info(`App : Startup : Complete`)
   } catch (err) {

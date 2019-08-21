@@ -15,9 +15,6 @@ describe('Verify Controller', () => {
   let insecureServer = null
   beforeEach(async () => {
     insecureServer = await app.startInsecureRestifyServerAsync()
-    verify.setEventMetrics({
-      captureEvent: () => {}
-    })
     beforeEach(() => {
       verify.setENV({ POST_VERIFY_PROOFS_MAX: 1 })
     })
