@@ -300,9 +300,7 @@ describe('Cores Methods', function() {
       expect(options).to.be.a('object')
       expect(options).to.have.property('headers')
       expect(options.headers).to.have.property('X-Node-Version')
-      expect(options.headers).to.have.property('X-Node-Address')
       expect(options.headers['X-Node-Version']).to.equal(version)
-      expect(options.headers['X-Node-Address']).to.equal('addr')
     })
   })
 
@@ -380,29 +378,6 @@ describe('Cores Methods', function() {
       })
     })
     it('should not connect with Core discovery and synched IP, network mismatch', async () => {
-      let coreConnectionCount = 1
-      cores.setCoreConnectionCount(coreConnectionCount)
-      let errResult = null
-      try {
-        await cores.connectAsync()
-      } catch (err) {
-        errResult = err
-      }
-      expect(errResult.message).to.equal('Unable to connect to 1 Core(s) as required')
-      let connectedIPs = cores.getCoreConnectedIPs()
-      expect(connectedIPs.length).to.equal(0)
-    })
-  })
-
-  describe('connectAsync', () => {
-    before(() => {
-      cores.setENV({ NETWORK: 'testnet' })
-      cores.setRP(async opts => {
-        if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
-        return { body: { network: 'testnet', sync_info: { catching_up: false } } }
-      })
-    })
-    it('should not connect with Core discovery and synched IP, mode mismatch', async () => {
       let coreConnectionCount = 1
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
