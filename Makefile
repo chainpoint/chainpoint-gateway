@@ -79,7 +79,7 @@ git-pull:
 upgrade: down git-pull up
 
 ## init						: Bring up yarn, swarm, and generate secrets
-init: init-yarn init-swarm init-secrets
+init: init-yarn init-swarm
 
 ## init-yarn				: Initialize dependencies
 init-yarn:
@@ -89,29 +89,6 @@ init-yarn:
 .PHONY : init-swarm
 init-swarm:
 	@docker swarm init || echo "Swarm already initialized"
-
-## init-secrets             : Generate necessary secrets
-.PHONY : init-secrets
-init-secrets:
-	node cli/init.js FORCE=$(FORCE)
-
-## Register					: Register Node to Chainpoint Network
-register:
-	set -a && source .env && set +a && docker stack deploy -c swarm-compose.registration.yaml chainpoint-registration
-	cli/run_registration.sh
-
-## Register					: Register Node to Chainpoint Network
-update-registration:
-	docker exec -ti `docker ps -q` bash -c "source cli/scripts/env_secrets_expand.sh && node cli/update_registration.js NODE_PUBLIC_IP_ADDRESS=$(NODE_PUBLIC_IP_ADDRESS)"
-
-## De-Register					: De-Register Node to Chainpoint Network
-deregister:
-	docker exec -ti `docker ps -q` bash -c "source cli/scripts/env_secrets_expand.sh && node cli/deregister.js"
-
-## rm-secrets               : Remove secrets
-.PHONY : rm-secrets
-rm-secrets:
-	cli/scripts/remove_eth_account.sh
 
 ## deploy					: deploys a swarm stack
 deploy:
@@ -128,6 +105,3 @@ optimize-network:
 ## stop						: removes a swarm stack
 stop:
 	docker stack rm chainpoint-node
-
-%:      # Enables support for cli arguments used in commands like "make stake"
-    @:

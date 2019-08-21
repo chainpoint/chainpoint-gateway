@@ -26,15 +26,6 @@ COPY ./lib/endpoints/*.js /home/node/app/lib/endpoints/
 RUN mkdir -p /home/node/app/lib/models
 COPY ./lib/models/*.js /home/node/app/lib/models/
 
-RUN mkdir -p /home/node/app/artifacts
-COPY artifacts /home/node/app/artifacts
-
-#COPY ./cert.crt /home/node/app/
-#COPY ./cert.key /home/node/app/
-
-RUN mkdir -p /home/node/app/cli
-COPY cli /home/node/app/cli
-
 EXPOSE 80
 
-CMD ["/bin/bash", "-c", "/home/node/app/cli/run.sh"]
+CMD ["yarn", "start"]
