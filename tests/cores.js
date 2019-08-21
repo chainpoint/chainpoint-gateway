@@ -286,7 +286,6 @@ describe('Cores Methods', function() {
     before(() => {
       cores.setENV({
         CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'],
-        NODE_ETH_ADDRESS: 'addr',
         NETWORK: 'testnet'
       })
       cores.setRP(async o => {
@@ -732,40 +731,6 @@ describe('Cores Methods', function() {
       expect(cacheResult.a.transaction).to.equal('result')
       expect(cacheResult.a).to.have.property('expiresAt')
       expect(cacheResult.a.expiresAt).to.be.a('number')
-    })
-  })
-
-  describe('getETHStatsByAddressAsync', () => {
-    before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
-      cores.setRP(async () => {
-        throw 'Error!'
-      })
-    })
-    it('should return null with no response/bad response', async () => {
-      let errResponse = null
-      try {
-        await cores.getETHStatsByAddressAsync(false, 'nodeAddr')
-      } catch (err) {
-        errResponse = err
-      }
-      expect(errResponse.message).to.equal('Invalid response on GET /eth/{address}/stats')
-    })
-  })
-
-  describe('getETHStatsByAddressAsync', () => {
-    let nodeAddr = '0x41Be343B94f860124dC4fEe278FDCBD38C102D88'
-    let stats = { creditPrice: 1000, gasPrice: 20000, transactionCount: 127 }
-    before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
-      cores.setRP(async () => {
-        return { body: { [nodeAddr]: stats } }
-      })
-    })
-    it('should return object on success', async () => {
-      let response = await cores.getETHStatsByAddressAsync(false, nodeAddr)
-      expect(response).to.be.a('object')
-      expect(response).to.deep.equal(stats)
     })
   })
 })

@@ -98,22 +98,6 @@ Chainpoint Node currently uses Docker Swarm when running in Production mode. Run
 
 Reference the `.env.sample` for detailed descriptions and examples of global environment variables Chainpoint Nodes use during operation.
 
-### Registering Your Chainpoint Node
-
-After configuring your Node, if you wish to join a public network, you must complete the registration steps listed below.
-
-An interactive registration process can be prompted by running the following commnad:
-
-```
-make register
-```
-
-Please fill out the interactive form to begin the registration process. Note, make sure you have sent a small amount of Ethereum and enough \$TKNs to cover the registration amount to your Node's ethereum hot wallet address before attempting to register.
-
-The registration process consists of two Ethereum transactions created by your Chainpoint Node and broadcast to the Ethereum Network: 1) Invoking the `approve()` method of the $TKN contract to allow the Chainpoint Registry contract to transfer a predefined amount of $TKNs for registration, 2) Invoking the `stake()` method of the Chainpoint Registry contract to create a record for your Node within the Chainpoint Registry and stake your \$TKNs for the duration of your Node's registration.
-
-The registration process can take up to a few minutes. If your Node experiences trouble registering, please reference the FAQ section.
-
 ### Starting Your Chainpoint Node
 
 After initializing & configuring your Node, you can start your Node by running the following:
@@ -135,32 +119,6 @@ Every Node provides a public HTTP API. This is documented in greater detail on t
 ### How is the Chainpoint Node using Docker Swarm Secrets?
 
 The Chainpoint Node currently creates two secrets managed by Docker Swarm: 1) ETH_ADDRESS, 2) ETH_PRIVATE_KEY. You can view your systems secrets by running the following command: `docker secret ls`.
-
-### How can I generate a new Ethereum Hot Wallet for my Node?
-
-Start by purging existing Docker swarm secrets by running:
-
-```
-docker swarm leave --force
-```
-
-After leaving the swarm, you can run `make init` to re-initiazlie your Node and create a new Ethereum hot wallet. NOTE: that after running the above commands, your node containing new Ethereum credentials will not be registered onto the Chainpoint Network, thus must follow the registration steps listed above - "Registering Your Chainpoint Node"
-
-## Registering Your Node
-
-### Why is my Node failing to register?
-
-The two most common reasons why your node is failing to register are as follows: 1) you have forgotten to send a small amount of ETH to cover ethereum transaction gas costs, 2) you have forgotten to send the min. amount of \$TKNs to meet the staking requirement.
-
-Please make sure that your Node's Ethereum hot wallet address has the appropriate amount of ETH & \$TKN
-
-### My Node has enough ETH & \$TKNs to cover registration but is still failing to register. Why?
-
-Please make sure that you have not previously registered onto the Chainpoint Network using previously. The Chainpoint Network enforces a unique pair of Ethereum Address and IPv4 addresses to successfully register. You can query the Chainpoint Registry smart contract to verify if the Ethereum address and IPv4 address are unique.
-
-### I'm still experiencing Node Registration problems, what can I do?
-
-If you are experiencing persistent registration issues, try following the steps towards re-initializing your node which will result in a new Ethereum Hot Wallet that you can use to attempt to register onto the Chainpoint Network
 
 ## License
 

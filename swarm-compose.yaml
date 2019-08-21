@@ -4,10 +4,6 @@ networks:
   chainpoint-node:
 
 secrets:
-  NODE_ETH_ADDRESS:
-    external: true
-  NODE_ETH_PRIVATE_KEY:
-    external: true
 
 services:
 
@@ -27,14 +23,10 @@ services:
       NODE_ENV: ${NODE_ENV}
       NETWORK: ${NETWORK:-mainnet}
       HTTP_PORT: "${HTTP_PORT:-80}"
-      NODE_ETH_ADDRESS: DOCKER-SECRET->NODE_ETH_ADDRESS
-      NODE_ETH_PRIVATE_KEY: DOCKER-SECRET->NODE_ETH_PRIVATE_KEY
       CHAINPOINT_NODE_PUBLIC_URI: "${CHAINPOINT_NODE_PUBLIC_URI:-http://0.0.0.0}"
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
       UV_THREADPOOL_SIZE: 128
     secrets:
-      - NODE_ETH_ADDRESS
-      - NODE_ETH_PRIVATE_KEY
     tty: true
     logging:
       driver: syslog

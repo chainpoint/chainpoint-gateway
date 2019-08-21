@@ -27,29 +27,6 @@ async function openStorageConnectionAsync() {
   await rocksDB.openConnectionAsync()
 }
 
-async function checkRegistrationAsync() {
-  let attempt = 1
-  let attemptCount = 2000
-  let retryDelaySeconds = 30
-  while (attempt <= attemptCount) {
-    try {
-      let stats = await cores.getETHStatsByAddressAsync(true, env.NODE_ETH_ADDRESS)
-      if (stats.registration.isStaked) {
-        logger.info(`App : Startup : Verified registration for Node : ${env.NODE_ETH_ADDRESS}`)
-        return
-      } else {
-        logger.warn(
-          `App : Startup : Node not yet registered : Attempt ${attempt} of ${attemptCount} : Retrying in ${retryDelaySeconds} seconds`
-        )
-      }
-    } catch (error) {
-      logger.error(`App : Startup : Could not retrieve ETH stats : ${env.NODE_ETH_ADDRESS} : ${error.message}`)
-    }
-    if (attempt++ < attemptCount) await utils.sleepAsync(retryDelaySeconds * 1000)
-  }
-  throw new Error('Cannot start an unregistered Node')
-}
-
 // process all steps need to start the application
 async function startAsync() {
   try {
@@ -61,10 +38,6 @@ async function startAsync() {
 
     // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
     await cores.connectAsync()
-
-    // Ensure that this Node is registered, exit if not
-    // Perform a few retries in case the Node is in the process of being registered
-    await checkRegistrationAsync()
 
     // Validate CHAINPOINT_NODE_PUBLIC_URI set in .env
     utils.validateNodeUri(env.CHAINPOINT_NODE_PUBLIC_URI)
