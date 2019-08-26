@@ -8,6 +8,94 @@ const expect = require('chai').expect
 const parseEnv = require('../lib/parse-env.js')
 
 describe('Environment variables', () => {
+  describe('valBase64', () => {
+    it('should throw error with number', done => {
+      expect(() => {
+        parseEnv.valBase64(234)
+      }).to.throw('Expected string but received a number')
+      done()
+    })
+    it('should throw error with boolean', done => {
+      expect(() => {
+        parseEnv.valBase64(true)
+      }).to.throw('Expected string but received a boolean')
+      done()
+    })
+    it('should return error on empty string', done => {
+      expect(() => {
+        parseEnv.valBase64('')
+      }).to.throw('The supplied value must be a valid Base 64 encoded string')
+      done()
+    })
+    it('should return error on non Base 64 encoded string', done => {
+      expect(() => {
+        parseEnv.valBase64('Not base 64 encoded')
+      }).to.throw('The supplied value must be a valid Base 64 encoded string')
+      done()
+    })
+    it('should return value with proper base 64 encoded string', done => {
+      let result = parseEnv.valBase64('cXdlCg==')
+      expect(result).to.equal('cXdlCg==')
+      done()
+    })
+  })
+
+  describe('valSocket', () => {
+    it('should throw error with number', done => {
+      expect(() => {
+        parseEnv.valSocket(234)
+      }).to.throw('The supplied value must be a valid <host>:<port> string')
+      done()
+    })
+    it('should throw error with boolean', done => {
+      expect(() => {
+        parseEnv.valSocket(true)
+      }).to.throw('The supplied value must be a valid <host>:<port> string')
+      done()
+    })
+    it('should return error on empty string', done => {
+      expect(() => {
+        parseEnv.valSocket('')
+      }).to.throw('The supplied value must be a valid <host>:<port> string')
+      done()
+    })
+    it('should return error on single segment string', done => {
+      expect(() => {
+        parseEnv.valSocket('127.0.0.1')
+      }).to.throw('The supplied value must be a valid <host>:<port> string')
+      done()
+    })
+    it('should return error on 3+ segment string', done => {
+      expect(() => {
+        parseEnv.valSocket('127.0.0.1:2342:sdfs')
+      }).to.throw('The supplied value must be a valid <host>:<port> string')
+      done()
+    })
+    it('should return error on bad host', done => {
+      expect(() => {
+        parseEnv.valSocket('badhost:2342')
+      }).to.throw('The supplied value must be a valid <host>:<port> string')
+      done()
+    })
+    it('should return error on bad port string', done => {
+      expect(() => {
+        parseEnv.valSocket('goodhost.com:badport')
+      }).to.throw('The supplied value must be a valid <host>:<port> string')
+      done()
+    })
+    it('should return error on invalid port number', done => {
+      expect(() => {
+        parseEnv.valSocket('goodhost.com:345345345345')
+      }).to.throw('The supplied value must be a valid <host>:<port> string')
+      done()
+    })
+    it('should return value with host:port string', done => {
+      let result = parseEnv.valSocket('goodhost.com:10009')
+      expect(result).to.equal('goodhost.com:10009')
+      done()
+    })
+  })
+
   describe('valCoreIPList', () => {
     it('should return success with empty string', done => {
       let result = parseEnv.valCoreIPList('')
