@@ -20,15 +20,6 @@ describe('Aggregator Methods', () => {
     })
   })
 
-  describe('getAggIntervalSeconds', () => {
-    it('should return expected value', async () => {
-      let seconds = aggregator.getAggIntervalSeconds()
-      expect(seconds)
-        .to.be.a('number')
-        .and.to.equal(60)
-    })
-  })
-
   describe('aggregateSubmitAndPersistAsync with 0 hashes', () => {
     let hashCount = 0
     let IncomingHashes = generateIncomingHashData(hashCount)
