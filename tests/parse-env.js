@@ -105,7 +105,7 @@ describe('Environment variables', () => {
     it('should throw error with bad single IP', done => {
       expect(() => {
         parseEnv.valCoreIPList('234234.234234.234234.23434')
-      }).to.throw('The Core IP list is invalid')
+      }).to.throw('The Core IP list contains an invalid entry')
       done()
     })
     it('should return true with valid v4 IP', done => {
@@ -131,19 +131,19 @@ describe('Environment variables', () => {
     it('should throw error with bad IP in group', done => {
       expect(() => {
         parseEnv.valCoreIPList('65.1.1.1,10.165.32.31,234234.234234.234234.23434')
-      }).to.throw('The Core IP list is invalid')
+      }).to.throw('The Core IP list contains an invalid entry')
       done()
     })
     it('should throw error with missing IP in group', done => {
       expect(() => {
         parseEnv.valCoreIPList('65.1.1.1,,10.165.32.31')
-      }).to.throw('The Core IP list is invalid')
+      }).to.throw('The Core IP list contains an invalid entry')
       done()
     })
     it('should throw error with duplicate IP in group', done => {
       expect(() => {
         parseEnv.valCoreIPList('65.1.1.1,65.1.1.1,10.165.32.31')
-      }).to.throw('The Core IPs cannot contain duplicates')
+      }).to.throw('The Core IP list cannot contain duplicates')
       done()
     })
     it('should return success with valid IP list', done => {
