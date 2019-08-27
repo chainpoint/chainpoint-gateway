@@ -419,10 +419,10 @@ describe('Cores Methods', function() {
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1'])
       cores.setRP(async () => {
-        throw 'Bad IP!'
+        throw 'No Invoice!'
       })
     })
-    it('should return [] on 1 of 1 item failure', async () => {
+    it('should return [] on 1 of 1 get invoice failure', async () => {
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(0)
@@ -434,6 +434,50 @@ describe('Cores Methods', function() {
       cores.setCoreConnectedIPs(['65.1.1.1'])
       cores.setRP(async () => {
         return { body: 'ok' }
+      })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 5 })
+      cores.setLN({
+        decodePaymentRequest: async () => {
+          return { description: 'id:qwe', tokens: 10 }
+        },
+        pay: async () => {}
+      })
+    })
+    it('should return [] on 1 of 1 invoice amount to high failure', async () => {
+      let result = await cores.submitHashAsync('deadbeefcafe')
+      expect(result).to.be.a('array')
+      expect(result.length).to.equal(0)
+    })
+  })
+
+  describe('submitHashAsync', () => {
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1'])
+      let counter = 0
+      cores.setRP(async () => {
+        if (++counter % 2 === 0) throw 'Bad Submit'
+        return { body: 'ok' }
+      })
+    })
+    it('should return [] on 1 of 1 submit failure', async () => {
+      let result = await cores.submitHashAsync('deadbeefcafe')
+      expect(result).to.be.a('array')
+      expect(result.length).to.equal(0)
+    })
+  })
+
+  describe('submitHashAsync', () => {
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setRP(async () => {
+        return { body: 'ok' }
+      })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
+      cores.setLN({
+        decodePaymentRequest: async () => {
+          return { description: 'id:qwe', tokens: 10 }
+        },
+        pay: async () => {}
       })
     })
     it('should succeed on 1 of 1 item submitted', async () => {
@@ -451,10 +495,17 @@ describe('Cores Methods', function() {
   describe('submitHashAsync', () => {
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1', '65.2.2.2', '65.3.3.3'])
-      let counter = 1
+      let counter = 0
       cores.setRP(async () => {
-        if (counter++ % 2 === 0) throw 'Bad IP!'
+        if (counter++ % 4 === 0) throw 'Bad IP!'
         return { body: 'ok' }
+      })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
+      cores.setLN({
+        decodePaymentRequest: async () => {
+          return { description: 'id:qwe', tokens: 10 }
+        },
+        pay: async () => {}
       })
     })
     it('should succeed on 2 of 3 item submitted, one bad IP', async () => {
@@ -477,8 +528,49 @@ describe('Cores Methods', function() {
   describe('submitHashAsync', () => {
     before(() => {
       cores.setCoreConnectedIPs(['65.1.1.1', '65.2.2.2', '65.3.3.3'])
+      let counter = 0
       cores.setRP(async () => {
         return { body: 'ok' }
+      })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
+      cores.setLN({
+        decodePaymentRequest: async () => {
+          let tokens = 10
+          if (++counter % 2 === 0) tokens = 15
+          return { description: 'id:qwe', tokens }
+        },
+        pay: async () => {}
+      })
+    })
+    it('should succeed on 2 of 3 item submitted, one invoice amount too high', async () => {
+      let result = await cores.submitHashAsync('deadbeefcafe')
+      expect(result).to.be.a('array')
+      expect(result.length).to.equal(2)
+      expect(result[0]).to.be.a('object')
+      expect(result[0]).to.have.property('ip')
+      expect(result[0].ip).to.equal('65.1.1.1')
+      expect(result[0]).to.have.property('response')
+      expect(result[0].response).to.equal('ok')
+      expect(result[1]).to.be.a('object')
+      expect(result[1]).to.have.property('ip')
+      expect(result[1].ip).to.equal('65.3.3.3')
+      expect(result[1]).to.have.property('response')
+      expect(result[1].response).to.equal('ok')
+    })
+  })
+
+  describe('submitHashAsync', () => {
+    before(() => {
+      cores.setCoreConnectedIPs(['65.1.1.1', '65.2.2.2', '65.3.3.3'])
+      cores.setRP(async () => {
+        return { body: 'ok' }
+      })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
+      cores.setLN({
+        decodePaymentRequest: async () => {
+          return { description: 'id:qwe', tokens: 10 }
+        },
+        pay: async () => {}
       })
     })
     it('should succeed on 3 of 3 item submitted', async () => {

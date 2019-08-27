@@ -63,6 +63,7 @@
     "jmespath": "^0.15.0",
     "js-binary": "^1.2.0",
     "level-rocksdb": "^4.0.0",
+    "ln-service": "^43.2.0",
     "lodash": "^4.17.11",
     "merkle-tools": "^1.4.0",
     "request": "^2.88.0",
