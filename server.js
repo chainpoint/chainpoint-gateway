@@ -35,9 +35,6 @@ async function startAsync() {
 
     await openStorageConnectionAsync()
 
-    // Establish Core connection(s) using Core discovery or provided CHAINPOINT_CORE_CONNECT_IP_LIST values
-    await cores.connectAsync()
-
     await apiServer.startAsync()
 
     // start the interval processes for refreshing the IP blocklist
