@@ -71,6 +71,7 @@
     "lnrpc-node-client": "https://github.com/Tierion/lnrpc-node-client.git",
     "lodash": "^4.17.11",
     "merkle-tools": "^1.4.0",
+    "ramda": "^0.26.1",
     "request": "^2.88.0",
     "request-promise-native": "^1.0.7",
     "restify": "^8.3.3",

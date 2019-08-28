@@ -183,3 +183,17 @@ const { lnd } = lnService.authenticatedLndGrpc({
 //   console.log('closedChannels:', res, err)
 //   console.log('====================================')
 // })
+
+async function openChannelToCore(opts) {
+  let openChannelRes = await lnService.openChannel({
+    lnd,
+    partner_public_key: opts.pubkey,
+    local_tokens: opts.satoshis
+  })
+
+  console.log('Opened Payment Channel -> ' + opts.pubkey)
+
+  return openChannelRes
+}
+
+module.exports = openChannelToCore
