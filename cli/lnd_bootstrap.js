@@ -1,14 +1,13 @@
 const chalk = require('chalk')
 const { isEmpty, has } = require('lodash')
-const { pipeP, curry } = require('ramda')
+const { pipeP, curry, identity } = require('ramda')
 const inquirer = require('inquirer')
 const cliHelloLogger = require('./utils/cliHelloLogger')
 const stakingQuestions = require('./utils/lndBootstrapQuestions')
+const tap = require('./utils/tap')
 const updateOrCreateEnv = require('./utils/updateEnv')
 const { connectAsync, getAllCoreIPs } = require('../lib/cores')
 const createPeerCxns = require('./scripts/1a_lnd_peer_cxns')
-
-const updateOrCreateEnvCurried = curry(updateOrCreateEnv)(['SATOSHIS_PER_CORE_PAYMENT_CHANNEL'])
 
 const args = process.argv
   .slice(2)
@@ -47,10 +46,15 @@ async function main() {
             .map(q => stakingQuestions[q])
         ),
       joinArgs,
-      updateOrCreateEnvCurried
+      curry(updateOrCreateEnv)(['CONNECTED_CORE_PAYMENT_CHANNELS_IPS', 'SATOSHIS_PER_CORE_PAYMENT_CHANNEL'])
     )()
 
-    let paymentChannelResult = await pipeP(connectAsync)(lndBootstrapConfig)
+    let paymentChannelResult = await pipeP(
+      connectAsync,
+      paymentCxnRes => ({ CONNECTED_CORE_PAYMENT_CHANNELS_IPS: paymentCxnRes.ips }),
+      tap(val => console.log(`PaymentCxnResult: ${val}`), identity),
+      updateOrCreateEnv
+    )(lndBootstrapConfig)
     let peerCxnResult = await pipeP(createPeerCxns)(getAllCoreIPs())
 
     console.log(chalk.green('\n======================================'))
