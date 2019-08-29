@@ -5,8 +5,8 @@ const inquirer = require('inquirer')
 const cliHelloLogger = require('./utils/cliHelloLogger')
 const stakingQuestions = require('./utils/lndBootstrapQuestions')
 const updateOrCreateEnv = require('./utils/updateEnv')
-const { connectAsync } = require('../lib/cores')
-// const createPeerCxns = require('./scripts/1a_lnd_peer_cxns')
+const { connectAsync, getAllCoreIPs } = require('../lib/cores')
+const createPeerCxns = require('./scripts/1a_lnd_peer_cxns')
 
 const updateOrCreateEnvCurried = curry(updateOrCreateEnv)(['SATOSHIS_PER_CORE_PAYMENT_CHANNEL'])
 
@@ -50,12 +50,15 @@ async function main() {
       updateOrCreateEnvCurried
     )()
 
-    await connectAsync(lndBootstrapConfig)
+    let paymentChannelResult = await pipeP(connectAsync)(lndBootstrapConfig)
+    let peerCxnResult = await pipeP(createPeerCxns)(getAllCoreIPs())
 
     console.log(chalk.green('\n======================================'))
     console.log(chalk.green('==   SUCCESSFULLY BOOTSRAPPED LND CONFIGURATIONS!  =='))
-    console.log('lndBootstrapConfig', lndBootstrapConfig)
     console.log(chalk.green('======================================', '\n'))
+    console.log('lndBootstrapConfig', lndBootstrapConfig)
+    console.dir('paymentChannelResult', paymentChannelResult)
+    console.dir('peerCxnResult', peerCxnResult)
   } catch (error) {
     console.log(chalk.red('Failed to bootstrap LND Configurations. Please try again. ' + error.message))
   }
