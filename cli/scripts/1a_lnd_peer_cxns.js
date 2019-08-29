@@ -16,9 +16,20 @@ async function getCoreStatus(coreIP) {
     let getStatusOptions = buildRequestOptions(null, 'GET', '/status')
     let coreResponse = await coreRequestAsync(getStatusOptions, coreIP, 0)
 
+    const getLNDHost = (res => {
+      if (!res.uris.length) return coreIP
+
+      try {
+        let ip = coreResponse.uris[0].split('@')[1]
+        return ip ? ip : coreIP
+      } catch (_) {
+        return coreIP
+      }
+    })()
+
     return {
-      host: coreIP,
-      pubkey: coreResponse.pubkey
+      host: `${getLNDHost(coreResponse)}:10009`,
+      pubkey: coreResponse.public_key
     }
   } catch (_) {
     return undefined
@@ -29,9 +40,9 @@ const connectPeer = opts => {
   if (isEmpty(opts)) Promise.reject(false)
 
   return new Promise((resolve, reject) => {
-    lightning.lightning().connectPeer(opts, (err, res) => {
+    lightning.lightning().connectPeer({ addr: opts }, (err, res) => {
       if (err) reject(false)
-      else resolve(res)
+      else resolve({ res, peer: opts })
     })
   })
 }
