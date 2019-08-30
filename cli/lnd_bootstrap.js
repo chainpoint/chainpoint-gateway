@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const { isEmpty, has } = require('lodash')
+const { isEmpty, has, uniq } = require('lodash')
 const { pipeP, curry, identity } = require('ramda')
 const inquirer = require('inquirer')
 const cliHelloLogger = require('./utils/cliHelloLogger')
@@ -27,6 +27,7 @@ const joinArgs = (function(args = {}) {
   }
 })(args)
 
+// Read existing environment variables previously written/set to .env file
 const envValues = readEnv()
 
 async function main() {
@@ -48,6 +49,19 @@ async function main() {
             .map(q => stakingQuestions[q])
         ),
       joinArgs,
+      // Map captured config params applying specific validation/concatenation logic
+      currVal => {
+        if (isEmpty(envValues.CONNECTED_CORE_PAYMENT_CHANNELS_IPS)) return currVal
+        else {
+          currVal.CONNECTED_CORE_PAYMENT_CHANNELS_IPS = uniq(
+            envValues.CONNECTED_CORE_PAYMENT_CHANNELS_IPS.split(',').concat(
+              currVal.CONNECTED_CORE_PAYMENT_CHANNELS_IPS.split(',')
+            )
+          ).join(',')
+        }
+        return currVal
+      },
+      tap(val => console.log(`Merging existing .env vals and newly capture env input: ${val}`), identity),
       curry(updateOrCreateEnv)(['CONNECTED_CORE_PAYMENT_CHANNELS_IPS', 'SATOSHIS_PER_CORE_PAYMENT_CHANNEL'])
     )()
 
@@ -58,7 +72,7 @@ async function main() {
       curry(updateOrCreateEnv)([])
     )(lndBootstrapConfig)
 
-    if (envValues.LND_PEER_CONNECTIONS_OPENED && envValues.LND_PEER_CONNECTIONS_OPENED !== false) {
+    if (envValues.LND_PEER_CONNECTIONS_OPENED !== true) {
       let peerCxnResult = await pipeP(
         createPeerCxns,
         () => ({ LND_PEER_CONNECTIONS_OPENED: true }),
