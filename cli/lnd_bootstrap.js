@@ -5,7 +5,7 @@ const inquirer = require('inquirer')
 const cliHelloLogger = require('./utils/cliHelloLogger')
 const stakingQuestions = require('./utils/lndBootstrapQuestions')
 const tap = require('./utils/tap')
-const updateOrCreateEnv = require('./utils/updateEnv')
+const { updateOrCreateEnv, readEnv } = require('./utils/updateEnv')
 const { connectAsync, getAllCoreIPs } = require('../lib/cores')
 const createPeerCxns = require('./scripts/1a_lnd_peer_cxns')
 
@@ -26,6 +26,8 @@ const joinArgs = (function(args = {}) {
     return Promise.resolve(Object.assign({}, args, valuePairs))
   }
 })(args)
+
+const envValues = readEnv()
 
 async function main() {
   cliHelloLogger()
@@ -53,16 +55,26 @@ async function main() {
       connectAsync,
       paymentCxnRes => ({ CONNECTED_CORE_PAYMENT_CHANNELS_IPS: paymentCxnRes.ips }),
       tap(val => console.log(`PaymentCxnResult: ${val}`), identity),
-      updateOrCreateEnv
+      curry(updateOrCreateEnv)([])
     )(lndBootstrapConfig)
-    let peerCxnResult = await pipeP(createPeerCxns)(getAllCoreIPs())
+
+    if (envValues.LND_PEER_CONNECTIONS_OPENED && envValues.LND_PEER_CONNECTIONS_OPENED !== false) {
+      let peerCxnResult = await pipeP(
+        createPeerCxns,
+        () => ({ LND_PEER_CONNECTIONS_OPENED: true }),
+        curry(updateOrCreateEnv)([])
+      )(getAllCoreIPs())
+
+      console.log('====================================')
+      console.log('peerCxnResult', peerCxnResult)
+      console.log('====================================')
+    }
 
     console.log(chalk.green('\n======================================'))
     console.log(chalk.green('==   SUCCESSFULLY BOOTSRAPPED LND CONFIGURATIONS!  =='))
     console.log(chalk.green('======================================', '\n'))
     console.log('lndBootstrapConfig', lndBootstrapConfig)
     console.dir('paymentChannelResult', paymentChannelResult)
-    console.dir('peerCxnResult', peerCxnResult)
   } catch (error) {
     console.log(chalk.red('Failed to bootstrap LND Configurations. Please try again. ' + error.message))
   }
