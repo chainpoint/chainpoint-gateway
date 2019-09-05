@@ -3,12 +3,6 @@ const lnService = require('ln-service')
 const lightning = require('lnrpc-node-client')
 const homedir = require('os').homedir()
 
-// let env = require('../../lib/parse-env').env
-// let { connectAsync, getAllCoreIPs } = require('../../lib/cores')
-
-// const hotWalletPassword = fs.readFileSync('/run/secrets/hot_wallet_pass', 'utf8')
-// const hotWalletAddress = fs.readFileSync('/run/secrets/hot_wallet_addr', 'utf8')
-
 lightning.setCredentials(
   '127.0.0.1:10009',
   path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
@@ -18,22 +12,27 @@ lightning.setCredentials(
 // TODO: use dynamic base64 method to encode cert and macaroon
 const { lnd } = lnService.authenticatedLndGrpc({
   cert:
-    'LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUI2ekNDQVpHZ0F3SUJBZ0lSQVBnZ1RQWlp2VDZKRzVVaWZTblc1cmd3Q2dZSUtvWkl6ajBFQXdJd09ERWYKTUIwR0ExVUVDaE1XYkc1a0lHRjFkRzluWlc1bGNtRjBaV1FnWTJWeWRERVZNQk1HQTFVRUF4TU1Oemd4TmpNeApZMk5tTmpnNU1CNFhEVEU1TURneU9ESXdNRFV5TmxvWERUSXdNVEF5TWpJd01EVXlObG93T0RFZk1CMEdBMVVFCkNoTVdiRzVrSUdGMWRHOW5aVzVsY21GMFpXUWdZMlZ5ZERFVk1CTUdBMVVFQXhNTU56Z3hOak14WTJObU5qZzUKTUZrd0V3WUhLb1pJemowQ0FRWUlLb1pJemowREFRY0RRZ0FFUDZaWXYzZ0dIaUI3a2d3WTFTVkVITXQvMzFSSApqM2lMRWNvMXN6RnYzdmZZRktKazZlRUVMUVRiTlRYU2doNzZmOEVCbDNhMnNrR2dkV1didE9rYVo2TjhNSG93CkRnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3VndZRFZSMFJCRkF3VG9JTU56Z3gKTmpNeFkyTm1Oamc1Z2dsc2IyTmhiR2h2YzNTQ0EyeHVaSUlFZFc1cGVJSUtkVzVwZUhCaFkydGxkSWNFZndBQQpBWWNRQUFBQUFBQUFBQUFBQUFBQUFBQUFBWWNFckJZQUFqQUtCZ2dxaGtqT1BRUURBZ05JQURCRkFpRUF6ckhxCktEZld0VGxmenJEV3h0VVFJTUJGTDJUZGVESGZlbnpseTNMMEVTWUNJQVh2VVljR3ZtQTN6K1JMY1o2S1MzL3UKVGcvclZ1SjFtQlZ3RHZzWEg4cGUKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=',
+    'LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUI2ekNDQVpDZ0F3SUJBZ0lRWDk4VTB4eHh1NkpacnM3dUxCcStVakFLQmdncWhrak9QUVFEQWpBNE1SOHcKSFFZRFZRUUtFeFpzYm1RZ1lYVjBiMmRsYm1WeVlYUmxaQ0JqWlhKME1SVXdFd1lEVlFRREV3eGxaVGN5TURGawpZbVEzTkdRd0hoY05NVGt3T1RBek1qRXlPRFE0V2hjTk1qQXhNREk0TWpFeU9EUTRXakE0TVI4d0hRWURWUVFLCkV4WnNibVFnWVhWMGIyZGxibVZ5WVhSbFpDQmpaWEowTVJVd0V3WURWUVFERXd4bFpUY3lNREZrWW1RM05HUXcKV1RBVEJnY3Foa2pPUFFJQkJnZ3Foa2pPUFFNQkJ3TkNBQVRwc3VVc0p6WWJSZzZHUGRteVRTd1ZtRHg0STNPRwp0bTdjcCtLMG5VL2ZlR3FrRVA5dGo2VnJTeE96TEZtOXNMaDdSNGpYWW85NkNReHQ3b3lKR1hUa28zd3dlakFPCkJnTlZIUThCQWY4RUJBTUNBcVF3RHdZRFZSMFRBUUgvQkFVd0F3RUIvekJYQmdOVkhSRUVVREJPZ2d4bFpUY3kKTURGa1ltUTNOR1NDQ1d4dlkyRnNhRzl6ZElJRGJHNWtnZ1IxYm1sNGdncDFibWw0Y0dGamEyVjBod1IvQUFBQgpoeEFBQUFBQUFBQUFBQUFBQUFBQUFBQUJod1NzR0FBQ01Bb0dDQ3FHU000OUJBTUNBMGtBTUVZQ0lRRG45TzhlCjdOS054ZUg0N3hUVjRMT0Y4L2l0Mm55UHUrbEs3Q0FURC9abzVBSWhBTlRmQVhtdGZsOFVRZjFSbEFKc1UvdS8KeFlCbTZQb1JzYXhPMzFYRVhmS0oKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=',
   macaroon:
-    'AgEDbG5kAs8BAwoQxOf30XsdqZ6VCg6dwXdw+BIBMBoWCgdhZGRyZXNzEgRyZWFkEgV3cml0ZRoTCgRpbmZvEgRyZWFkEgV3cml0ZRoXCghpbnZvaWNlcxIEcmVhZBIFd3JpdGUaFgoHbWVzc2FnZRIEcmVhZBIFd3JpdGUaFwoIb2ZmY2hhaW4SBHJlYWQSBXdyaXRlGhYKB29uY2hhaW4SBHJlYWQSBXdyaXRlGhQKBXBlZXJzEgRyZWFkEgV3cml0ZRoSCgZzaWduZXISCGdlbmVyYXRlAAAGINugXEQBtEwf+zeDENMPuNNL0UzRbjWorXcQsPO12hq0',
+    'AgEDbG5kAs8BAwoQMzls1mNheD4W+uWJ27Q66hIBMBoWCgdhZGRyZXNzEgRyZWFkEgV3cml0ZRoTCgRpbmZvEgRyZWFkEgV3cml0ZRoXCghpbnZvaWNlcxIEcmVhZBIFd3JpdGUaFgoHbWVzc2FnZRIEcmVhZBIFd3JpdGUaFwoIb2ZmY2hhaW4SBHJlYWQSBXdyaXRlGhYKB29uY2hhaW4SBHJlYWQSBXdyaXRlGhQKBXBlZXJzEgRyZWFkEgV3cml0ZRoSCgZzaWduZXISCGdlbmVyYXRlAAAGIORO3mylhqXeQH+gXz/siembaqdAvYSM9RJOPWiLYTNG',
   socket: '127.0.0.1:10009' // '34.66.56.153:10009'
 })
 
 async function openChannelToCore(opts) {
-  let openChannelRes = await lnService.openChannel({
-    lnd,
-    partner_public_key: opts.pubkey,
-    local_tokens: opts.satoshis
-  })
+  try {
+    let openChannelRes = await lnService.openChannel({
+      lnd,
+      partner_public_key: opts.pubkey,
+      local_tokens: opts.satoshis
+    })
 
-  console.log('Opened Payment Channel -> ' + opts.pubkey)
+    console.log('Opened Payment Channel -> ' + opts.pubkey)
 
-  return Object.assign({}, opts, openChannelRes)
+    return Object.assign({}, opts, openChannelRes)
+  } catch (error) {
+    console.warn(`Unable to open payment channel with Core: ${opts.pubkey} : ${JSON.stringify(error)}`)
+    return Promise.reject(error)
+  }
 }
 
 module.exports = openChannelToCore

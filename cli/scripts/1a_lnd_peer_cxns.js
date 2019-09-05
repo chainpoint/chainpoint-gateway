@@ -20,15 +20,24 @@ async function getCoreStatus(coreIP) {
       if (!res.uris.length) return coreIP
 
       try {
-        let ip = coreResponse.uris[0].split('@')[1]
-        return ip ? ip : coreIP
+        let [ip, port] =
+          coreResponse.uris.length && coreResponse.uris[0].split('@').length
+            ? [
+                coreResponse.uris[0].split('@')[1].split(':')[0] === '127.0.0.1' ||
+                coreResponse.uris[0].split('@')[1].split(':')[0] === 'localhost'
+                  ? coreIP
+                  : coreResponse.uris[0].split('@')[1].split(':')[0],
+                coreResponse.uris[0].split('@')[1].split(':')[1]
+              ]
+            : [coreIP, 10009]
+        return ip ? [ip, port] : [coreIP, port]
       } catch (_) {
-        return coreIP
+        return [coreIP, 10009]
       }
     })()
 
     return {
-      host: `${getLNDHost(coreResponse)}:10009`,
+      host: `${getLNDHost(coreResponse)[0]}:${getLNDHost(coreResponse)[1]}`, // TODO: was getLNDHost(coreResponse)
       pubkey: coreResponse.public_key
     }
   } catch (_) {

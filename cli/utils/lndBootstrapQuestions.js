@@ -53,7 +53,7 @@ module.exports = {
     name: 'SATOSHIS_PER_CORE_PAYMENT_CHANNEL',
     message: 'Enter # of satoshis you wish to commit to each payment channel',
     validate: val => {
-      return val > 0
+      return val >= 100000
     }
   }
 }
