@@ -61,14 +61,17 @@ async function main() {
         }
         return currVal
       },
-      tap(val => console.log(`Merging existing .env vals and newly capture env input: ${val}`), identity),
+      tap(
+        val => console.log(`Merging existing .env vals and newly capture env input: ${JSON.stringify(val)}`),
+        identity
+      ),
       curry(updateOrCreateEnv)(['CONNECTED_CORE_PAYMENT_CHANNELS_IPS', 'SATOSHIS_PER_CORE_PAYMENT_CHANNEL'])
     )()
 
     let paymentChannelResult = await pipeP(
       connectAsync,
       paymentCxnRes => ({ CONNECTED_CORE_PAYMENT_CHANNELS_IPS: paymentCxnRes.ips }),
-      tap(val => console.log(`PaymentCxnResult: ${val}`), identity),
+      tap(val => console.log(`PaymentCxnResult: ${JSON.stringify(val)}`), identity),
       curry(updateOrCreateEnv)([])
     )(lndBootstrapConfig)
 
