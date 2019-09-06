@@ -72,6 +72,14 @@ const { lnd } = lnService.authenticatedLndGrpc({
       console.log('All Peer Connections:\n', getPeersRes)
       console.log('====================================')
     }
+
+    // B. Get Peers
+    if (args.includes('--getTxs')) {
+      let getTxsRes = await lnService.getChainTransactions({ lnd })
+      console.log('====================================')
+      console.log('All Txs:\n', JSON.stringify(getTxsRes))
+      console.log('====================================')
+    }
   } catch (error) {
     console.error('Error: ', error)
     process.exit(1)
