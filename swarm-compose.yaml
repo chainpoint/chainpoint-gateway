@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 networks:
   chainpoint-node:
@@ -6,7 +6,6 @@ networks:
 secrets:
 
 services:
-
   chainpoint-node:
     restart: on-failure
     volumes:
@@ -39,3 +38,37 @@ services:
       options:
         syslog-address: "udp://logs.papertrailapp.com:27635"
         tag: "chp-node/{{.Name}}/{{.ID}}"
+
+  # Lightning node
+  lnd:
+    image: tierion/lnd:latest
+    user: ${USERID}:${GROUPID}
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+      - target: 9735
+        published: 9735
+        protocol: tcp
+        mode: host
+      - target: 10009
+        published: 10009
+        protocol: tcp
+        mode: host
+    restart: always
+    environment:
+      - PUBLICIP
+      - RPCUSER
+      - RPCPASS
+      - NETWORK
+      - CHAIN
+      - DEBUG
+      - NEUTRINO
+      - LND_REST_PORT
+      - LND_RPC_PORT
+      - TLSPATH
+    volumes:
+      - ~/.lnd:/root/.lnd
+    networks:
+      - chainpoint-node
