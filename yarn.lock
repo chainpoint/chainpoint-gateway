@@ -1673,6 +1673,10 @@ generate-object-property@^1.1.0:
   dependencies:
     is-property "^1.0.0"
 
+generate-password@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/generate-password/-/generate-password-1.4.2.tgz#77f344ec525f3bfdc1e50899c09e3c46ddb95dfd"
+
 get-func-name@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/get-func-name/-/get-func-name-2.0.0.tgz#ead774abee72e20409433a066366023dd6887a41"
@@ -2518,9 +2522,9 @@ ln-service@^43.2.0:
     secp256k1 "3.7.1"
     ws "7.1.2"
 
-"lnrpc-node-client@https://github.com/Tierion/lnrpc-node-client.git":
+lnrpc-node-client@^1.0.1:
   version "1.0.1"
-  resolved "https://github.com/Tierion/lnrpc-node-client.git#3de90566db31c49abc4401713f00ab597c031ee9"
+  resolved "https://registry.yarnpkg.com/lnrpc-node-client/-/lnrpc-node-client-1.0.1.tgz#6f5760c78a906106b9f0292ec60efea6865b2e33"
   dependencies:
     grpc "^1.22.2"
 
