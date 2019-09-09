@@ -26,6 +26,9 @@ COPY ./lib/endpoints/*.js /home/node/app/lib/endpoints/
 RUN mkdir -p /home/node/app/lib/models
 COPY ./lib/models/*.js /home/node/app/lib/models/
 
+RUN mkdir -p /home/node/app/cli
+COPY cli /home/node/app/cli
+
 EXPOSE 80
 
-CMD ["yarn", "start"]
+CMD ["/bin/bash", "-c", "/home/node/app/cli/run.sh"]
