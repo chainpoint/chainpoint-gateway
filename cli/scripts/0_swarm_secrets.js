@@ -24,15 +24,11 @@ const homedir = require('os').homedir()
 
 async function createSwarmAndSecrets(valuePairs) {
   let address = { value: { address: valuePairs.HOT_WALLET_ADDRESS } }
-  let home = await exec.quiet('/bin/bash -c "$(eval printf ~$USER)"')
   let uid = (await exec.quiet('id -u $USER')).stdout.trim()
   let gid = (await exec.quiet('id -g $USER')).stdout.trim()
-  let btcRpc = valuePairs.BTC_RPC_URI_LIST
   let ip = valuePairs.CORE_PUBLIC_IP_ADDRESS
   let wif = valuePairs.BITCOIN_WIF
   let network = valuePairs.NETWORK
-  let peers = valuePairs.PEERS != null ? valuePairs.PEERS : ''
-  let blockCypher = valuePairs.BLOCKCYPHER_API_TOKEN != null ? valuePairs.BLOCKCYPHER_API_TOKEN : ''
   let lndWalletPass = valuePairs.HOT_WALLET_PASS
   let lndWalletSeed = valuePairs.HOT_WALLET_SEED
 
@@ -126,13 +122,16 @@ async function createSwarmAndSecrets(valuePairs) {
     return
   }
 
+  let { lndTLSCert, lndMacaroon } = await exec.parallel({
+    lndTLSCert: `base64 ${homedir}/.lnd/tls.cert`,
+    lndMacaroon: `base64 ${homedir}/.lnd/data/chain/bitcoin/testnet/admin.macaroon`
+  })
+
   return updateOrCreateEnv({
-    BTC_RPC_URI_LIST: btcRpc,
-    BLOCKCYPHER_API_TOKEN: blockCypher,
-    PEERS: peers,
     NETWORK: network,
-    CHAINPOINT_CORE_BASE_URI: `http://${ip}`,
-    CORE_DATADIR: `${home.stdout}/.chainpoint/core`
+    NODE_PUBLIC_IP_ADDRESS: `http://${ip}`,
+    LND_TLS_CERT: lndTLSCert,
+    LND_MACAROON: lndMacaroon
   })
 }
 module.exports = createSwarmAndSecrets
