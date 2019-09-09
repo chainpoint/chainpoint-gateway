@@ -1,53 +1,47 @@
-const chalk = require('chalk')
-const { pipe, pipeP } = require('ramda')
-const { isEmpty } = require('lodash')
-const ora = require('ora')
-const tap = require('./utils/tap')
+/* Copyright (C) 2019 Tierion
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+const inquirer = require('inquirer')
+const commandLineArgs = require('command-line-args')
+const { pipeP } = require('ramda')
+const createSwarmAndSecrets = require('./scripts/0_swarm_secrets')
 const cliHelloLogger = require('./utils/cliHelloLogger')
-const createWalletAndDockerSecrets = require('./scripts/0a_wallet_docker_secrets')
-const displayWalletInfo = require('./scripts/0b_display_info')
-const updateOrCreateEnv = require('./scripts/1_update_env')
+const stakingQuestions = require('./utils/stakingQuestions')
 
-const spinner = ora(chalk.bold.yellow('New Wallet:\n'))
-
-const resolve = Promise.resolve.bind(Promise)
-const toBoolean = b => {
-  if (b === true || b === 'true') return true
-  else return false
-}
-
-const args = process.argv
-  .slice(2)
-  .map(currVal => {
-    let kv = currVal.split('=')
-
-    return { [kv[0]]: kv[1] }
-  })
-  .filter(currVal => !isEmpty(currVal[Object.keys(currVal)[0]]))
-  .reduce((acc, currVal) => {
-    return Object.assign({}, acc, currVal)
-  }, {})
-
+const argsDefinitions = [
+  { name: 'NETWORK' },
+  { name: 'NODE_PUBLIC_IP_ADDRESS' },
+  { name: 'HOT_WALLET_PASS' },
+  { name: 'HOT_WALLET_SEED' },
+  { name: 'HOT_WALLET_ADDRESS' }
+]
+const args = commandLineArgs(argsDefinitions)
+console.log(args)
 async function main() {
   cliHelloLogger()
-
-  await pipeP(
-    tap(spinner.start.bind(spinner), resolve),
-    createWalletAndDockerSecrets(toBoolean(args['FORCE'])),
-    tap(
-      pipe(
-        currVal => ({
-          NODE_ETH_ADDRESS: currVal.address
-        }),
-        updateOrCreateEnv
-      ),
-      resolve
-    ),
-    tap(w => {
-      spinner.succeed(chalk.bold.yellow(`${w.privateKey !== '' ? 'New' : 'Existing'} Wallet:\n`))
-    }, resolve),
-    displayWalletInfo
-  )()
+  if (Object.keys(args).length > 1) {
+    await createSwarmAndSecrets(args)
+  } else {
+    await pipeP(
+      () => inquirer.prompt([stakingQuestions['NETWORK'], stakingQuestions['NODE_PUBLIC_IP_ADDRESS']]),
+      createSwarmAndSecrets
+    )()
+  }
 }
 
-main()
+main().then(() => {
+  process.exit(0)
+})

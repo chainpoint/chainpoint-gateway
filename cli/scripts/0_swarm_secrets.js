@@ -26,18 +26,14 @@ async function createSwarmAndSecrets(valuePairs) {
   let address = { value: { address: valuePairs.HOT_WALLET_ADDRESS } }
   let uid = (await exec.quiet('id -u $USER')).stdout.trim()
   let gid = (await exec.quiet('id -g $USER')).stdout.trim()
-  let ip = valuePairs.CORE_PUBLIC_IP_ADDRESS
-  let wif = valuePairs.BITCOIN_WIF
+  let ip = valuePairs.NODE_PUBLIC_IP_ADDRESS
   let network = valuePairs.NETWORK
   let lndWalletPass = valuePairs.HOT_WALLET_PASS
   let lndWalletSeed = valuePairs.HOT_WALLET_SEED
 
-  //init swarm and save bitcoin wif
+  //init swarm
   try {
-    await exec([
-      `docker swarm init --advertise-addr=${ip} || echo "Swarm already initialized"`,
-      `printf ${wif} | docker secret create BITCOIN_WIF -`
-    ])
+    await exec([`docker swarm init --advertise-addr=${ip} || echo "Swarm already initialized"`])
     console.log(chalk.yellow('Secrets saved to Docker Secrets'))
   } catch (err) {
     console.log(chalk.red('Setting secrets failed (is docker installed?)'))
