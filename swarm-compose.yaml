@@ -12,8 +12,11 @@ services:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ~/.chainpoint/node/data/rocksdb:/root/.chainpoint/node/data/rocksdb
       - ./.env:/home/node/app/.env
+      - ~/.lnd:/root/.lnd:ro
     image: gcr.io/chainpoint-registry/github_chainpoint_chainpoint-node-src:${DOCKER_TAG:-latest}
     build: .
+    depends_on:
+      - lnd
     ports:
       - "80:80"
     networks:
