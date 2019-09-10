@@ -1,4 +1,4 @@
-const { isEmpty } = require('lodash')
+// const { isEmpty } = require('lodash')
 
 module.exports = {
   NETWORK: {
@@ -14,11 +14,7 @@ module.exports = {
         name: 'Testnet',
         value: 'testnet'
       }
-    ],
-    validate: input => {
-      if (isEmpty(input) || (input !== 'mainnet' || input !== 'testnet')) return false
-      return true
-    }
+    ]
   },
   CORE_PAYMENT_CHANNEL_COUNT: {
     type: 'number',
