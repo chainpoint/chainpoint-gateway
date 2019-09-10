@@ -1,7 +1,6 @@
 const exec = require('executive')
 const chalk = require('chalk')
 const _ = require('lodash')
-const createWallet = require('./0_create_wallet')
 const { readEnv } = require('./1_update_env')
 
 async function find(secret) {
@@ -24,7 +23,6 @@ async function findOrCreate(obj) {
     let result = await find(obj.key)
     if (_.isEmpty(result)) {
       let cmds = [`printf ${obj.val} | docker secret create ${obj.key} -`]
-      if (obj.key === 'NODE_ETH_ADDRESS') cmds.push(`echo ${obj.val} > eth-address.txt`)
 
       await exec.quiet(cmds)
 
@@ -59,19 +57,18 @@ async function deleteSecrets(secrets = []) {
   }
 }
 
-function createWalletAndDockerSecrets(force = false) {
+function createWalletAndDockerSecrets(force = false, secretsMap) {
   return async function() {
     try {
-      if (force) await deleteSecrets(['NODE_ETH_ADDRESS', 'NODE_ETH_PRIVATE_KEY'])
-      let conditionalWallet = await createWallet()
-      let w = {}
+      if (force) await deleteSecrets(Object.keys(secretsMap))
 
-      w.address = await findOrCreate({ key: 'NODE_ETH_ADDRESS', val: conditionalWallet.address })
-      w.privateKey = await findOrCreate({ key: 'NODE_ETH_PRIVATE_KEY', val: conditionalWallet.privateKey })
+      Object.keys(secretsMap).forEach(async currKey => {
+        await findOrCreate({ key: currKey, val: secretsMap[currKey] })
+      })
 
-      return w
+      return secretsMap
     } catch (err) {
-      console.log(chalk.red('Error creating Docker secrets for ETH_ADDRESS & ETH_PRIVATE_KEY'))
+      console.log(chalk.red(`Error creating Docker secrets for ${JSON.stringify(Object.keys(secretsMap))}`))
 
       return Promise.reject(err)
     }
