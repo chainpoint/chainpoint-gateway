@@ -18,7 +18,7 @@ const exec = require('executive')
 const chalk = require('chalk')
 const generator = require('generate-password')
 const lightning = require('lnrpc-node-client')
-const updateOrCreateEnv = require('./2_update_env')
+const { updateOrCreateEnv } = require('../utils/updateEnv')
 const utils = require('../../lib/utils')
 const homedir = require('os').homedir()
 
@@ -123,11 +123,11 @@ async function createSwarmAndSecrets(valuePairs) {
     lndMacaroon: `base64 ${homedir}/.lnd/data/chain/bitcoin/${network}/admin.macaroon`
   })
 
-  return updateOrCreateEnv({
+  return updateOrCreateEnv([], {
     NETWORK: network,
     NODE_PUBLIC_IP_ADDRESS: `http://${ip}`,
-    LND_TLS_CERT: lndTLSCert,
-    LND_MACAROON: lndMacaroon
+    LND_TLS_CERT: lndTLSCert.stdout ? lndTLSCert.stdout.trim().replace('\n', '') : '',
+    LND_MACAROON: lndMacaroon.stdout ? lndMacaroon.stdout.trim().replace('\n', '') : ''
   })
 }
 module.exports = createSwarmAndSecrets

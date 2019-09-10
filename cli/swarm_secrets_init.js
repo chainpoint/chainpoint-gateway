@@ -19,7 +19,7 @@ const commandLineArgs = require('command-line-args')
 const { pipeP } = require('ramda')
 const createSwarmAndSecrets = require('./scripts/0_swarm_secrets')
 const cliHelloLogger = require('./utils/cliHelloLogger')
-const stakingQuestions = require('./utils/stakingQuestions')
+const stakingQuestions = require('./utils/swarmInitQuestions')
 
 const argsDefinitions = [
   { name: 'NETWORK' },
