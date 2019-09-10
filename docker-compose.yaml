@@ -1,12 +1,10 @@
-
-version: '2.1'
+version: "3.4"
 
 networks:
   chainpoint-node:
     driver: bridge
 
 services:
-
   chainpoint-node:
     restart: on-failure
     volumes:
@@ -31,3 +29,37 @@ services:
       NETWORK: ${NETWORK}
       NODE_ENV: ${NODE_ENV}
     tty: true
+
+  # Lightning node
+  lnd:
+    image: tierion/lnd:latest
+    user: ${USERID}:${GROUPID}
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+      - target: 9735
+        published: 9735
+        protocol: tcp
+        mode: host
+      - target: 10009
+        published: 10009
+        protocol: tcp
+        mode: host
+    restart: always
+    environment:
+      - PUBLICIP
+      - RPCUSER
+      - RPCPASS
+      - NETWORK
+      - CHAIN
+      - DEBUG
+      - NEUTRINO
+      - LND_REST_PORT
+      - LND_RPC_PORT
+      - TLSPATH
+    volumes:
+      - ~/.lnd:/root/.lnd:z
+    networks:
+      - chainpoint-node
