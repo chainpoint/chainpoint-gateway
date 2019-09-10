@@ -120,7 +120,7 @@ async function createSwarmAndSecrets(valuePairs) {
 
   let { lndTLSCert, lndMacaroon } = await exec.parallel({
     lndTLSCert: `base64 ${homedir}/.lnd/tls.cert`,
-    lndMacaroon: `base64 ${homedir}/.lnd/data/chain/bitcoin/testnet/admin.macaroon`
+    lndMacaroon: `base64 ${homedir}/.lnd/data/chain/bitcoin/${network}/admin.macaroon`
   })
 
   return updateOrCreateEnv({
