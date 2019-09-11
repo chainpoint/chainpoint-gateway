@@ -2,8 +2,8 @@ const path = require('path')
 const lnService = require('ln-service')
 const lightning = require('lnrpc-node-client')
 const homedir = require('os').homedir()
-
-// let env = require('../../lib/parse-env').env
+const env = require('../lib/parse-env').env
+const utils = require('../lib/utils')
 
 const args = process.argv.slice(2)
 
@@ -23,15 +23,28 @@ lightning.setCredentials(
 )
 
 const { lnd } = lnService.authenticatedLndGrpc({
-  cert:
-    'LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUI2ekNDQVpDZ0F3SUJBZ0lRWDk4VTB4eHh1NkpacnM3dUxCcStVakFLQmdncWhrak9QUVFEQWpBNE1SOHcKSFFZRFZRUUtFeFpzYm1RZ1lYVjBiMmRsYm1WeVlYUmxaQ0JqWlhKME1SVXdFd1lEVlFRREV3eGxaVGN5TURGawpZbVEzTkdRd0hoY05NVGt3T1RBek1qRXlPRFE0V2hjTk1qQXhNREk0TWpFeU9EUTRXakE0TVI4d0hRWURWUVFLCkV4WnNibVFnWVhWMGIyZGxibVZ5WVhSbFpDQmpaWEowTVJVd0V3WURWUVFERXd4bFpUY3lNREZrWW1RM05HUXcKV1RBVEJnY3Foa2pPUFFJQkJnZ3Foa2pPUFFNQkJ3TkNBQVRwc3VVc0p6WWJSZzZHUGRteVRTd1ZtRHg0STNPRwp0bTdjcCtLMG5VL2ZlR3FrRVA5dGo2VnJTeE96TEZtOXNMaDdSNGpYWW85NkNReHQ3b3lKR1hUa28zd3dlakFPCkJnTlZIUThCQWY4RUJBTUNBcVF3RHdZRFZSMFRBUUgvQkFVd0F3RUIvekJYQmdOVkhSRUVVREJPZ2d4bFpUY3kKTURGa1ltUTNOR1NDQ1d4dlkyRnNhRzl6ZElJRGJHNWtnZ1IxYm1sNGdncDFibWw0Y0dGamEyVjBod1IvQUFBQgpoeEFBQUFBQUFBQUFBQUFBQUFBQUFBQUJod1NzR0FBQ01Bb0dDQ3FHU000OUJBTUNBMGtBTUVZQ0lRRG45TzhlCjdOS054ZUg0N3hUVjRMT0Y4L2l0Mm55UHUrbEs3Q0FURC9abzVBSWhBTlRmQVhtdGZsOFVRZjFSbEFKc1UvdS8KeFlCbTZQb1JzYXhPMzFYRVhmS0oKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=',
-  macaroon:
-    'AgEDbG5kAs8BAwoQMzls1mNheD4W+uWJ27Q66hIBMBoWCgdhZGRyZXNzEgRyZWFkEgV3cml0ZRoTCgRpbmZvEgRyZWFkEgV3cml0ZRoXCghpbnZvaWNlcxIEcmVhZBIFd3JpdGUaFgoHbWVzc2FnZRIEcmVhZBIFd3JpdGUaFwoIb2ZmY2hhaW4SBHJlYWQSBXdyaXRlGhYKB29uY2hhaW4SBHJlYWQSBXdyaXRlGhQKBXBlZXJzEgRyZWFkEgV3cml0ZRoSCgZzaWduZXISCGdlbmVyYXRlAAAGIORO3mylhqXeQH+gXz/siembaqdAvYSM9RJOPWiLYTNG',
+  cert: env.LND_TLS_CERT,
+  macaroon: env.LND_MACAROON,
   socket: '127.0.0.1:10009' // '34.66.56.153:10009'
 })
 
 ;(async function main() {
   try {
+    const hotWalletPassword = 'pvjpZiIdURWVGkJuuYbp' // fs.readFileSync('/run/secrets/hot_wallet_pass', 'utf8')
+    const hotWalletSeed =
+      'able devote raise monkey street clip couch lamp radio tent trigger hamster public gate another supply diet black essay flock ocean runway bracket boss' // fs.readFileSync('/run/secrets/hot_wallet_seed', 'utf8')
+
+    lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
+    let unlocker = lightning.unlocker()
+    lightning.promisifyGrpc(unlocker)
+
+    await unlocker.initWalletAsync({
+      wallet_password: hotWalletPassword,
+      cipher_seed_mnemonic: hotWalletSeed.split(' ')
+    })
+    await utils.sleepAsync(5000)
+    await unlocker.unlockWalletAsync({ wallet_password: hotWalletPassword, recovery_window: 25000 })
+
     /**
      * 1. List All Active Payment Channels
      */
@@ -80,6 +93,14 @@ const { lnd } = lnService.authenticatedLndGrpc({
       console.log('All Txs:\n', JSON.stringify(getTxsRes))
       console.log('====================================')
     }
+
+    // getWalletInfo
+    if (args.includes('--getWalletInfo')) {
+      let getWalletInfoRes = await lnService.getWalletInfo({ lnd })
+      console.log('====================================')
+      console.log('getWalletInfo:\n', JSON.stringify(getWalletInfoRes))
+      console.log('====================================')
+    }
   } catch (error) {
     console.error('Error: ', error)
     process.exit(1)
@@ -87,3 +108,7 @@ const { lnd } = lnService.authenticatedLndGrpc({
 
   process.exit(0)
 })()
+
+module.exports.getWalletInfo = async () => {
+  return await lnService.getWalletInfo({ lnd })
+}
