@@ -14,9 +14,8 @@ const createPeerCxns = require('./scripts/1a_lnd_peer_cxns')
 const { getWalletInfo } = require('./payment_channel_utils')
 const homedir = require('os').homedir()
 
-const hotWalletPassword = 'pvjpZiIdURWVGkJuuYbp' // fs.readFileSync('/run/secrets/hot_wallet_pass', 'utf8')
-const hotWalletSeed =
-  'able devote raise monkey street clip couch lamp radio tent trigger hamster public gate another supply diet black essay flock ocean runway bracket boss' // fs.readFileSync('/run/secrets/hot_wallet_seed', 'utf8')
+const hotWalletPassword = ''
+const hotWalletSeed = ''
 
 lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
 let unlocker = lightning.unlocker()
@@ -71,7 +70,7 @@ async function main() {
 
       console.log('LND Chain Syncing Done: ', isSyncedToChain)
     } catch (error) {
-      console.log('Failed to make getWalletInfo() call')
+      console.log('Failed to make getWalletInfo() call', error)
     }
   }
 
