@@ -1,8 +1,14 @@
+const fs = require('fs')
 const path = require('path')
 const lnService = require('ln-service')
 const lightning = require('lnrpc-node-client')
 const homedir = require('os').homedir()
-const env = require('../../lib/parse-env').env
+// const env = require('../../lib/parse-env').env
+
+function toBase64(file) {
+  var body = fs.readFileSync(file)
+  return body.toString('base64').replace(/\s/g, '')
+}
 
 lightning.setCredentials(
   '127.0.0.1:10009',
@@ -12,8 +18,8 @@ lightning.setCredentials(
 
 // TODO: use dynamic base64 method to encode cert and macaroon
 const { lnd } = lnService.authenticatedLndGrpc({
-  cert: env.LND_TLS_CERT,
-  macaroon: env.LND_MACAROON,
+  cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
+  macaroon: path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
   socket: '127.0.0.1:10009' // '34.66.56.153:10009'
 })
 
