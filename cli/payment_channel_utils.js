@@ -30,8 +30,8 @@ const { lnd } = lnService.authenticatedLndGrpc({
 
 // ;(async function main() {
 //   try {
-//     const hotWalletPassword = ''
-//     const hotWalletSeed = ''
+// const hotWalletPassword = process.env.HOT_WALLET_PASSWORD
+// const hotWalletSeed = process.env.HOT_WALLET_SEED
 
 //     lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
 //     let unlocker = lightning.unlocker()
