@@ -10,20 +10,24 @@ function toBase64(file) {
   return body.toString('base64').replace(/\s/g, '')
 }
 
-lightning.setCredentials(
-  '127.0.0.1:10009',
-  path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-  path.resolve(homedir, '.lnd/tls.cert')
-)
-
-// TODO: use dynamic base64 method to encode cert and macaroon
-const { lnd } = lnService.authenticatedLndGrpc({
-  cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
-  macaroon: path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-  socket: '127.0.0.1:10009' // '34.66.56.153:10009'
-})
-
 async function openChannelToCore(opts) {
+  console.log('====================================')
+  console.log('openChannelToCore -> opts', JSON.stringify(opts))
+  console.log('====================================')
+
+  lightning.setCredentials(
+    '127.0.0.1:10009',
+    path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
+    path.resolve(homedir, '.lnd/tls.cert')
+  )
+
+  // TODO: use dynamic base64 method to encode cert and macaroon
+  const { lnd } = lnService.authenticatedLndGrpc({
+    cert: opts.tlscert,
+    macaroon: opts.macaroon,
+    socket: '127.0.0.1:10009' // '34.66.56.153:10009'
+  })
+
   try {
     let openChannelRes = await lnService.openChannel({
       lnd,

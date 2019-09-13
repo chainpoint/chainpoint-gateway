@@ -109,14 +109,14 @@ async function createSwarmAndSecrets(valuePairs) {
     }
   }
 
-  try {
-    console.log('shutting down LND...')
-    await exec([`docker-compose down`])
-    console.log('LND shut down')
-  } catch (err) {
-    console.log(chalk.red(`Could not bring down LND: ${err}`))
-    return
-  }
+  // try {
+  //   console.log('shutting down LND...')
+  //   await exec([`docker-compose down`])
+  //   console.log('LND shut down')
+  // } catch (err) {
+  //   console.log(chalk.red(`Could not bring down LND: ${err}`))
+  //   return
+  // }
 
   let { lndTLSCert, lndMacaroon } = await exec.parallel({
     lndTLSCert: `base64 ${homedir}/.lnd/tls.cert`,

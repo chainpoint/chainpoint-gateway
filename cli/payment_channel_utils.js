@@ -13,17 +13,11 @@ function toBase64(file) {
   return body.toString('base64').replace(/\s/g, '')
 }
 
-lightning.setCredentials(
-  '127.0.0.1:10009',
-  path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-  path.resolve(homedir, '.lnd/tls.cert')
-)
-
-const { lnd } = lnService.authenticatedLndGrpc({
-  cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
-  macaroon: path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-  socket: '127.0.0.1:10009' // '34.66.56.153:10009'
-})
+// lightning.setCredentials(
+//   '127.0.0.1:10009',
+//   path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
+//   path.resolve(homedir, '.lnd/tls.cert')
+// )
 
 // const listChannels = opts => {
 //   return new Promise((resolve, reject) => {
@@ -139,6 +133,15 @@ const { lnd } = lnService.authenticatedLndGrpc({
 //   process.exit(0)
 // })()
 
-module.exports.getWalletInfo = async () => {
+module.exports.getWalletInfo = async lndOpts => {
+  console.log('====================================')
+  console.log('getWalletInfo -> lndOpts', JSON.stringify(lndOpts))
+  console.log('====================================')
+  const { lnd } = lnService.authenticatedLndGrpc({
+    cert: lndOpts['LND_TLS_CERT'],
+    macaroon: lndOpts['LND_MACAROON'],
+    socket: '127.0.0.1:10009' // '34.66.56.153:10009'
+  })
+
   return await lnService.getWalletInfo({ lnd })
 }

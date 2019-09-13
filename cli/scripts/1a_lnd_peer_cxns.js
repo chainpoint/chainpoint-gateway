@@ -5,13 +5,13 @@ const { pipeP } = require('ramda')
 const homedir = require('os').homedir()
 const { buildRequestOptions, coreRequestAsync } = require('../../lib/cores')
 
-lightning.setCredentials(
-  '127.0.0.1:10009',
-  path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-  path.resolve(homedir, '.lnd/tls.cert')
-)
+async function getCoreStatus(lndOpts, coreIP) {
+  lightning.setCredentials(
+    '127.0.0.1:10009',
+    path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
+    path.resolve(homedir, '.lnd/tls.cert')
+  )
 
-async function getCoreStatus(coreIP) {
   try {
     let getStatusOptions = buildRequestOptions(null, 'GET', '/status')
     let coreResponse = await coreRequestAsync(getStatusOptions, coreIP, 0)
@@ -56,13 +56,13 @@ const connectPeer = opts => {
   })
 }
 
-module.exports = coreIPs => {
+module.exports = (lndOpts, coreIPs) => {
   return Promise.all(
     coreIPs.map(currVal =>
       pipeP(
         getCoreStatus,
         connectPeer
-      )(currVal)
+      )(lndOpts, currVal)
     )
   ).catch(() => {})
 }
