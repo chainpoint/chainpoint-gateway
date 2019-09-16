@@ -2,141 +2,147 @@ const fs = require('fs')
 const path = require('path')
 const lnService = require('ln-service')
 const lightning = require('lnrpc-node-client')
+const { find } = require('lodash')
 const homedir = require('os').homedir()
-// const env = require('../lib/parse-env').env
 // const utils = require('../lib/utils')
+const commandLineArgs = require('command-line-args')
 
-// const args = process.argv.slice(2)
+const args = process.argv.slice(2)
 
 function toBase64(file) {
   var body = fs.readFileSync(file)
   return body.toString('base64').replace(/\s/g, '')
 }
 
-// lightning.setCredentials(
-//   '127.0.0.1:10009',
-//   path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-//   path.resolve(homedir, '.lnd/tls.cert')
-// )
+const { lnd } = lnService.authenticatedLndGrpc({
+  cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
+  macaroon: toBase64(path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon')),
+  socket: '127.0.0.1:10009'
+})
 
-// const listChannels = opts => {
-//   return new Promise((resolve, reject) => {
-//     lightning.lightning().listChannels(opts, (err, res) => {
-//       if (err) reject(err)
-//       else resolve(res)
-//     })
-//   })
-// }
+lightning.setCredentials(
+  '127.0.0.1:10009',
+  path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
+  path.resolve(homedir, '.lnd/tls.cert')
+)
+;(async function main() {
+  try {
+    /**
+     * 0. Is LND Node fully synced?
+     *
+     * This method dictates whether it is safe to start interacting with the LND to create channels, peer cxns, etc.
+     */
+    if (args.includes('--isSyncedToChain')) {
+      let getWalletInfoRes = await lnService.getWalletInfo({ lnd })
+      let isSynced = getWalletInfoRes.is_synced_to_chain
+      console.log('====================================')
+      console.log('getWalletInfo -> isSynced: \n', isSynced)
+      console.log('====================================')
+    }
 
-// ;(async function main() {
-//   try {
-// const hotWalletPassword = process.env.HOT_WALLET_PASSWORD
-// const hotWalletSeed = process.env.HOT_WALLET_SEED
+    /**
+     * 1. List All Peers
+     *
+     * List all active peer connections. Peer connections with the Cores you wish to create a payment channel are required.
+     * IMPORTANT: Assert that there is a peer cxn with the specific Chainpoint Core you wish to open a payment channel with!
+     */
+    if (args.includes('--getPeers')) {
+      const argsDefinitions = [{ name: 'pubkey' }, { name: 'getPeers' }]
+      const args = commandLineArgs(argsDefinitions)
 
-//     lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
-//     let unlocker = lightning.unlocker()
-//     lightning.promisifyGrpc(unlocker)
+      let getPeersRes = await lnService.getPeers({ lnd })
+      console.log('====================================')
+      console.log(
+        'All Peer Connections:\n',
+        args.pubkey ? find(getPeersRes.peers, ['public_key', args.pubkey]) : getPeersRes
+      )
+      console.log('====================================')
+    }
 
-//     await unlocker.initWalletAsync({
-//       wallet_password: hotWalletPassword,
-//       cipher_seed_mnemonic: hotWalletSeed.split(' ')
-//     })
-//     await utils.sleepAsync(5000)
-//     await unlocker.unlockWalletAsync({ wallet_password: hotWalletPassword, recovery_window: 25000 })
+    if (args.includes('--addPeer')) {
+      const argsDefinitions = [{ name: 'socket' }, { name: 'pubkey' }, { name: 'addPeer' }]
+      const args = commandLineArgs(argsDefinitions)
 
-//     /**
-//      * 1. List All Active Payment Channels
-//      */
-//     if (args.includes('--addPeer')) {
-//       let socket = ''
-//       let pubkey = ''
-//       let addPeerRes = await lnService.addPeer({ lnd, socket, public_key: pubkey })
-//       console.log('====================================')
-//       console.log('addPeerRes:\n', addPeerRes)
-//       console.log('====================================')
-//     }
+      let socket = args.socket
+      let pubkey = args.pubkey
+      let addPeerRes = await lnService.addPeer({ lnd, socket, public_key: pubkey })
+      console.log('====================================')
+      console.log('addPeerRes:\n', addPeerRes)
+      console.log('====================================')
+    }
 
-//     if (args.includes('--openChannel')) {
-//       let pubkey = ''
-//       try {
-//         let openChannelRes = await lnService.openChannel({
-//           lnd,
-//           partner_public_key: pubkey,
-//           local_tokens: 100000
-//         })
+    if (args.includes('--openChannel')) {
+      const argsDefinitions = [{ name: 'satoshis' }, { name: 'pubkey' }, { name: 'openChannel' }]
+      const args = commandLineArgs(argsDefinitions)
 
-//         console.log('Opened Payment Channel -> ' + pubkey, openChannelRes)
-//       } catch (error) {
-//         console.warn(`Unable to open payment channel with Core: ${pubkey} : ${JSON.stringify(error)}`)
-//         return Promise.reject(error)
-//       }
-//     }
+      let pubkey = ''
+      try {
+        let openChannelRes = await lnService.openChannel({
+          lnd,
+          partner_public_key: args.pubkey,
+          local_tokens: args.satoshis
+        })
 
-//     if (args.includes('--listChannels')) {
-//       let listChannelsRes = await lnService.getChannels({ lnd })
-//       console.log('====================================')
-//       console.log('Open Payment Channels:\n', listChannelsRes)
-//       console.log('====================================')
-//     }
+        console.log('Opened Payment Channel -> ' + pubkey, openChannelRes)
+      } catch (error) {
+        console.warn(`Unable to open payment channel with Core: ${pubkey} : ${JSON.stringify(error)}`)
+        return Promise.reject(error)
+      }
+    }
 
-//     /**
-//      * 2. CLOSING A CHANNEL
-//      */
-//     if (args.includes('--closeChannel')) {
-//       const closing = await lnService.closeChannel({
-//         transaction_id: '',
-//         transaction_vout: 0,
-//         is_force_close: true,
-//         lnd
-//       })
-//       console.log('====================================')
-//       console.log('Closing Channel... This will take several minutes.', closing)
-//       console.log('====================================')
-//     }
+    if (args.includes('--listChannels')) {
+      let listChannelsRes = await lnService.getChannels({ lnd })
+      console.log('====================================')
+      console.log('Open Payment Channels:\n', listChannelsRes)
+      console.log('====================================')
+    }
 
-//     // C. Get Pending Channels
-//     if (args.includes('--getPendingChannels')) {
-//       let getPendingChannelsRes = await lnService.getPendingChannels({ lnd })
-//       console.log('====================================')
-//       console.log('All Pending Channels:\n', getPendingChannelsRes)
-//       console.log('====================================')
-//     }
+    /**
+     * 2. CLOSING A CHANNEL
+     */
+    if (args.includes('--closeChannel')) {
+      const closing = await lnService.closeChannel({
+        transaction_id: '',
+        transaction_vout: 0,
+        is_force_close: true,
+        lnd
+      })
+      console.log('====================================')
+      console.log('Closing Channel... This will take several minutes.', closing)
+      console.log('====================================')
+    }
 
-//     // B. Get Peers
-//     if (args.includes('--getPeers')) {
-//       let getPeersRes = await lnService.getPeers({ lnd })
-//       console.log('====================================')
-//       console.log('All Peer Connections:\n', getPeersRes)
-//       console.log('====================================')
-//     }
+    // C. Get Pending Channels
+    if (args.includes('--getPendingChannels')) {
+      let getPendingChannelsRes = await lnService.getPendingChannels({ lnd })
+      console.log('====================================')
+      console.log('All Pending Channels:\n', getPendingChannelsRes)
+      console.log('====================================')
+    }
 
-//     // B. Get Peers
-//     if (args.includes('--getTxs')) {
-//       let getTxsRes = await lnService.getChainTransactions({ lnd })
-//       console.log('====================================')
-//       console.log('All Txs:\n', JSON.stringify(getTxsRes))
-//       console.log('====================================')
-//     }
+    if (args.includes('--getTxs')) {
+      let getTxsRes = await lnService.getChainTransactions({ lnd })
+      console.log('====================================')
+      console.log('All Txs:\n', JSON.stringify(getTxsRes))
+      console.log('====================================')
+    }
 
-//     // getWalletInfo
-//     if (args.includes('--getWalletInfo')) {
-//       let getWalletInfoRes = await lnService.getWalletInfo({ lnd })
-//       console.log('====================================')
-//       console.log('getWalletInfo:\n', JSON.stringify(getWalletInfoRes))
-//       console.log('====================================')
-//     }
-//   } catch (error) {
-//     console.error('Error: ', error)
-//     process.exit(1)
-//   }
+    // getWalletInfo
+    if (args.includes('--getWalletInfo')) {
+      let getWalletInfoRes = await lnService.getWalletInfo({ lnd })
+      console.log('====================================')
+      console.log('getWalletInfo:\n', JSON.stringify(getWalletInfoRes))
+      console.log('====================================')
+    }
+  } catch (error) {
+    console.error('Error: ', error)
+    process.exit(1)
+  }
 
-//   process.exit(0)
-// })()
+  process.exit(0)
+})()
 
 module.exports.getWalletInfo = async lndOpts => {
-  console.log('====================================')
-  console.log('getWalletInfo -> lndOpts', JSON.stringify(lndOpts))
-  console.log('====================================')
   const { lnd } = lnService.authenticatedLndGrpc({
     cert: lndOpts['LND_TLS_CERT'],
     macaroon: lndOpts['LND_MACAROON'],

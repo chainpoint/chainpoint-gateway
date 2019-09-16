@@ -3,10 +3,6 @@ const path = require('path')
 const envfile = require('envfile')
 
 async function updateOrCreateEnv(blacklist, valuePairs) {
-  console.log('====================================')
-  console.log('updateOrCreateEnv -> valuePairs', valuePairs)
-  console.log('====================================')
-
   const valuePairsClone = JSON.parse(JSON.stringify(valuePairs))
   // Prevent blacklisted keys from being persisted to .env
   blacklist.forEach(currVal => delete valuePairs[currVal])
