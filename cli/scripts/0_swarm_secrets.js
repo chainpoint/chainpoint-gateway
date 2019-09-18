@@ -86,14 +86,6 @@ async function createSwarmAndSecrets(lndOpts) {
       lndMacaroon: `base64 ${homedir}/.lnd/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`
     })
 
-    try {
-      console.log('shutting down LND...')
-      await exec([`docker-compose down`])
-      console.log('LND shut down')
-    } catch (err) {
-      console.log(chalk.red(`Could not bring down LND: ${err}`))
-    }
-
     return updateOrCreateEnv([], {
       NETWORK: lndOpts.NETWORK,
       NODE_PUBLIC_IP_ADDRESS: `http://${lndOpts.NODE_PUBLIC_IP_ADDRESS}`,
