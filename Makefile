@@ -10,6 +10,13 @@ ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 # Get home directory of current users
 NODE_DATADIR := $(shell eval printf "~$$USER")/.chainpoint/node
 
+# Get home directory of current users
+HOMEDIR := $(shell eval printf "~$$USER")
+CORE_DATADIR := ${HOMEDIR}/.chainpoint/core
+
+UID := $(shell id -u $$USER)
+GID := $(shell id -g $$USER)
+
 # Specify the binary dependencies
 REQUIRED_BINS := docker docker-compose
 $(foreach bin,$(REQUIRED_BINS),\
@@ -39,6 +46,11 @@ down:
 clean: down
 	@sudo rm -rf ${NODE_DATADIR}/data/rocksdb/*
 	@sudo chmod 777 ${NODE_DATADIR}/data/rocksdb
+
+## burn            : Shutdown and **destroy** all local Node data
+.PHONY : burn
+burn: clean
+	@sudo rm -rf ${HOMEDIR}/.lnd
 
 ## restart         : Restart Node
 .PHONY : restart
@@ -93,7 +105,7 @@ init-swarm:
 
 ## deploy					: deploys a swarm stack
 deploy:
-	set -a && source .env && set +a && docker stack deploy -c swarm-compose.yaml chainpoint-node
+	set -a && source .env && set +a && export USERID=${UID} && export GROUPID=${GID} && docker stack deploy -c swarm-compose.yaml chainpoint-node
 
 ## optimize-network          : increases number of sockets host can use
 optimize-network:
