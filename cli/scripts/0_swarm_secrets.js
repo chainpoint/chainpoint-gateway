@@ -19,6 +19,7 @@ const exec = require('executive')
 const chalk = require('chalk')
 const generator = require('generate-password')
 const homedir = require('os').homedir()
+const utils = require('../lib/utils')
 const { updateOrCreateEnv } = require('../utils/updateEnv')
 
 lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
@@ -32,6 +33,17 @@ let pass = generator.generate({
 
 async function createSwarmAndSecrets(lndOpts) {
   try {
+    try {
+      let home = (await exec.quiet('/bin/bash -c "$(eval printf ~$USER)"')).stdout.trim()
+      let uid = (await exec.quiet('id -u $USER')).stdout.trim()
+      let gid = (await exec.quiet('id -g $USER')).stdout.trim()
+      await exec([
+        `mkdir -p ${home}/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
+      ])
+      await utils.sleepAsync(5000)
+    } catch (err) {
+      console.log(chalk.red(`Could not bring up LND: ${err}`))
+    }
     let seed = await unlocker.genSeedAsync({})
     console.log(seed)
     let init = await unlocker.initWalletAsync({
@@ -48,7 +60,7 @@ async function createSwarmAndSecrets(lndOpts) {
 
     lightning.setCredentials(
       '127.0.0.1:10009',
-      `${homedir}/.lnd/data/chain/bitcoin/testnet/admin.macaroon`,
+      `${homedir}/.lnd/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`,
       `${homedir}/.lnd/tls.cert`
     )
     let client = lightning.lightning()
@@ -74,6 +86,14 @@ async function createSwarmAndSecrets(lndOpts) {
       lndTLSCert: `base64 ${homedir}/.lnd/tls.cert`,
       lndMacaroon: `base64 ${homedir}/.lnd/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`
     })
+
+    try {
+      console.log('shutting down LND...')
+      await exec([`docker-compose down`])
+      console.log('LND shut down')
+    } catch (err) {
+      console.log(chalk.red(`Could not bring down LND: ${err}`))
+    }
 
     return updateOrCreateEnv([], {
       NETWORK: lndOpts.NETWORK,

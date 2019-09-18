@@ -89,6 +89,7 @@ init-yarn:
 .PHONY : init-swarm
 init-swarm:
 	@docker swarm init || echo "Swarm already initialized"
+	@cli/run_init.sh
 
 ## deploy					: deploys a swarm stack
 deploy:
