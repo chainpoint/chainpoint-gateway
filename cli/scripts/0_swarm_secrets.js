@@ -22,10 +22,6 @@ const homedir = require('os').homedir()
 const utils = require('../../lib/utils')
 const { updateOrCreateEnv } = require('../utils/updateEnv')
 
-lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
-let unlocker = lightning.unlocker()
-lightning.promisifyGrpc(unlocker)
-
 let pass = generator.generate({
   length: 20,
   numbers: false
@@ -44,6 +40,9 @@ async function createSwarmAndSecrets(lndOpts) {
     } catch (err) {
       console.log(chalk.red(`Could not bring up LND: ${err}`))
     }
+    lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
+    let unlocker = lightning.unlocker()
+    lightning.promisifyGrpc(unlocker)
     let seed = await unlocker.genSeedAsync({})
     console.log(seed)
     let init = await unlocker.initWalletAsync({
