@@ -43,13 +43,16 @@ const joinArgs = (function(args = {}) {
 const envValues = readEnv()
 
 async function main() {
+  let home = (await exec.quiet('/bin/bash -c "$(eval printf ~$USER)"')).stdout.trim()
   let uid = (await exec.quiet('id -u $USER')).stdout.trim()
   let gid = (await exec.quiet('id -g $USER')).stdout.trim()
 
   // startup docker compose
   try {
     console.log('initializing LND...')
-    await exec([`export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`])
+    await exec([
+      `mkdir -p ${home}/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
+    ])
     await utils.sleepAsync(5000)
     console.log('LND initialized')
   } catch (err) {
