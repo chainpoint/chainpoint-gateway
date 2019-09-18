@@ -19,7 +19,7 @@ const exec = require('executive')
 const chalk = require('chalk')
 const generator = require('generate-password')
 const homedir = require('os').homedir()
-const utils = require('../lib/utils')
+const utils = require('../../lib/utils')
 const { updateOrCreateEnv } = require('../utils/updateEnv')
 
 lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
