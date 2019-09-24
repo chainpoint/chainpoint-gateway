@@ -47,7 +47,7 @@ services:
         mode: host
     restart: always
     environment:
-      - PUBLICIP
+      - PUBLICIP=${NODE_RAW_IP}
       - RPCUSER
       - RPCPASS
       - NETWORK
