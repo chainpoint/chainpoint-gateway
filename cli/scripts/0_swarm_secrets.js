@@ -73,10 +73,14 @@ async function createSwarmAndSecrets(lndOpts) {
     // Create Docker secrets
     try {
       await exec.quiet([
+        `docker swarm init --advertise-addr=${lndOpts.NODE_PUBLIC_IP_ADDRESS} || echo "Swarm already initialized"`,
         `printf ${pass} | docker secret create HOT_WALLET_PASS -`,
         `printf ${seed.value.cipher_seed_mnemonic.join(' ')} | docker secret create HOT_WALLET_SEED -`,
         `printf ${address.value.address} | docker secret create HOT_WALLET_ADDRESS -`
       ])
+      console.log(chalk.yellow(`\nLND Wallet Password: ${pass}`))
+      console.log(chalk.yellow(`\nLND Wallet Seed: ${seed.value.cipher_seed_mnemonic.join(' ')}`))
+      console.log(chalk.yellow(`\nLND Wallet Address: ${address.value.address}\n`))
     } catch (err) {
       console.log(chalk.red(`Could not exec docker secret creation: ${err}`))
     }

@@ -143,9 +143,10 @@ lightning.setCredentials(
 })()
 
 module.exports.getWalletInfo = async lndOpts => {
+  console.log(lndOpts)
   const { lnd } = lnService.authenticatedLndGrpc({
-    cert: lndOpts['LND_TLS_CERT'],
-    macaroon: lndOpts['LND_MACAROON'],
+    cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
+    macaroon: toBase64(path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon')),
     socket: '127.0.0.1:10009' // '34.66.56.153:10009'
   })
 
