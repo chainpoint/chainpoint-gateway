@@ -67,7 +67,7 @@ services:
       - RPCPASS
       - NETWORK
       - CHAIN
-      - DEBUG
+      - DEBUG=info
       - NEUTRINO
       - LND_REST_PORT
       - LND_RPC_PORT
