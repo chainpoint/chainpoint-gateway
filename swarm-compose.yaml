@@ -4,6 +4,8 @@ networks:
   chainpoint-node:
 
 secrets:
+  HOT_WALLET_PASS:
+    external: true
 
 services:
   chainpoint-node:
@@ -21,10 +23,10 @@ services:
       - "80:80"
     networks:
       - chainpoint-node
+    secrets:
+      - HOT_WALLET_PASS
     environment:
-      LND_TLS_CERT: "${LND_TLS_CERT}"
-      LND_MACAROON: "${LND_MACAROON}"
-      LND_SOCKET: "${LND_TLS_CERT}"
+      LND_SOCKET: "lnd:10009"
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
       CHAINPOINT_NODE_HTTP_PORT: "${CHAINPOINT_NODE_HTTP_PORT}"
       AGGREGATION_INTERVAL_SECONDS: "${AGGREGATION_INTERVAL_SECONDS}"
@@ -34,7 +36,6 @@ services:
       GET_PROOFS_MAX: "${GET_PROOFS_MAX}"
       NETWORK: ${NETWORK}
       NODE_ENV: ${NODE_ENV}
-    secrets:
     tty: true
     logging:
       driver: syslog
@@ -61,7 +62,7 @@ services:
         mode: host
     restart: always
     environment:
-      - PUBLICIP
+      - PUBLICIP=${NODE_RAW_IP}
       - RPCUSER
       - RPCPASS
       - NETWORK

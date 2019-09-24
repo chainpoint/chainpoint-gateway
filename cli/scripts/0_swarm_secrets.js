@@ -81,16 +81,11 @@ async function createSwarmAndSecrets(lndOpts) {
       console.log(chalk.red(`Could not exec docker secret creation: ${err}`))
     }
 
-    let { lndTLSCert, lndMacaroon } = await exec.parallel({
-      lndTLSCert: `base64 ${homedir}/.lnd/tls.cert`,
-      lndMacaroon: `base64 ${homedir}/.lnd/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`
-    })
-
     return updateOrCreateEnv([], {
       NETWORK: lndOpts.NETWORK,
       NODE_PUBLIC_IP_ADDRESS: `http://${lndOpts.NODE_PUBLIC_IP_ADDRESS}`,
-      LND_TLS_CERT: lndTLSCert.stdout ? lndTLSCert.stdout.trim().replace('\n', '') : '',
-      LND_MACAROON: lndMacaroon.stdout ? lndMacaroon.stdout.trim().replace('\n', '') : ''
+      NODE_RAW_IP: lndOpts.NODE_PUBLIC_IP_ADDRESS,
+      HOT_WALLET_ADDRESS: address.value.address
     })
   } catch (error) {
     console.log(error)
