@@ -17,7 +17,7 @@ const homedir = require('os').homedir()
 const hotWalletPassword = process.env.HOT_WALLET_PASSWORD
 const hotWalletSeed = process.env.HOT_WALLET_SEED
 
-lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
+lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/chainpoint-node/tls.cert`)
 let unlocker = lightning.unlocker()
 lightning.promisifyGrpc(unlocker)
 
@@ -51,7 +51,7 @@ async function main() {
   try {
     console.log('initializing LND...')
     await exec([
-      `mkdir -p ${home}/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
+      `mkdir -p ${home}/.lnd/chainpoint-node && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
     ])
     await utils.sleepAsync(5000)
     console.log('LND initialized')

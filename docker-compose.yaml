@@ -58,6 +58,6 @@ services:
       - LND_RPC_PORT
       - TLSPATH
     volumes:
-      - ~/.lnd:/root/.lnd:z
+      - ~/.lnd/chainpoint-node:/root/.lnd:z
     networks:
       - chainpoint-node

@@ -15,15 +15,15 @@ function toBase64(file) {
 }
 
 const { lnd } = lnService.authenticatedLndGrpc({
-  cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
-  macaroon: toBase64(path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon')),
+  cert: toBase64(path.resolve(homedir, '.lnd/chainpoint-node/tls.cert')),
+  macaroon: toBase64(path.resolve(homedir, '.lnd/chainpoint-node/data/chain/bitcoin/testnet/admin.macaroon')),
   socket: '127.0.0.1:10009'
 })
 
 lightning.setCredentials(
   '127.0.0.1:10009',
-  path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-  path.resolve(homedir, '.lnd/tls.cert')
+  path.resolve(homedir, '.lnd/chainpoint-node/data/chain/bitcoin/testnet/admin.macaroon'),
+  path.resolve(homedir, '.lnd/chainpoint-node/tls.cert')
 )
 ;(async function main() {
   try {
@@ -145,8 +145,8 @@ lightning.setCredentials(
 module.exports.getWalletInfo = async lndOpts => {
   console.log(lndOpts)
   const { lnd } = lnService.authenticatedLndGrpc({
-    cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
-    macaroon: toBase64(path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon')),
+    cert: toBase64(path.resolve(homedir, '.lnd/chainpoint-node/tls.cert')),
+    macaroon: toBase64(path.resolve(homedir, '.lnd/chainpoint-node/data/chain/bitcoin/testnet/admin.macaroon')),
     socket: '127.0.0.1:10009' // '34.66.56.153:10009'
   })
 

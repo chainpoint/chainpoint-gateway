@@ -34,13 +34,13 @@ async function createSwarmAndSecrets(lndOpts) {
       let uid = (await exec.quiet('id -u $USER')).stdout.trim()
       let gid = (await exec.quiet('id -g $USER')).stdout.trim()
       await exec([
-        `mkdir -p ${home}/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
+        `mkdir -p ${home}/.lnd/chainpoint-node && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
       ])
       await utils.sleepAsync(5000)
     } catch (err) {
       console.log(chalk.red(`Could not bring up LND: ${err}`))
     }
-    lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
+    lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/chainpoint-node/tls.cert`)
     let unlocker = lightning.unlocker()
     lightning.promisifyGrpc(unlocker)
     let seed = await unlocker.genSeedAsync({})
@@ -59,8 +59,8 @@ async function createSwarmAndSecrets(lndOpts) {
 
     lightning.setCredentials(
       '127.0.0.1:10009',
-      `${homedir}/.lnd/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`,
-      `${homedir}/.lnd/tls.cert`
+      `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`,
+      `${homedir}/.lnd/chainpoint-node/tls.cert`
     )
     let client = lightning.lightning()
     lightning.promisifyGrpc(client)

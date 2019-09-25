@@ -8,8 +8,8 @@ const { buildRequestOptions, coreRequestAsync } = require('../../lib/cores')
 async function getCoreStatus(lndOpts, coreIP) {
   lightning.setCredentials(
     '127.0.0.1:10009',
-    path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-    path.resolve(homedir, '.lnd/tls.cert')
+    path.resolve(homedir, '.lnd/chainpoint-node/data/chain/bitcoin/testnet/admin.macaroon'),
+    path.resolve(homedir, '.lnd/chainpoint-node/tls.cert')
   )
 
   try {
