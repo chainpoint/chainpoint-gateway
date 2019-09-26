@@ -1,30 +1,24 @@
-const fs = require('fs')
-const path = require('path')
 const lnService = require('ln-service')
 const lightning = require('lnrpc-node-client')
 const { find } = require('lodash')
 const homedir = require('os').homedir()
-// const utils = require('../lib/utils')
+const utils = require('../lib/utils')
 const commandLineArgs = require('command-line-args')
+const env = require('../lib/parse-env').env
 
 const args = process.argv.slice(2)
 
-function toBase64(file) {
-  var body = fs.readFileSync(file)
-  return body.toString('base64').replace(/\s/g, '')
-}
+const LND_SOCKET = '127.0.0.1:10009'
+const LND_CERTPATH = `${homedir}/.lnd/chainpoint-node/tls.cert`
+const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${env.NETWORK}/admin.macaroon`
 
 const { lnd } = lnService.authenticatedLndGrpc({
-  cert: toBase64(path.resolve(homedir, '.lnd/chainpoint-node/tls.cert')),
-  macaroon: toBase64(path.resolve(homedir, '.lnd/chainpoint-node/data/chain/bitcoin/testnet/admin.macaroon')),
-  socket: '127.0.0.1:10009'
+  cert: utils.toBase64(LND_CERTPATH),
+  macaroon: utils.toBase64(LND_MACAROONPATH),
+  socket: LND_SOCKET
 })
 
-lightning.setCredentials(
-  '127.0.0.1:10009',
-  path.resolve(homedir, '.lnd/chainpoint-node/data/chain/bitcoin/testnet/admin.macaroon'),
-  path.resolve(homedir, '.lnd/chainpoint-node/tls.cert')
-)
+lightning.setCredentials(LND_SOCKET, LND_MACAROONPATH, LND_CERTPATH)
 ;(async function main() {
   try {
     /**
@@ -145,9 +139,9 @@ lightning.setCredentials(
 module.exports.getWalletInfo = async lndOpts => {
   console.log(lndOpts)
   const { lnd } = lnService.authenticatedLndGrpc({
-    cert: toBase64(path.resolve(homedir, '.lnd/chainpoint-node/tls.cert')),
-    macaroon: toBase64(path.resolve(homedir, '.lnd/chainpoint-node/data/chain/bitcoin/testnet/admin.macaroon')),
-    socket: '127.0.0.1:10009' // '34.66.56.153:10009'
+    cert: utils.toBase64(LND_CERTPATH),
+    macaroon: utils.toBase64(LND_MACAROONPATH),
+    socket: LND_SOCKET
   })
 
   return await lnService.getWalletInfo({ lnd })

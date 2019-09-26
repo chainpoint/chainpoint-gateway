@@ -1,25 +1,24 @@
-const path = require('path')
 const lnService = require('ln-service')
 const lightning = require('lnrpc-node-client')
 const homedir = require('os').homedir()
-// const env = require('../../lib/parse-env').env
+const utils = require('../../lib/utils')
+const env = require('../../lib/parse-env').env
 
 async function openChannelToCore(opts) {
+  const LND_SOCKET = '127.0.0.1:10009'
+  const LND_CERTPATH = `${homedir}/.lnd/chainpoint-node/tls.cert`
+  const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${env.NETWORK}/admin.macaroon`
+
   console.log('====================================')
   console.log('openChannelToCore -> opts', JSON.stringify(opts))
   console.log('====================================')
 
-  lightning.setCredentials(
-    '127.0.0.1:10009',
-    path.resolve(homedir, '.lnd/chainpoint-node/data/chain/bitcoin/testnet/admin.macaroon'),
-    path.resolve(homedir, '.lnd/chainpoint-node/tls.cert')
-  )
+  lightning.setCredentials(LND_SOCKET, LND_MACAROONPATH, LND_CERTPATH)
 
-  // TODO: use dynamic base64 method to encode cert and macaroon
   const { lnd } = lnService.authenticatedLndGrpc({
-    cert: opts.tlscert,
-    macaroon: opts.macaroon,
-    socket: '127.0.0.1:10009' // '34.66.56.153:10009'
+    cert: utils.toBase64(LND_CERTPATH),
+    macaroon: utils.toBase64(LND_MACAROONPATH),
+    socket: LND_SOCKET
   })
 
   try {

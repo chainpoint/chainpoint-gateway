@@ -28,6 +28,10 @@ let pass = generator.generate({
 })
 
 async function createSwarmAndSecrets(lndOpts) {
+  const LND_SOCKET = '127.0.0.1:10009'
+  const LND_CERTPATH = `${homedir}/.lnd/chainpoint-node/tls.cert`
+  const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`
+
   try {
     try {
       let home = (await exec.quiet('/bin/bash -c "$(eval printf ~$USER)"')).stdout.trim()
@@ -40,7 +44,7 @@ async function createSwarmAndSecrets(lndOpts) {
     } catch (err) {
       console.log(chalk.red(`Could not bring up LND: ${err}`))
     }
-    lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/chainpoint-node/tls.cert`)
+    lightning.setTls(LND_SOCKET, LND_CERTPATH)
     let unlocker = lightning.unlocker()
     lightning.promisifyGrpc(unlocker)
     let seed = await unlocker.genSeedAsync({})
@@ -57,11 +61,7 @@ async function createSwarmAndSecrets(lndOpts) {
       }, 7000)
     })
 
-    lightning.setCredentials(
-      '127.0.0.1:10009',
-      `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`,
-      `${homedir}/.lnd/chainpoint-node/tls.cert`
-    )
+    lightning.setCredentials(LND_SOCKET, LND_MACAROONPATH, LND_CERTPATH)
     let client = lightning.lightning()
     lightning.promisifyGrpc(client)
     let address = await client.newAddressAsync({ type: 0 }, (err, res) => {
