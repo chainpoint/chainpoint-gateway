@@ -437,7 +437,7 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 5 })
       cores.setLN({
-        decodePaymentRequest: async () => {
+        decodePayReqAsync: async () => {
           return { description: 'id:qwe', tokens: 10 }
         },
         pay: async () => {}
@@ -474,7 +474,7 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
       cores.setLN({
-        decodePaymentRequest: async () => {
+        decodePayReqAsync: async () => {
           return { description: 'id:qwe', tokens: 10 }
         },
         pay: async () => {}
@@ -502,7 +502,7 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
       cores.setLN({
-        decodePaymentRequest: async () => {
+        decodePayReqAsync: async () => {
           return { description: 'id:qwe', tokens: 10 }
         },
         pay: async () => {}
@@ -534,7 +534,7 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
       cores.setLN({
-        decodePaymentRequest: async () => {
+        decodePayReqAsync: async () => {
           let tokens = 10
           if (++counter % 2 === 0) tokens = 15
           return { description: 'id:qwe', tokens }
@@ -567,7 +567,7 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
       cores.setLN({
-        decodePaymentRequest: async () => {
+        decodePayReqAsync: async () => {
           return { description: 'id:qwe', tokens: 10 }
         },
         pay: async () => {}
