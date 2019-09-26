@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const lightning = require('lnrpc-node-client')
+const lndClient = require('lnrpc-node-client')
 const exec = require('executive')
 const chalk = require('chalk')
 const generator = require('generate-password')
@@ -44,9 +44,8 @@ async function createSwarmAndSecrets(lndOpts) {
     } catch (err) {
       console.log(chalk.red(`Could not bring up LND: ${err}`))
     }
-    lightning.setTls(LND_SOCKET, LND_CERTPATH)
-    let unlocker = lightning.unlocker()
-    lightning.promisifyGrpc(unlocker)
+    lndClient.setTls(LND_SOCKET, LND_CERTPATH)
+    let unlocker = lndClient.unlocker()
     let seed = await unlocker.genSeedAsync({})
     console.log(seed)
     let init = await unlocker.initWalletAsync({
@@ -61,13 +60,9 @@ async function createSwarmAndSecrets(lndOpts) {
       }, 7000)
     })
 
-    lightning.setCredentials(LND_SOCKET, LND_MACAROONPATH, LND_CERTPATH)
-    let client = lightning.lightning()
-    lightning.promisifyGrpc(client)
-    let address = await client.newAddressAsync({ type: 0 }, (err, res) => {
-      console.log(res)
-      console.log(err)
-    })
+    lndClient.setCredentials(LND_SOCKET, LND_MACAROONPATH, LND_CERTPATH)
+    let lightning = lndClient.lightning()
+    let address = await lightning.newAddressAsync({ type: 0 })
     console.log(address)
 
     // Create Docker secrets
