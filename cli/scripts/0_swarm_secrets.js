@@ -14,13 +14,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const lndClient = require('lnrpc-node-client')
 const exec = require('executive')
 const chalk = require('chalk')
 const generator = require('generate-password')
-const homedir = require('os').homedir()
 const utils = require('../../lib/utils')
 const { updateOrCreateEnv } = require('../utils/updateEnv')
+const lightning = require('../../lib/lightning')
 
 let pass = generator.generate({
   length: 20,
@@ -29,8 +28,6 @@ let pass = generator.generate({
 
 async function createSwarmAndSecrets(lndOpts) {
   const LND_SOCKET = '127.0.0.1:10009'
-  const LND_CERTPATH = `${homedir}/.lnd/chainpoint-node/tls.cert`
-  const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`
 
   try {
     try {
@@ -44,11 +41,10 @@ async function createSwarmAndSecrets(lndOpts) {
     } catch (err) {
       console.log(chalk.red(`Could not bring up LND: ${err}`))
     }
-    lndClient.setTls(LND_SOCKET, LND_CERTPATH)
-    let unlocker = lndClient.unlocker()
-    let seed = await unlocker.genSeedAsync({})
+    let lnd = new lightning(LND_SOCKET, lndOpts.NETWORK, true)
+    let seed = await lnd.callMethodRawAsync('unlocker', 'genSeedAsync', {})
     console.log(seed)
-    let init = await unlocker.initWalletAsync({
+    let init = lnd.callMethodRawAsync('unlocker', 'initWalletAsync', {
       wallet_password: pass,
       cipher_seed_mnemonic: seed.value.cipher_seed_mnemonic
     })
@@ -60,9 +56,9 @@ async function createSwarmAndSecrets(lndOpts) {
       }, 7000)
     })
 
-    lndClient.setCredentials(LND_SOCKET, LND_MACAROONPATH, LND_CERTPATH)
-    let lightning = lndClient.lightning()
-    let address = await lightning.newAddressAsync({ type: 0 })
+    process.env.HOT_WALLET_PASS = pass
+    lnd = new lightning(LND_SOCKET, lndOpts.NETWORK)
+    let address = await lnd.callMethodAsync('lightning', 'newAddressAsync', { type: 0 })
     console.log(address)
 
     // Create Docker secrets

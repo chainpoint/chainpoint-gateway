@@ -437,10 +437,10 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 5 })
       cores.setLN({
-        decodePayReqAsync: async () => {
-          return { description: 'id:qwe', tokens: 10 }
-        },
-        pay: async () => {}
+        callMethodAsync: async s => {
+          if (s === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          return {}
+        }
       })
     })
     it('should return [] on 1 of 1 invoice amount to high failure', async () => {
@@ -474,10 +474,10 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
       cores.setLN({
-        decodePayReqAsync: async () => {
-          return { description: 'id:qwe', tokens: 10 }
-        },
-        pay: async () => {}
+        callMethodAsync: async s => {
+          if (s === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          return {}
+        }
       })
     })
     it('should succeed on 1 of 1 item submitted', async () => {
@@ -502,10 +502,10 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
       cores.setLN({
-        decodePayReqAsync: async () => {
-          return { description: 'id:qwe', tokens: 10 }
-        },
-        pay: async () => {}
+        callMethodAsync: async s => {
+          if (s === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          return {}
+        }
       })
     })
     it('should succeed on 2 of 3 item submitted, one bad IP', async () => {
@@ -534,12 +534,14 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
       cores.setLN({
-        decodePayReqAsync: async () => {
-          let tokens = 10
-          if (++counter % 2 === 0) tokens = 15
-          return { description: 'id:qwe', tokens }
-        },
-        pay: async () => {}
+        callMethodAsync: async s => {
+          if (s === 'decodePayReqAsync') {
+            let tokens = 10
+            if (++counter % 2 === 0) tokens = 15
+            return { description: 'id:qwe', tokens }
+          }
+          return {}
+        }
       })
     })
     it('should succeed on 2 of 3 item submitted, one invoice amount too high', async () => {
@@ -567,10 +569,10 @@ describe('Cores Methods', function() {
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
       cores.setLN({
-        decodePayReqAsync: async () => {
-          return { description: 'id:qwe', tokens: 10 }
-        },
-        pay: async () => {}
+        callMethodAsync: async s => {
+          if (s === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          return {}
+        }
       })
     })
     it('should succeed on 3 of 3 item submitted', async () => {

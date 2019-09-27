@@ -14,21 +14,17 @@
 // load environment variables
 const env = require('../lib/parse-env').env
 
-const lndClient = require('lnrpc-node-client')
 const { find } = require('lodash')
-const homedir = require('os').homedir()
 const commandLineArgs = require('command-line-args')
+const lightning = require('../lib/lightning')
 
 const args = process.argv.slice(2)
 
 const LND_SOCKET = '127.0.0.1:10009'
-const LND_CERTPATH = `${homedir}/.lnd/chainpoint-node/tls.cert`
-const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${env.NETWORK}/admin.macaroon`
 
 ;(async function main() {
   try {
-    lndClient.setCredentials(LND_SOCKET, LND_MACAROONPATH, LND_CERTPATH)
-    const lightning = lndClient.lightning()
+    let lnd = new lightning(LND_SOCKET, env.NETWORK)
 
     /**
      * 0. Is LND Node fully synced?
@@ -36,7 +32,7 @@ const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${e
      * This method dictates whether it is safe to start interacting with the LND to create channels, peer cxns, etc.
      */
     if (args.includes('--isSyncedToChain')) {
-      let getWalletInfoRes = await lightning.getInfoAsync({})
+      let getWalletInfoRes = await lnd.callMethodAsync('lightning', 'getInfoAsync', {})
       let isSynced = getWalletInfoRes.synced_to_chain
       console.log('====================================')
       console.log('getWalletInfo -> isSynced: \n', isSynced)
@@ -53,7 +49,7 @@ const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${e
       const argsDefinitions = [{ name: 'pubkey' }, { name: 'getPeers' }]
       const args = commandLineArgs(argsDefinitions)
 
-      let getPeersRes = await lightning.listPeersAsync({})
+      let getPeersRes = await lnd.callMethodAsync('lightning', 'listPeersAsync', {})
       console.log('====================================')
       console.log(
         'All Peer Connections:\n',
@@ -68,7 +64,9 @@ const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${e
 
       let socket = args.socket
       let pubkey = args.pubkey
-      let addPeerRes = await lightning.connectPeerAsync({ addr: { pubkey: pubkey, host: socket } })
+      let addPeerRes = await lnd.callMethodAsync('lightning', 'connectPeerAsync', {
+        addr: { pubkey: pubkey, host: socket }
+      })
       console.log('====================================')
       console.log('addPeerRes:\n', addPeerRes)
       console.log('====================================')
@@ -80,7 +78,7 @@ const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${e
 
       let pubkey = ''
       try {
-        let openChannelRes = await lightning.openChannelSyncAsync({
+        let openChannelRes = await lnd.callMethodAsync('lightning', 'openChannelSyncAsync', {
           node_pubkey_string: args.pubkey,
           local_funding_amount: args.satoshis
         })
@@ -93,7 +91,7 @@ const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${e
     }
 
     if (args.includes('--listChannels')) {
-      let listChannelsRes = await lightning.listChannelsAsync({})
+      let listChannelsRes = await lnd.callMethodAsync('lightning', 'listChannelsAsync', {})
       console.log('====================================')
       console.log('Open Payment Channels:\n', listChannelsRes)
       console.log('====================================')
@@ -118,14 +116,14 @@ const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${e
 
     // C. Get Pending Channels
     if (args.includes('--getPendingChannels')) {
-      let getPendingChannelsRes = await lightning.pendingChannelsAsync({})
+      let getPendingChannelsRes = await lnd.callMethodAsync('lightning', 'pendingChannelsAsync', {})
       console.log('====================================')
       console.log('All Pending Channels:\n', getPendingChannelsRes)
       console.log('====================================')
     }
 
     if (args.includes('--getTxs')) {
-      let getTxsRes = await lightning.getTransactions({})
+      let getTxsRes = await lnd.callMethodAsync('lightning', 'getTransactions', {})
       console.log('====================================')
       console.log('All Txs:\n', JSON.stringify(getTxsRes))
       console.log('====================================')
@@ -133,7 +131,7 @@ const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${e
 
     // getWalletInfo
     if (args.includes('--getWalletInfo')) {
-      let getWalletInfoRes = await lightning.getWalletInfoAsync({})
+      let getWalletInfoRes = await lnd.callMethodAsync('lightning', 'getInfoAsync', {})
       console.log('====================================')
       console.log('getWalletInfo:\n', JSON.stringify(getWalletInfoRes))
       console.log('====================================')
@@ -147,8 +145,7 @@ const LND_MACAROONPATH = `${homedir}/.lnd/chainpoint-node/data/chain/bitcoin/${e
 })()
 
 module.exports.getWalletInfo = async lndOpts => {
-  lndClient.setCredentials(LND_SOCKET, LND_MACAROONPATH, LND_CERTPATH)
-  const lightning = lndClient.lightning()
   console.log(lndOpts)
-  return await lightning.getWalletInfoAsync({})
+  let lnd = new lightning(LND_SOCKET, env.NETWORK)
+  return await lnd.callMethodAsync('lightning', 'getInfoAsync', {})
 }
