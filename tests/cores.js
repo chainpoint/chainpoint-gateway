@@ -417,7 +417,7 @@ describe('Cores Methods', function() {
 
   describe('submitHashAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setRP(async () => {
         throw 'No Invoice!'
       })
@@ -431,14 +431,14 @@ describe('Cores Methods', function() {
 
   describe('submitHashAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
       cores.setRP(async () => {
         return { body: 'ok' }
       })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 5 })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 5, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setLN({
-        callMethodAsync: async s => {
-          if (s === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+        callMethodAsync: async (s, m) => {
+          if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
       })
@@ -452,7 +452,7 @@ describe('Cores Methods', function() {
 
   describe('submitHashAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       let counter = 0
       cores.setRP(async () => {
         if (++counter % 2 === 0) throw 'Bad Submit'
@@ -468,14 +468,14 @@ describe('Cores Methods', function() {
 
   describe('submitHashAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
       cores.setRP(async () => {
         return { body: 'ok' }
       })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setLN({
-        callMethodAsync: async s => {
-          if (s === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+        callMethodAsync: async (s, m) => {
+          if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
       })
@@ -494,16 +494,16 @@ describe('Cores Methods', function() {
 
   describe('submitHashAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1', '65.2.2.2', '65.3.3.3'])
       let counter = 0
       cores.setRP(async () => {
         if (counter++ % 4 === 0) throw 'Bad IP!'
         return { body: 'ok' }
       })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
       cores.setLN({
-        callMethodAsync: async s => {
-          if (s === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+        callMethodAsync: async (s, m) => {
+          if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
       })
@@ -527,19 +527,19 @@ describe('Cores Methods', function() {
 
   describe('submitHashAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1', '65.2.2.2', '65.3.3.3'])
       let counter = 0
       cores.setRP(async () => {
         return { body: 'ok' }
       })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
       cores.setLN({
-        callMethodAsync: async s => {
-          if (s === 'decodePayReqAsync') {
+        callMethodAsync: async (s, m) => {
+          if (m === 'decodePayReqAsync') {
             let tokens = 10
             if (++counter % 2 === 0) tokens = 15
             return { description: 'id:qwe', tokens }
           }
+          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
       })
@@ -563,14 +563,14 @@ describe('Cores Methods', function() {
 
   describe('submitHashAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1', '65.2.2.2', '65.3.3.3'])
       cores.setRP(async () => {
         return { body: 'ok' }
       })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 10 })
+      cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
       cores.setLN({
-        callMethodAsync: async s => {
-          if (s === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+        callMethodAsync: async (s, m) => {
+          if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
       })
@@ -599,7 +599,7 @@ describe('Cores Methods', function() {
 
   describe('getProofsAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setRP(async () => {
         throw { message: 'Bad IP!!!!!', statusCode: 500 }
       })
@@ -617,7 +617,7 @@ describe('Cores Methods', function() {
 
   describe('getProofsAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setRP(async () => {
         throw 'Error!'
       })
@@ -635,7 +635,7 @@ describe('Cores Methods', function() {
 
   describe('getProofsAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setRP(async () => {
         return { body: 'ok' }
       })
@@ -648,7 +648,7 @@ describe('Cores Methods', function() {
 
   describe('getLatestCalBlockInfoAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setRP(async () => {
         throw { message: 'Bad IP!!!!!', statusCode: 500 }
       })
@@ -666,7 +666,7 @@ describe('Cores Methods', function() {
 
   describe('getLatestCalBlockInfoAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setRP(async () => {
         throw 'Error!'
       })
@@ -684,7 +684,7 @@ describe('Cores Methods', function() {
 
   describe('getLatestCalBlockInfoAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setRP(async () => {
         return { body: { sync_info: { catching_up: false } } }
       })
@@ -700,7 +700,7 @@ describe('Cores Methods', function() {
   describe('getLatestCalBlockInfoAsync', () => {
     let attempts = 0
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1', '65.1.1.2'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.1.1.2'] })
       cores.setRP(async () => {
         attempts++
         if (attempts > 1) return { body: { sync_info: { catching_up: false } } }
@@ -717,7 +717,7 @@ describe('Cores Methods', function() {
 
   describe('getLatestCalBlockInfoAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setRP(async () => {
         return { body: { catching_up: true } }
       })
@@ -736,7 +736,7 @@ describe('Cores Methods', function() {
   describe('getLatestCalBlockInfoAsync', () => {
     let attempts = 0
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1', '65.1.1.2'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.1.1.2'] })
       cores.setRP(async () => {
         attempts++
         if (attempts > 1) return { body: { sync_info: { catching_up: false } } }
@@ -753,7 +753,7 @@ describe('Cores Methods', function() {
 
   describe('getCachedTransactionAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setCoreTxCache({ a: { transaction: '1' } })
       cores.setRP(async () => {
         throw 'Dont call!'
@@ -767,7 +767,7 @@ describe('Cores Methods', function() {
 
   describe('getCachedTransactionAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setCoreTxCache({})
       cores.setRP(async () => {
         throw 'Bad IP!'
@@ -783,7 +783,7 @@ describe('Cores Methods', function() {
 
   describe('getCachedTransactionAsync', () => {
     before(() => {
-      cores.setCoreConnectedIPs(['65.1.1.1'])
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setCoreTxCache({})
       cores.setRP(async () => {
         return { body: 'result' }
