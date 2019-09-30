@@ -20,6 +20,7 @@ const generator = require('generate-password')
 const utils = require('../../lib/utils')
 const { updateOrCreateEnv } = require('../utils/updateEnv')
 const lightning = require('../../lib/lightning')
+const home = require('os').homedir()
 
 let pass = generator.generate({
   length: 20,
@@ -31,7 +32,6 @@ async function createSwarmAndSecrets(lndOpts) {
 
   try {
     try {
-      let home = (await exec.quiet('/bin/bash -c "$(eval printf ~$USER)"')).stdout.trim()
       let uid = (await exec.quiet('id -u $USER')).stdout.trim()
       let gid = (await exec.quiet('id -g $USER')).stdout.trim()
       await exec([
