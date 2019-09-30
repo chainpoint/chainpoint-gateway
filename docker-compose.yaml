@@ -16,7 +16,8 @@ services:
     networks:
       - chainpoint-node
     environment:
-      LND_SOCKET: "lnd:10009"
+      HOT_WALLET_PASS: ${HOT_WALLET_PASS}
+      LND_SOCKET: ${LND_SOCKET}
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
       CHAINPOINT_NODE_HTTP_PORT: "${CHAINPOINT_NODE_HTTP_PORT}"
       AGGREGATION_INTERVAL_SECONDS: "${AGGREGATION_INTERVAL_SECONDS}"
@@ -58,6 +59,6 @@ services:
       - LND_RPC_PORT
       - TLSPATH
     volumes:
-      - ~/.lnd:/root/.lnd:z
+      - ~/.lnd/chainpoint-node:/root/.lnd:z
     networks:
       - chainpoint-node

@@ -14,13 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-const lightning = require('lnrpc-node-client')
 const exec = require('executive')
 const chalk = require('chalk')
 const generator = require('generate-password')
-const homedir = require('os').homedir()
 const utils = require('../../lib/utils')
 const { updateOrCreateEnv } = require('../utils/updateEnv')
+const lightning = require('../../lib/lightning')
+const home = require('os').homedir()
 
 let pass = generator.generate({
   length: 20,
@@ -28,24 +28,23 @@ let pass = generator.generate({
 })
 
 async function createSwarmAndSecrets(lndOpts) {
+  const LND_SOCKET = '127.0.0.1:10009'
+
   try {
     try {
-      let home = (await exec.quiet('/bin/bash -c "$(eval printf ~$USER)"')).stdout.trim()
       let uid = (await exec.quiet('id -u $USER')).stdout.trim()
       let gid = (await exec.quiet('id -g $USER')).stdout.trim()
       await exec([
-        `mkdir -p ${home}/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
+        `mkdir -p ${home}/.lnd/chainpoint-node && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
       ])
       await utils.sleepAsync(5000)
     } catch (err) {
       console.log(chalk.red(`Could not bring up LND: ${err}`))
     }
-    lightning.setTls('127.0.0.1:10009', `${homedir}/.lnd/tls.cert`)
-    let unlocker = lightning.unlocker()
-    lightning.promisifyGrpc(unlocker)
-    let seed = await unlocker.genSeedAsync({})
+    let lnd = new lightning(LND_SOCKET, lndOpts.NETWORK, true)
+    let seed = await lnd.callMethodRawAsync('unlocker', 'genSeedAsync', {})
     console.log(seed)
-    let init = await unlocker.initWalletAsync({
+    let init = lnd.callMethodRawAsync('unlocker', 'initWalletAsync', {
       wallet_password: pass,
       cipher_seed_mnemonic: seed.value.cipher_seed_mnemonic
     })
@@ -57,17 +56,9 @@ async function createSwarmAndSecrets(lndOpts) {
       }, 7000)
     })
 
-    lightning.setCredentials(
-      '127.0.0.1:10009',
-      `${homedir}/.lnd/data/chain/bitcoin/${lndOpts.NETWORK}/admin.macaroon`,
-      `${homedir}/.lnd/tls.cert`
-    )
-    let client = lightning.lightning()
-    lightning.promisifyGrpc(client)
-    let address = await client.newAddressAsync({ type: 0 }, (err, res) => {
-      console.log(res)
-      console.log(err)
-    })
+    process.env.HOT_WALLET_PASS = pass
+    lnd = new lightning(LND_SOCKET, lndOpts.NETWORK)
+    let address = await lnd.callMethodAsync('lightning', 'newAddressAsync', { type: 0 })
     console.log(address)
 
     // Create Docker secrets

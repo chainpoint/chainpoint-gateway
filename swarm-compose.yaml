@@ -14,7 +14,7 @@ services:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ~/.chainpoint/node/data/rocksdb:/root/.chainpoint/node/data/rocksdb
       - ./.env:/home/node/app/.env
-      - ~/.lnd:/root/.lnd:ro
+      - ~/.lnd/chainpoint-node:/root/.lnd:ro
     image: gcr.io/chainpoint-registry/github_chainpoint_chainpoint-node-src:${DOCKER_TAG:-latest}
     build: .
     depends_on:
@@ -26,7 +26,8 @@ services:
     secrets:
       - HOT_WALLET_PASS
     environment:
-      LND_SOCKET: "lnd:10009"
+      HOT_WALLET_PASS: DOCKER-SECRET->HOT_WALLET_PASS
+      LND_SOCKET: ${LND_SOCKET}
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
       CHAINPOINT_NODE_HTTP_PORT: "${CHAINPOINT_NODE_HTTP_PORT}"
       AGGREGATION_INTERVAL_SECONDS: "${AGGREGATION_INTERVAL_SECONDS}"
@@ -73,6 +74,6 @@ services:
       - LND_RPC_PORT
       - TLSPATH
     volumes:
-      - ~/.lnd:/root/.lnd:z
+      - ~/.lnd/chainpoint-node:/root/.lnd:z
     networks:
       - chainpoint-node

@@ -1,40 +1,39 @@
-const fs = require('fs')
-const path = require('path')
-const lnService = require('ln-service')
-const lightning = require('lnrpc-node-client')
+/**
+ * Copyright 2019 Tierion
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// load environment variables
+const env = require('../lib/parse-env').env
+
 const { find } = require('lodash')
-const homedir = require('os').homedir()
-// const utils = require('../lib/utils')
 const commandLineArgs = require('command-line-args')
+const lightning = require('../lib/lightning')
 
 const args = process.argv.slice(2)
 
-function toBase64(file) {
-  var body = fs.readFileSync(file)
-  return body.toString('base64').replace(/\s/g, '')
-}
+const LND_SOCKET = '127.0.0.1:10009'
 
-const { lnd } = lnService.authenticatedLndGrpc({
-  cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
-  macaroon: toBase64(path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon')),
-  socket: '127.0.0.1:10009'
-})
-
-lightning.setCredentials(
-  '127.0.0.1:10009',
-  path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon'),
-  path.resolve(homedir, '.lnd/tls.cert')
-)
 ;(async function main() {
   try {
+    let lnd = new lightning(LND_SOCKET, env.NETWORK)
+
     /**
      * 0. Is LND Node fully synced?
      *
      * This method dictates whether it is safe to start interacting with the LND to create channels, peer cxns, etc.
      */
     if (args.includes('--isSyncedToChain')) {
-      let getWalletInfoRes = await lnService.getWalletInfo({ lnd })
-      let isSynced = getWalletInfoRes.is_synced_to_chain
+      let getWalletInfoRes = await lnd.callMethodAsync('lightning', 'getInfoAsync', {})
+      let isSynced = getWalletInfoRes.synced_to_chain
       console.log('====================================')
       console.log('getWalletInfo -> isSynced: \n', isSynced)
       console.log('====================================')
@@ -50,11 +49,11 @@ lightning.setCredentials(
       const argsDefinitions = [{ name: 'pubkey' }, { name: 'getPeers' }]
       const args = commandLineArgs(argsDefinitions)
 
-      let getPeersRes = await lnService.getPeers({ lnd })
+      let getPeersRes = await lnd.callMethodAsync('lightning', 'listPeersAsync', {})
       console.log('====================================')
       console.log(
         'All Peer Connections:\n',
-        args.pubkey ? find(getPeersRes.peers, ['public_key', args.pubkey]) : getPeersRes
+        args.pubkey ? find(getPeersRes.peers, ['pub_key', args.pubkey]) : getPeersRes
       )
       console.log('====================================')
     }
@@ -65,7 +64,9 @@ lightning.setCredentials(
 
       let socket = args.socket
       let pubkey = args.pubkey
-      let addPeerRes = await lnService.addPeer({ lnd, socket, public_key: pubkey })
+      let addPeerRes = await lnd.callMethodAsync('lightning', 'connectPeerAsync', {
+        addr: { pubkey: pubkey, host: socket }
+      })
       console.log('====================================')
       console.log('addPeerRes:\n', addPeerRes)
       console.log('====================================')
@@ -77,10 +78,9 @@ lightning.setCredentials(
 
       let pubkey = ''
       try {
-        let openChannelRes = await lnService.openChannel({
-          lnd,
-          partner_public_key: args.pubkey,
-          local_tokens: args.satoshis
+        let openChannelRes = await lnd.callMethodAsync('lightning', 'openChannelSyncAsync', {
+          node_pubkey_string: args.pubkey,
+          local_funding_amount: args.satoshis
         })
 
         console.log('Opened Payment Channel -> ' + pubkey, openChannelRes)
@@ -91,7 +91,7 @@ lightning.setCredentials(
     }
 
     if (args.includes('--listChannels')) {
-      let listChannelsRes = await lnService.getChannels({ lnd })
+      let listChannelsRes = await lnd.callMethodAsync('lightning', 'listChannelsAsync', {})
       console.log('====================================')
       console.log('Open Payment Channels:\n', listChannelsRes)
       console.log('====================================')
@@ -100,6 +100,7 @@ lightning.setCredentials(
     /**
      * 2. CLOSING A CHANNEL
      */
+    /*
     if (args.includes('--closeChannel')) {
       const closing = await lnService.closeChannel({
         transaction_id: '',
@@ -111,17 +112,18 @@ lightning.setCredentials(
       console.log('Closing Channel... This will take several minutes.', closing)
       console.log('====================================')
     }
+    */
 
     // C. Get Pending Channels
     if (args.includes('--getPendingChannels')) {
-      let getPendingChannelsRes = await lnService.getPendingChannels({ lnd })
+      let getPendingChannelsRes = await lnd.callMethodAsync('lightning', 'pendingChannelsAsync', {})
       console.log('====================================')
       console.log('All Pending Channels:\n', getPendingChannelsRes)
       console.log('====================================')
     }
 
     if (args.includes('--getTxs')) {
-      let getTxsRes = await lnService.getChainTransactions({ lnd })
+      let getTxsRes = await lnd.callMethodAsync('lightning', 'getTransactions', {})
       console.log('====================================')
       console.log('All Txs:\n', JSON.stringify(getTxsRes))
       console.log('====================================')
@@ -129,7 +131,7 @@ lightning.setCredentials(
 
     // getWalletInfo
     if (args.includes('--getWalletInfo')) {
-      let getWalletInfoRes = await lnService.getWalletInfo({ lnd })
+      let getWalletInfoRes = await lnd.callMethodAsync('lightning', 'getInfoAsync', {})
       console.log('====================================')
       console.log('getWalletInfo:\n', JSON.stringify(getWalletInfoRes))
       console.log('====================================')
@@ -144,11 +146,6 @@ lightning.setCredentials(
 
 module.exports.getWalletInfo = async lndOpts => {
   console.log(lndOpts)
-  const { lnd } = lnService.authenticatedLndGrpc({
-    cert: toBase64(path.resolve(homedir, '.lnd/tls.cert')),
-    macaroon: toBase64(path.resolve(homedir, '.lnd/data/chain/bitcoin/testnet/admin.macaroon')),
-    socket: '127.0.0.1:10009' // '34.66.56.153:10009'
-  })
-
-  return await lnService.getWalletInfo({ lnd })
+  let lnd = new lightning(LND_SOCKET, env.NETWORK)
+  return await lnd.callMethodAsync('lightning', 'getInfoAsync', {})
 }
