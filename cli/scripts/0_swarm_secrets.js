@@ -35,13 +35,13 @@ async function createSwarmAndSecrets(lndOpts) {
       let uid = (await exec.quiet('id -u $USER')).stdout.trim()
       let gid = (await exec.quiet('id -g $USER')).stdout.trim()
       await exec([
-        `mkdir -p ${home}/.lnd/chainpoint-node && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
+        `mkdir -p ${home}/.chainpoint/node/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
       ])
       await utils.sleepAsync(5000)
     } catch (err) {
       console.log(chalk.red(`Could not bring up LND: ${err}`))
     }
-    let lnd = new lightning(LND_SOCKET, lndOpts.NETWORK, true)
+    let lnd = new lightning(LND_SOCKET, lndOpts.NETWORK, true, true)
     let seed = await lnd.callMethodRawAsync('unlocker', 'genSeedAsync', {})
     console.log(seed)
     let init = lnd.callMethodRawAsync('unlocker', 'initWalletAsync', {
@@ -57,7 +57,7 @@ async function createSwarmAndSecrets(lndOpts) {
     })
 
     process.env.HOT_WALLET_PASS = pass
-    lnd = new lightning(LND_SOCKET, lndOpts.NETWORK)
+    lnd = new lightning(LND_SOCKET, lndOpts.NETWORK, false, true)
     let address = await lnd.callMethodAsync('lightning', 'newAddressAsync', { type: 0 })
     console.log(address)
 

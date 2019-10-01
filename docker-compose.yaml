@@ -10,7 +10,9 @@ services:
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ~/.chainpoint/node/data/rocksdb:/root/.chainpoint/node/data/rocksdb
+      - ~/.chainpoint/node/.lnd:/root/.lnd:ro
     build: .
+    container_name: chainpoint-node
     ports:
       - "80:80"
     networks:
@@ -33,6 +35,7 @@ services:
   lnd:
     image: tierion/lnd:latest
     user: ${USERID}:${GROUPID}
+    container_name: lnd-node
     ports:
       - target: 8080
         published: 8080
@@ -59,6 +62,6 @@ services:
       - LND_RPC_PORT
       - TLSPATH
     volumes:
-      - ~/.lnd/chainpoint-node:/root/.lnd:z
+      - ~/.chainpoint/node/.lnd:/root/.lnd:z
     networks:
       - chainpoint-node

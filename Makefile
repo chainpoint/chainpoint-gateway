@@ -50,7 +50,7 @@ clean: down
 ## burn            : Shutdown and **destroy** all local Node data
 .PHONY : burn
 burn: clean
-	@sudo rm -rf ${HOMEDIR}/.lnd/chainpoint-node
+	@sudo rm -rf ${HOMEDIR}/.chainpoint/node/.lnd
 
 ## restart         : Restart Node
 .PHONY : restart

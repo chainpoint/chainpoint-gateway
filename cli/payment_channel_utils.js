@@ -24,7 +24,7 @@ const LND_SOCKET = '127.0.0.1:10009'
 
 ;(async function main() {
   try {
-    let lnd = new lightning(LND_SOCKET, env.NETWORK)
+    let lnd = new lightning(LND_SOCKET, env.NETWORK, false, true)
 
     /**
      * 0. Is LND Node fully synced?
@@ -146,6 +146,6 @@ const LND_SOCKET = '127.0.0.1:10009'
 
 module.exports.getWalletInfo = async lndOpts => {
   console.log(lndOpts)
-  let lnd = new lightning(LND_SOCKET, env.NETWORK)
+  let lnd = new lightning(LND_SOCKET, env.NETWORK, false, true)
   return await lnd.callMethodAsync('lightning', 'getInfoAsync', {})
 }
