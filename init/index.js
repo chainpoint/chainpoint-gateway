@@ -15,15 +15,14 @@
  */
 
 const inquirer = require('inquirer')
-const chalk = require('chalk')
 const validator = require('validator')
+const chalk = require('chalk')
 const exec = require('executive')
 const generator = require('generate-password')
 const lightning = require('../lib/lightning')
 const home = require('os').homedir()
 const fs = require('fs')
 const path = require('path')
-const envfile = require('envfile')
 const utils = require('../lib/utils.js')
 
 const LND_SOCKET = '127.0.0.1:10009'
@@ -49,7 +48,7 @@ const initQuestionConfig = [
   },
   {
     type: 'input',
-    name: 'NODE_PUBLIC_IP_ADDRESS',
+    name: 'LND_PUBLIC_IP',
     message: "Enter your Node's Public IP Address:",
     validate: input => {
       if (input) {
@@ -134,30 +133,24 @@ function displayInitResults(walletInfo) {
   console.log(`LND Wallet Address:\n` + chalk.yellow(walletInfo.newAddress))
 }
 
-async function setENVValuesAsync(initAnswers, walletInfo) {
-  updateOrCreateEnvAsync([], {
+async function setENVValuesAsync(initAnswers) {
+  let newENVData = {
     NETWORK: initAnswers.NETWORK,
-    NODE_PUBLIC_IP_ADDRESS: `http://${initAnswers.NODE_PUBLIC_IP_ADDRESS}`,
-    NODE_RAW_IP: initAnswers.NODE_PUBLIC_IP_ADDRESS,
-    HOT_WALLET_ADDRESS: walletInfo.newAddress
-  })
-}
-
-async function updateOrCreateEnvAsync(blacklist, valuePairs) {
-  const valuePairsClone = JSON.parse(JSON.stringify(valuePairs))
-  // Prevent blacklisted keys from being persisted to .env
-  blacklist.forEach(currVal => delete valuePairs[currVal])
-  if (fs.existsSync(path.resolve(__dirname, '../', '.env'))) {
-    let env = envfile.parseFileSync(path.resolve(__dirname, '../', '.env'))
-
-    fs.writeFileSync(path.resolve(__dirname, '../', '.env'), envfile.stringifySync(Object.assign({}, env, valuePairs)))
-  } else {
-    // .env has yet to be created, create from .env.sample
-    let env = envfile.parseFileSync(path.resolve(__dirname, '../', '.env.sample'))
-
-    fs.writeFileSync(path.resolve(__dirname, '../', '.env'), envfile.stringifySync(Object.assign({}, env, valuePairs)))
+    LND_PUBLIC_IP: initAnswers.LND_PUBLIC_IP
   }
-  return Promise.resolve(valuePairsClone)
+
+  // check for existence of .env file
+  let envFileExists = fs.existsSync(path.resolve(__dirname, '../', '.env'))
+  // load .env file if it exists, otherwise load the .env.sample file
+  let envContents = fs.readFileSync(path.resolve(__dirname, '../', `.env${!envFileExists ? '.sample' : ''}`)).toString()
+
+  let updatedEnvContents = Object.keys(newENVData).reduce((contents, key) => {
+    let regexMatch = new RegExp(`^${key}=.*`, 'gim')
+    if (!contents.match(regexMatch)) return contents + `\n${key}=${newENVData[key]}`
+    return contents.replace(regexMatch, `${key}=${newENVData[key]}`)
+  }, envContents)
+
+  fs.writeFileSync(path.resolve(__dirname, '../', '.env'), updatedEnvContents)
 }
 
 async function start() {
@@ -166,12 +159,23 @@ async function start() {
     displayTitleScreen()
     // Ask initialization questions
     let initAnswers = await inquirer.prompt(initQuestionConfig)
+    // Initialize the LND wallet and create a new address
     let walletInfo = await initializeLndNodeAsync(initAnswers)
+    // Store relevant values as Docker secrets
     await createDockerSecretsAsync(initAnswers, walletInfo)
-    await setENVValuesAsync(initAnswers, walletInfo)
+    // Update the .env file with generated data
+    await setENVValuesAsync(initAnswers)
+    // Display the generated wallet information to the user
     displayInitResults(walletInfo)
   } catch (error) {
     console.error(chalk.red(`An unexpected error has occurred : ${error.message}`))
+  } finally {
+    try {
+      console.log(`\nShutting down LND node...\n`)
+      await exec([`docker-compose down`])
+    } catch (error) {
+      console.error(chalk.red(`Unable to shut down LND node : ${error.message}`))
+    }
   }
 }
 

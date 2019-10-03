@@ -171,13 +171,6 @@ ajv@^6.5.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ambi@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/ambi/-/ambi-5.0.0.tgz#7392e8f845d0f4dec37c3ecb2ab4a6b4c68b86c9"
-  dependencies:
-    editions "^2.1.0"
-    typechecker "^4.3.0"
-
 ansi-escapes@^3.0.0, ansi-escapes@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/ansi-escapes/-/ansi-escapes-3.2.0.tgz#8780b98ff9dbf5638152d1f1fe5c1d7b4442976b"
@@ -851,30 +844,12 @@ dtrace-provider@^0.8.1, dtrace-provider@~0.8:
   dependencies:
     nan "^2.10.0"
 
-eachr@^3.1.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/eachr/-/eachr-3.2.0.tgz#2c35e43ea086516f7997cf80b7aa64d55a4a4484"
-  dependencies:
-    editions "^1.1.1"
-    typechecker "^4.3.0"
-
 ecc-jsbn@~0.1.1:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/ecc-jsbn/-/ecc-jsbn-0.1.2.tgz#3a83a904e54353287874c564b7549386849a98c9"
   dependencies:
     jsbn "~0.1.0"
     safer-buffer "^2.1.0"
-
-editions@^1.1.1:
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/editions/-/editions-1.3.4.tgz#3662cb592347c3168eb8e498a0ff73271d67f50b"
-
-editions@^2.1.0, editions@^2.1.2, editions@^2.1.3:
-  version "2.1.3"
-  resolved "https://registry.yarnpkg.com/editions/-/editions-2.1.3.tgz#727ccf3ec2c7b12dcc652c71000f16c4824d6f7d"
-  dependencies:
-    errlop "^1.1.1"
-    semver "^5.6.0"
 
 ee-first@1.1.1:
   version "1.1.1"
@@ -921,21 +896,6 @@ envalid@^4.2.0:
     dotenv "^6.2.0"
     meant "^1.0.1"
     validator "^10.11.0"
-
-envfile@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/envfile/-/envfile-3.0.0.tgz#7724a599d025b9af34757cc4ab0092f5d3fa2b53"
-  dependencies:
-    ambi "^5.0.0"
-    eachr "^3.1.0"
-    editions "^2.1.3"
-    typechecker "^4.0.1"
-
-errlop@^1.1.1:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/errlop/-/errlop-1.1.1.tgz#d9ae4c76c3e64956c5d79e6e035d6343bfd62250"
-  dependencies:
-    editions "^2.1.2"
 
 errno@~0.1.1:
   version "0.1.7"
@@ -3132,7 +3092,7 @@ semver-store@^0.3.0:
   version "5.6.0"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.6.0.tgz#7e74256fbaa49c75aa7c7a205cc22799cac80004"
 
-semver@^5.3.0, semver@^5.6.0:
+semver@^5.3.0:
   version "5.7.1"
   resolved "https://registry.yarnpkg.com/semver/-/semver-5.7.1.tgz#a954f931aeba508d307bbf069eff0c01c96116f7"
 
@@ -3588,12 +3548,6 @@ type-check@~0.3.2:
 type-detect@^4.0.0, type-detect@^4.0.5:
   version "4.0.8"
   resolved "https://registry.yarnpkg.com/type-detect/-/type-detect-4.0.8.tgz#7646fb5f18871cfbb7749e69bd39a6388eb7450c"
-
-typechecker@^4.0.1, typechecker@^4.3.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/typechecker/-/typechecker-4.7.0.tgz#5249f427358f45b7250c4924fd4d01ed9ba435e9"
-  dependencies:
-    editions "^2.1.0"
 
 union-value@^1.0.0:
   version "1.0.0"
