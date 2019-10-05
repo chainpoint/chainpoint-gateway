@@ -24,8 +24,16 @@ const home = require('os').homedir()
 const fs = require('fs')
 const path = require('path')
 const utils = require('../lib/utils.js')
+const _ = require('lodash')
+const rp = require('request-promise-native')
+const retry = require('async-retry')
 
 const LND_SOCKET = '127.0.0.1:10009'
+const MIN_CHANNEL_SATOSHI = 100000
+const CHANNEL_OPEN_OVERHEAD_SAFE = 20000
+
+const CORE_SEED_IPS_MAINNET = []
+const CORE_SEED_IPS_TESTNET = ['35.222.97.4', '34.67.148.93']
 
 const NEW_WALLET_PASS = generator.generate({ length: 20, numbers: false })
 
@@ -105,7 +113,7 @@ async function initializeLndNodeAsync(initAnswers) {
 
     console.log(`Create new address for wallet...`)
     lnd = new lightning(LND_SOCKET, initAnswers.NETWORK, false, true)
-    let newAddress = await lnd.callMethodAsync('lightning', 'newAddressAsync', { type: 0 })
+    let newAddress = await lnd.callMethodAsync('lightning', 'newAddressAsync', { type: 0 }, NEW_WALLET_PASS)
     return { cipherSeedMnemonic: seed.cipher_seed_mnemonic, newAddress: newAddress.address }
   } catch (error) {
     throw new Error(`Could not initialize LND wallet : ${error.message}`)
@@ -131,14 +139,10 @@ function displayInitResults(walletInfo) {
   console.log(`\nLND Wallet Password:\n` + chalk.yellow(NEW_WALLET_PASS))
   console.log(`LND Wallet Seed:\n` + chalk.yellow(walletInfo.cipherSeedMnemonic.join(' ')))
   console.log(`LND Wallet Address:\n` + chalk.yellow(walletInfo.newAddress))
+  console.log(chalk.black.bgMagenta(`\nYou should store this information in a secure place\n\n`))
 }
 
-async function setENVValuesAsync(initAnswers) {
-  let newENVData = {
-    NETWORK: initAnswers.NETWORK,
-    LND_PUBLIC_IP: initAnswers.LND_PUBLIC_IP
-  }
-
+async function setENVValuesAsync(newENVData) {
   // check for existence of .env file
   let envFileExists = fs.existsSync(path.resolve(__dirname, '../', '.env'))
   // load .env file if it exists, otherwise load the .env.sample file
@@ -151,6 +155,243 @@ async function setENVValuesAsync(initAnswers) {
   }, envContents)
 
   fs.writeFileSync(path.resolve(__dirname, '../', '.env'), updatedEnvContents)
+}
+
+async function getPeerListAsync(seedIPs) {
+  seedIPs = _.shuffle(seedIPs)
+
+  let peersReceived = false
+  while (!peersReceived && seedIPs.length > 0) {
+    let targetIP = seedIPs.pop()
+    let options = {
+      uri: `http://${targetIP}/peers`,
+      method: 'GET',
+      json: true,
+      gzip: true,
+      resolveWithFullResponse: true
+    }
+    try {
+      let response = await retry(async () => await rp(options), { retries: 3 })
+      return response.body.concat([targetIP])
+    } catch (error) {
+      console.log(`Core IP ${targetIP} not repsonding to peers requests`)
+    }
+  }
+  throw new Error('Unable to retrieve Core peer list')
+}
+
+async function askCoreConnectQuestionsAsync(network) {
+  let peerList = _.shuffle(
+    await getPeerListAsync(network === 'maininet' ? CORE_SEED_IPS_MAINNET : CORE_SEED_IPS_TESTNET)
+  )
+  let peerCount = peerList.length
+
+  const coreConnectQuestion = [
+    {
+      type: 'number',
+      name: 'CORE_COUNT',
+      message: `How many Cores would you like to connect to? (max ${peerCount})`,
+      validate: input => input > 0 && input <= peerCount
+    },
+    {
+      type: 'confirm',
+      name: 'MANUAL_IP',
+      message: 'Would you like to specify any Core IPs manually?',
+      default: false
+    }
+  ]
+
+  let coreConnectAnswers = await inquirer.prompt(coreConnectQuestion)
+
+  let coreConnectIPs = []
+
+  if (coreConnectAnswers.MANUAL_IP) {
+    let manualCount = await inquirer.prompt({
+      type: 'number',
+      name: 'TOTAL',
+      message: `How many Core IPs would you like to specify manually? (max ${coreConnectAnswers.CORE_COUNT})`,
+      validate: input => input > 0 && input <= coreConnectAnswers.CORE_COUNT
+    })
+    for (let x = 0; x < manualCount.TOTAL; x++) {
+      let manualInput = await inquirer.prompt({
+        type: 'input',
+        name: 'IP',
+        message: `Enter Core IP manual entry #${x + 1}:`,
+        validate: input => peerList.includes(input) && !coreConnectIPs.includes(input)
+      })
+      coreConnectIPs.push(manualInput.IP)
+    }
+  }
+
+  let randomCoreIPCount = coreConnectAnswers.CORE_COUNT - coreConnectIPs.length
+  let unusedPeers = peerList.filter(ip => !coreConnectIPs.includes(ip))
+  for (let x = 0; x < randomCoreIPCount; x++) coreConnectIPs.push(unusedPeers.pop())
+
+  // Update ENV file with core IP list
+  await setENVValuesAsync({ CHAINPOINT_CORE_CONNECT_IP_LIST: coreConnectIPs.join(',') })
+
+  let coreLNDUris = []
+  for (let coreIP of coreConnectIPs) {
+    let options = {
+      uri: `http://${coreIP}/status`,
+      method: 'GET',
+      json: true,
+      gzip: true,
+      resolveWithFullResponse: true
+    }
+    try {
+      let response = await retry(async () => await rp(options), { retries: 3 })
+      coreLNDUris.push(response.body.uris[0])
+    } catch (error) {
+      throw new Error(`Unable to retrive status of Core at ${coreIP}`)
+    }
+  }
+
+  return coreLNDUris
+}
+
+async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
+  const coreConnectCount = coreLNDUris.length
+  console.log(`\nYou have chosen to connect to ${coreConnectCount} Core(s).`)
+  console.log(
+    'You will now need to fund you wallet with a minimum amount of BTC to cover costs of the initial channel creation and future Core submissions.\n'
+  )
+
+  const minAmount = MIN_CHANNEL_SATOSHI + CHANNEL_OPEN_OVERHEAD_SAFE
+
+  let finalFundAmount = null
+  let finalChannelAmount = null
+  while (finalFundAmount === null) {
+    const fundQuestion1 = [
+      {
+        type: 'number',
+        name: 'AMOUNT',
+        message: `How many Satoshi to commit to each channel/Core? (min ${minAmount})`,
+        validate: input => input >= minAmount
+      }
+    ]
+    let fundAnswer1 = await inquirer.prompt(fundQuestion1)
+
+    const totalFundsNeeded = fundAnswer1.AMOUNT * coreConnectCount
+    const fundQuestion2 = [
+      {
+        type: 'confirm',
+        name: 'AGREE',
+        message: `${
+          fundAnswer1.AMOUNT
+        } per channel will require ${totalFundsNeeded} Satoshi total funding. Is this OK?`,
+        default: true
+      }
+    ]
+    let fundAnswer2 = await inquirer.prompt(fundQuestion2)
+    if (fundAnswer2.AGREE) {
+      finalChannelAmount = fundAnswer1.AMOUNT
+      finalFundAmount = totalFundsNeeded
+    }
+  }
+
+  console.log(
+    chalk.black.bgMagenta(
+      `\nPlease send ${finalFundAmount} Satoshi (${finalFundAmount / 10 ** 8} BTC) to your wallet with address ${
+        walletInfo.newAddress
+      }\n`
+    )
+  )
+
+  console.log(
+    chalk.yellow(
+      `This initialization process will now wait until your Lightning node is fully synched and your wallet is funded with at least ${finalFundAmount} Satoshi\n`
+    )
+  )
+
+  let isSynched = false
+  let isFunded = false
+  let lnd = new lightning(LND_SOCKET, network, false, true)
+  while (!isSynched) {
+    try {
+      let info = await lnd.callMethodAsync('lightning', 'getInfoAsync', null, NEW_WALLET_PASS)
+      if (info.synced_to_chain) {
+        console.log(chalk.green('Your lightning node is now fully synched.'))
+        isSynched = true
+      } else {
+        console.log(
+          chalk.magenta(
+            `${new Date().toISOString()}> Synching in progress... currently at block height ${info.block_height}`
+          )
+        )
+      }
+    } catch (error) {
+      console.log(chalk.red(`An error occurred while checking node state : ${error.message}`))
+    } finally {
+      if (!isSynched) await utils.sleepAsync(30000)
+    }
+  }
+  while (!isFunded) {
+    try {
+      let balance = await lnd.callMethodAsync('lightning', 'walletBalanceAsync', null, NEW_WALLET_PASS)
+      if (balance.confirmed_balance >= finalFundAmount) {
+        console.log(chalk.green('Your lightning wallet is now adequately funded.\n'))
+        isFunded = true
+      } else {
+        console.log(
+          chalk.magenta(
+            `${new Date().toISOString()}> Awaiting funds for wallet... wallet has a current balance of ${
+              balance.confirmed_balance
+            }`
+          )
+        )
+      }
+    } catch (error) {
+      console.log(chalk.red(`An error occurred while checking wallet balance : ${error.message}`))
+    } finally {
+      if (!isFunded) await utils.sleepAsync(30000)
+    }
+  }
+
+  return finalChannelAmount
+}
+
+async function createCoreLNDPeerConnectionsAsync(coreLNDUris, network) {
+  let lnd = new lightning(LND_SOCKET, network, false, true)
+  for (let lndUri of coreLNDUris) {
+    let [pubkey, host] = lndUri.split('@')
+    try {
+      await lnd.callMethodAsync(
+        'lightning',
+        'connectPeerAsync',
+        { addr: { pubkey, host }, perm: true },
+        NEW_WALLET_PASS
+      )
+      console.log(`Peer connection established with ${lndUri}`)
+    } catch (error) {
+      throw new Error(`Unable to establish a peer connection with ${lndUri} : ${error.message}`)
+    }
+  }
+}
+
+async function createCoreLNDChannelsAsync(coreLNDUris, network, channelFundAmount) {
+  let lnd = new lightning(LND_SOCKET, network, false, true)
+  for (let lndUri of coreLNDUris) {
+    let pubkey = lndUri.split('@')[0]
+    try {
+      let channelTxInfo = await lnd.callMethodAsync(
+        'lightning',
+        'openChannelSyncAsync',
+        {
+          node_pubkey_string: pubkey,
+          local_funding_amount: channelFundAmount
+        },
+        NEW_WALLET_PASS
+      )
+      console.log(`Channel created with ${lndUri} in transaction ${channelTxInfo.funding_txid_str}`)
+    } catch (error) {
+      throw new Error(`Unable to create a channel with ${lndUri} : ${error.message}`)
+    }
+  }
+}
+
+function displayFinalConnectionSummary() {
+  console.log(chalk.green('\nChainpoint Node and supporting Lighning node has been successfully initialized.\n'))
 }
 
 async function start() {
@@ -167,6 +408,15 @@ async function start() {
     await setENVValuesAsync(initAnswers)
     // Display the generated wallet information to the user
     displayInitResults(walletInfo)
+    // Determine which Core(s) to connect to
+    let coreLNDUris = await askCoreConnectQuestionsAsync(initAnswers.NETWORK)
+    // Wait for sync and wallet funding
+    let channelFundAmount = await waitForSyncAndFundingAsync(coreLNDUris, initAnswers.NETWORK, walletInfo)
+    // Create peer connections to desired Cores
+    await createCoreLNDPeerConnectionsAsync(coreLNDUris, initAnswers.NETWORK)
+    // Create channles to desired Cores
+    await createCoreLNDChannelsAsync(coreLNDUris, initAnswers.NETWORK, channelFundAmount)
+    await displayFinalConnectionSummary()
   } catch (error) {
     console.error(chalk.red(`An unexpected error has occurred : ${error.message}`))
   } finally {
