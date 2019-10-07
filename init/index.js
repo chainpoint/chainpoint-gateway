@@ -87,7 +87,7 @@ async function initializeLndNodeAsync(initAnswers) {
   try {
     let uid = (await exec.quiet('id -u $USER')).stdout.trim()
     let gid = (await exec.quiet('id -g $USER')).stdout.trim()
-    console.log(`Starting LND node...`)
+    console.log(chalk.yellow(`Starting Lightning node...`))
     await exec([
       `mkdir -p ${home}/.chainpoint/node/.lnd && 
       export USERID=${uid} && 
@@ -95,13 +95,13 @@ async function initializeLndNodeAsync(initAnswers) {
       docker-compose run -e NETWORK=${initAnswers.NETWORK} -d --service-ports lnd`
     ])
   } catch (error) {
-    throw new Error(`Could not start LND : ${error.message}`)
+    throw new Error(`Could not start Lightning node : ${error.message}`)
   }
 
   await utils.sleepAsync(5000)
 
   try {
-    console.log(`Initializing LND wallet...`)
+    console.log(chalk.yellow(`Initializing Lightning wallet...`))
     let lnd = new lightning(LND_SOCKET, initAnswers.NETWORK, true, true)
     let seed = await lnd.callMethodRawAsync('unlocker', 'genSeedAsync', {}, true)
     await lnd.callMethodRawAsync('unlocker', 'initWalletAsync', {
@@ -111,18 +111,18 @@ async function initializeLndNodeAsync(initAnswers) {
 
     await utils.sleepAsync(5000)
 
-    console.log(`Create new address for wallet...`)
+    console.log(chalk.yellow(`Create new address for wallet...`))
     lnd = new lightning(LND_SOCKET, initAnswers.NETWORK, false, true)
     let newAddress = await lnd.callMethodAsync('lightning', 'newAddressAsync', { type: 0 }, NEW_WALLET_PASS)
     return { cipherSeedMnemonic: seed.cipher_seed_mnemonic, newAddress: newAddress.address }
   } catch (error) {
-    throw new Error(`Could not initialize LND wallet : ${error.message}`)
+    throw new Error(`Could not initialize Lightning wallet : ${error.message}`)
   }
 }
 
 async function createDockerSecretsAsync(initAnswers, walletInfo) {
   try {
-    console.log('Creating Docker secrets...')
+    console.log(chalk.yellow('Creating Docker secrets...'))
     await exec.quiet([
       `docker swarm init --advertise-addr=${initAnswers.NODE_PUBLIC_IP_ADDRESS} || echo "Swarm already initialized"`,
       `printf ${NEW_WALLET_PASS} | docker secret create HOT_WALLET_PASS -`,
@@ -135,11 +135,15 @@ async function createDockerSecretsAsync(initAnswers, walletInfo) {
 }
 
 function displayInitResults(walletInfo) {
-  console.log(chalk.green(`\nLND initialization has completed successfully`))
-  console.log(`\nLND Wallet Password:\n` + chalk.yellow(NEW_WALLET_PASS))
-  console.log(`LND Wallet Seed:\n` + chalk.yellow(walletInfo.cipherSeedMnemonic.join(' ')))
-  console.log(`LND Wallet Address:\n` + chalk.yellow(walletInfo.newAddress))
-  console.log(chalk.black.bgMagenta(`\nYou should store this information in a secure place\n\n`))
+  console.log(chalk.green(`\n****************************************************`))
+  console.log(chalk.green(`Lightning initialization has completed successfully.`))
+  console.log(chalk.green(`****************************************************\n`))
+  console.log(chalk.yellow(`Lightning Wallet Password: `) + NEW_WALLET_PASS)
+  console.log(chalk.yellow(`Lightning Wallet Seed: `) + walletInfo.cipherSeedMnemonic.join(' '))
+  console.log(chalk.yellow(`Lightning Wallet Address:`) + walletInfo.newAddress)
+  console.log(chalk.magenta(`\n******************************************************`))
+  console.log(chalk.magenta(`You should back up this information in a secure place.`))
+  console.log(chalk.magenta(`******************************************************\n\n`))
 }
 
 async function setENVValuesAsync(newENVData) {
@@ -252,9 +256,11 @@ async function askCoreConnectQuestionsAsync(network) {
 
 async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
   const coreConnectCount = coreLNDUris.length
-  console.log(`\nYou have chosen to connect to ${coreConnectCount} Core(s).`)
+  console.log(chalk.yellow(`\nYou have chosen to connect to ${coreConnectCount} Core(s).`))
   console.log(
-    'You will now need to fund you wallet with a minimum amount of BTC to cover costs of the initial channel creation and future Core submissions.\n'
+    chalk.yellow(
+      'You will now need to fund you wallet with a minimum amount of BTC to cover costs of the initial channel creation and future Core submissions.\n'
+    )
   )
 
   const minAmount = MIN_CHANNEL_SATOSHI + CHANNEL_OPEN_OVERHEAD_SAFE
@@ -291,16 +297,26 @@ async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
   }
 
   console.log(
-    chalk.black.bgMagenta(
-      `\nPlease send ${finalFundAmount} Satoshi (${finalFundAmount / 10 ** 8} BTC) to your wallet with address ${
+    chalk.magenta(
+      `\n***************************************************************************************************************`
+    )
+  )
+  console.log(
+    chalk.magenta(
+      `Please send ${finalFundAmount} Satoshi (${finalFundAmount / 10 ** 8} BTC) to your wallet with address ${
         walletInfo.newAddress
-      }\n`
+      }.`
+    )
+  )
+  console.log(
+    chalk.magenta(
+      `***************************************************************************************************************\n`
     )
   )
 
   console.log(
     chalk.yellow(
-      `This initialization process will now wait until your Lightning node is fully synched and your wallet is funded with at least ${finalFundAmount} Satoshi\n`
+      `This initialization process will now wait until your Lightning node is fully synched and your wallet is funded with at least ${finalFundAmount} Satoshi.\n`
     )
   )
 
@@ -311,7 +327,9 @@ async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
     try {
       let info = await lnd.callMethodAsync('lightning', 'getInfoAsync', null, NEW_WALLET_PASS)
       if (info.synced_to_chain) {
-        console.log(chalk.green('Your lightning node is now fully synched.'))
+        console.log(chalk.green('\n*****************************************'))
+        console.log(chalk.green('*****************************************'))
+        console.log(chalk.green('Your lightning node is now fully synched.\n'))
         isSynched = true
       } else {
         console.log(
@@ -330,7 +348,9 @@ async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
     try {
       let balance = await lnd.callMethodAsync('lightning', 'walletBalanceAsync', null, NEW_WALLET_PASS)
       if (balance.confirmed_balance >= finalFundAmount) {
-        console.log(chalk.green('Your lightning wallet is now adequately funded.\n'))
+        console.log(chalk.green('\n***********************************************'))
+        console.log(chalk.green('Your lightning wallet is now adequately funded.'))
+        console.log(chalk.green('***********************************************\n'))
         isFunded = true
       } else {
         console.log(
@@ -362,7 +382,7 @@ async function createCoreLNDPeerConnectionsAsync(coreLNDUris, network) {
         { addr: { pubkey, host }, perm: true },
         NEW_WALLET_PASS
       )
-      console.log(`Peer connection established with ${lndUri}`)
+      console.log(chalk.yellow(`Peer connection established with ${lndUri}`))
     } catch (error) {
       throw new Error(`Unable to establish a peer connection with ${lndUri} : ${error.message}`)
     }
@@ -383,7 +403,7 @@ async function createCoreLNDChannelsAsync(coreLNDUris, network, channelFundAmoun
         },
         NEW_WALLET_PASS
       )
-      console.log(`Channel created with ${lndUri} in transaction ${channelTxInfo.funding_txid_str}`)
+      console.log(chalk.yellow(`Channel created with ${lndUri} in transaction ${channelTxInfo.funding_txid_str}`))
     } catch (error) {
       throw new Error(`Unable to create a channel with ${lndUri} : ${error.message}`)
     }
@@ -391,7 +411,9 @@ async function createCoreLNDChannelsAsync(coreLNDUris, network, channelFundAmoun
 }
 
 function displayFinalConnectionSummary() {
-  console.log(chalk.green('\nChainpoint Node and supporting Lighning node has been successfully initialized.\n'))
+  console.log(chalk.green('\n*********************************************************************************'))
+  console.log(chalk.green('\nChainpoint Node and supporting Lighning node has been successfully initialized.'))
+  console.log(chalk.green('*********************************************************************************\n'))
 }
 
 async function start() {
@@ -421,10 +443,10 @@ async function start() {
     console.error(chalk.red(`An unexpected error has occurred : ${error.message}`))
   } finally {
     try {
-      console.log(`\nShutting down LND node...\n`)
+      console.log(`\nShutting down Lightning node...\n`)
       await exec([`docker-compose down`])
     } catch (error) {
-      console.error(chalk.red(`Unable to shut down LND node : ${error.message}`))
+      console.error(chalk.red(`Unable to shut down Lightning node : ${error.message}`))
     }
   }
 }
