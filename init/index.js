@@ -99,7 +99,7 @@ async function initializeLndNodeAsync(initAnswers) {
     throw new Error(`Could not start Lightning node : ${error.message}`)
   }
 
-  await utils.sleepAsync(5000)
+  await utils.sleepAsync(10000)
 
   try {
     console.log(chalk.yellow(`Initializing Lightning wallet...`))
@@ -110,7 +110,7 @@ async function initializeLndNodeAsync(initAnswers) {
       cipher_seed_mnemonic: seed.cipher_seed_mnemonic
     })
 
-    await utils.sleepAsync(5000)
+    await utils.sleepAsync(10000)
 
     console.log(chalk.yellow(`Create new address for wallet...`))
     lnd = new lightning(LND_SOCKET, initAnswers.NETWORK, false, true)
