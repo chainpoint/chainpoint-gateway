@@ -89,7 +89,8 @@ async function initializeLndNodeAsync(initAnswers) {
     let gid = (await exec.quiet('id -g $USER')).stdout.trim()
     console.log(chalk.yellow(`Starting Lightning node...`))
     await exec([
-      `mkdir -p ${home}/.chainpoint/node/.lnd && 
+      `docker-compose pull lnd && 
+      mkdir -p ${home}/.chainpoint/node/.lnd && 
       export USERID=${uid} && 
       export GROUPID=${gid} && 
       docker-compose run -e NETWORK=${initAnswers.NETWORK} -d --service-ports lnd`
