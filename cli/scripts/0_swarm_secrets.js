@@ -35,7 +35,7 @@ async function createSwarmAndSecrets(lndOpts) {
       let uid = (await exec.quiet('id -u $USER')).stdout.trim()
       let gid = (await exec.quiet('id -g $USER')).stdout.trim()
       await exec([
-        `mkdir -p ${home}/.chainpoint/node/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
+        `export LND_SOCKET=${LND_SOCKET} && mkdir -p ${home}/.chainpoint/node/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
       ])
       await utils.sleepAsync(5000)
     } catch (err) {
@@ -46,7 +46,7 @@ async function createSwarmAndSecrets(lndOpts) {
     console.log(seed)
     let init = lnd.callMethodRawAsync('unlocker', 'initWalletAsync', {
       wallet_password: pass,
-      cipher_seed_mnemonic: seed.value.cipher_seed_mnemonic
+      cipher_seed_mnemonic: seed.cipher_seed_mnemonic
     })
     console.log(init)
 
@@ -66,12 +66,12 @@ async function createSwarmAndSecrets(lndOpts) {
       await exec.quiet([
         `docker swarm init --advertise-addr=${lndOpts.NODE_PUBLIC_IP_ADDRESS} || echo "Swarm already initialized"`,
         `printf ${pass} | docker secret create HOT_WALLET_PASS -`,
-        `printf ${seed.value.cipher_seed_mnemonic.join(' ')} | docker secret create HOT_WALLET_SEED -`,
-        `printf ${address.value.address} | docker secret create HOT_WALLET_ADDRESS -`
+        `printf ${seed.cipher_seed_mnemonic.join(' ')} | docker secret create HOT_WALLET_SEED -`,
+        `printf ${address.address} | docker secret create HOT_WALLET_ADDRESS -`
       ])
       console.log(chalk.yellow(`\nLND Wallet Password: ${pass}`))
-      console.log(chalk.yellow(`\nLND Wallet Seed: ${seed.value.cipher_seed_mnemonic.join(' ')}`))
-      console.log(chalk.yellow(`\nLND Wallet Address: ${address.value.address}\n`))
+      console.log(chalk.yellow(`\nLND Wallet Seed: ${seed.cipher_seed_mnemonic.join(' ')}`))
+      console.log(chalk.yellow(`\nLND Wallet Address: ${address.address}\n`))
     } catch (err) {
       console.log(chalk.red(`Could not exec docker secret creation: ${err}`))
     }
@@ -80,7 +80,7 @@ async function createSwarmAndSecrets(lndOpts) {
       NETWORK: lndOpts.NETWORK,
       NODE_PUBLIC_IP_ADDRESS: `http://${lndOpts.NODE_PUBLIC_IP_ADDRESS}`,
       NODE_RAW_IP: lndOpts.NODE_PUBLIC_IP_ADDRESS,
-      HOT_WALLET_ADDRESS: address.value.address
+      HOT_WALLET_ADDRESS: address.address
     })
   } catch (error) {
     console.log(error)
