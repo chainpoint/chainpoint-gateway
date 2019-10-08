@@ -316,32 +316,32 @@ async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
 
   console.log(
     chalk.yellow(
-      `This initialization process will now wait until your Lightning node is fully synched and your wallet is funded with at least ${finalFundAmount} Satoshi.\n`
+      `This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least ${finalFundAmount} Satoshi.\n`
     )
   )
 
-  let isSynched = false
+  let isSynced = false
   let isFunded = false
   let lnd = new lightning(LND_SOCKET, network, false, true)
-  while (!isSynched) {
+  while (!isSynced) {
     try {
       let info = await lnd.callMethodAsync('lightning', 'getInfoAsync', null, NEW_WALLET_PASS)
       if (info.synced_to_chain) {
         console.log(chalk.green('\n*****************************************'))
-        console.log(chalk.green('Your lightning node is now fully synched.\n'))
+        console.log(chalk.green('Your lightning node is now fully synced.\n'))
         console.log(chalk.green('*****************************************'))
-        isSynched = true
+        isSynced = true
       } else {
         console.log(
           chalk.magenta(
-            `${new Date().toISOString()}> Synching in progress... currently at block height ${info.block_height}`
+            `${new Date().toISOString()}> Syncing in progress... currently at block height ${info.block_height}`
           )
         )
       }
     } catch (error) {
       console.log(chalk.red(`An error occurred while checking node state : ${error.message}`))
     } finally {
-      if (!isSynched) await utils.sleepAsync(30000)
+      if (!isSynced) await utils.sleepAsync(30000)
     }
   }
   while (!isFunded) {
