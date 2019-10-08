@@ -17,6 +17,7 @@ services:
       - ./.env:/home/node/app/.env
       - ~/.chainpoint/node/.lnd:/root/.lnd:ro
     image: gcr.io/chainpoint-registry/github_chainpoint_chainpoint-node-src:${DOCKER_TAG:-latest}
+    user: ${USERID}:${GROUPID}
     build: .
     depends_on:
       - lnd
@@ -43,9 +44,22 @@ services:
 
   # Lightning node
   lnd:
-    image: tierion/lnd:latest
+    image: tierion/lnd:boltbox
     user: ${USERID}:${GROUPID}
-    container_name: lnd-node
+    entrypoint: "./start-lnd.sh"
+    ports:
+    - target: 8080
+      published: 8080
+      protocol: tcp
+      mode: host
+    - target: 9735
+      published: 9735
+      protocol: tcp
+      mode: host
+    - target: 10009
+      published: 10009
+      protocol: tcp
+      mode: host
     deploy:
       restart_policy:
         condition: any
@@ -53,32 +67,20 @@ services:
         max_attempts: 15
         window: 90s
       endpoint_mode: dnsrr
-    ports:
-      - target: 8080
-        published: 8080
-        protocol: tcp
-        mode: host
-      - target: 9735
-        published: 9735
-        protocol: tcp
-        mode: host
-      - target: 10009
-        published: 10009
-        protocol: tcp
-        mode: host
-    restart: always
     environment:
-      - PUBLICIP=${LND_PUBLIC_IP}
-      - RPCUSER
-      - RPCPASS
-      - NETWORK
-      - CHAIN
-      - DEBUG=info
-      - NEUTRINO
-      - LND_REST_PORT
-      - LND_RPC_PORT
-      - TLSPATH
+    - PUBLICIP=${LND_PUBLIC_IP}
+    - RPCUSER
+    - RPCPASS
+    - NETWORK=${NETWORK:-testnet}
+    - CHAIN
+    - DEBUG
+    - BACKEND=neutrino
+    - NEUTRINO=faucet.lightning.community:18333
+    - LND_REST_PORT
+    - LND_RPC_PORT
+    - TLSPATH
+    - TLSEXTRADOMAIN=lnd
     volumes:
-      - ~/.chainpoint/node/.lnd:/root/.lnd:z
+    - ~/.chainpoint/core/.lnd:/lnd-data:z
     networks:
-      - chainpoint-node
+    - chainpoint-node
