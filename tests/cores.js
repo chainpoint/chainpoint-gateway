@@ -169,7 +169,7 @@ describe('Cores Methods', function() {
         return { body: { network: 'testnet', sync_info: { catching_up: true } } }
       })
     })
-    it('should not connect and throw error with IP list and non-synched Core', async () => {
+    it('should not connect and throw error with IP list and non-synced Core', async () => {
       let coreConnectionCount = 2
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -191,7 +191,7 @@ describe('Cores Methods', function() {
         return { body: { network: 'testnet', sync_info: { catching_up: false } } }
       })
     })
-    it('should not connect and throw error with IP list and synched Core, insufficient count', async () => {
+    it('should not connect and throw error with IP list and synced Core, insufficient count', async () => {
       let coreConnectionCount = 2
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -213,7 +213,7 @@ describe('Cores Methods', function() {
         return { body: { network: 'testnet', sync_info: { catching_up: false } } }
       })
     })
-    it('should connect with IP list and synched Core, sufficient count 1', async () => {
+    it('should connect with IP list and synced Core, sufficient count 1', async () => {
       let coreConnectionCount = 1
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -241,7 +241,7 @@ describe('Cores Methods', function() {
         }
       })
     })
-    it('should connect with IP list and mixed-synched Core, sufficient count 2', async () => {
+    it('should connect with IP list and mixed-synced Core, sufficient count 2', async () => {
       let coreConnectionCount = 2
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -266,7 +266,7 @@ describe('Cores Methods', function() {
         return { body: { network: 'testnet', sync_info: { catching_up: false } } }
       })
     })
-    it('should connect with IP list and synched Core, sufficient count 3', async () => {
+    it('should connect with IP list and synced Core, sufficient count 3', async () => {
       let coreConnectionCount = 3
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -354,7 +354,7 @@ describe('Cores Methods', function() {
         return { body: { sync_info: { catching_up: true } } }
       })
     })
-    it('should not connect and throw error with Core discovery and unsynched returned', async () => {
+    it('should not connect and throw error with Core discovery and unsynced returned', async () => {
       let coreConnectionCount = 1
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -377,7 +377,7 @@ describe('Cores Methods', function() {
         return { body: { network: 'testnet', sync_info: { catching_up: false } } }
       })
     })
-    it('should not connect with Core discovery and synched IP, network mismatch', async () => {
+    it('should not connect with Core discovery and synced IP, network mismatch', async () => {
       let coreConnectionCount = 1
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -400,7 +400,7 @@ describe('Cores Methods', function() {
         return { body: { network: 'testnet', sync_info: { catching_up: false } } }
       })
     })
-    it('should connect with Core discovery and synched IP', async () => {
+    it('should connect with Core discovery and synced IP', async () => {
       let coreConnectionCount = 1
       cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
@@ -722,7 +722,7 @@ describe('Cores Methods', function() {
         return { body: { catching_up: true } }
       })
     })
-    it('should throw error no status code when not synched', async () => {
+    it('should throw error no status code when not synced', async () => {
       let errResponse = null
       try {
         await cores.getLatestCalBlockInfoAsync()
@@ -743,7 +743,7 @@ describe('Cores Methods', function() {
         return { body: { sync_info: { catching_up: false } } }
       })
     })
-    it('should return success with one unsynched and one good IP', async () => {
+    it('should return success with one unsynced and one good IP', async () => {
       let response = await cores.getLatestCalBlockInfoAsync()
       expect(response).to.be.a('object')
       expect(response).to.have.property('catching_up')
