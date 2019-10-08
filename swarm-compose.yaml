@@ -39,17 +39,19 @@ services:
       NETWORK: ${NETWORK}
       NODE_ENV: ${NODE_ENV}
     tty: true
-    logging:
-      driver: syslog
-      options:
-        syslog-address: "udp://logs.papertrailapp.com:27635"
-        tag: "chp-node/{{.Name}}/{{.ID}}"
 
   # Lightning node
   lnd:
     image: tierion/lnd:latest
     user: ${USERID}:${GROUPID}
     container_name: lnd-node
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 15
+        window: 90s
+      endpoint_mode: dnsrr
     ports:
       - target: 8080
         published: 8080
