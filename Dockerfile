@@ -5,9 +5,6 @@ FROM node:12.4.0-stretch
 
 LABEL MAINTAINER="Jacob Henderson <jacob@tierion.com>"
 
-# gosu : https://github.com/tianon/gosu
-RUN apt-get update && apt-get install -y git gosu
-
 # The `node` user and its home dir is provided by
 # the base image. Create a subdir where app code lives.
 RUN mkdir /home/node/app
