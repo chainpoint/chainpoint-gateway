@@ -26,7 +26,9 @@ COPY ./lib/models/*.js /home/node/app/lib/models/
 RUN mkdir -p /home/node/app/cli
 COPY cli /home/node/app/cli
 
-RUN mkdir -p /root/.lnd && chmod -R 777 /root
+RUN mkdir -p /root/.lnd
+RUN mkdir -p /root/.chainpoint/node/data/rocksdb
+RUN chmod -R 777 /root
 
 EXPOSE 80
 
