@@ -33,7 +33,7 @@ services:
 
   # Lightning node
   lnd:
-    image: tierion/lnd:latest
+    image: tierion/lnd:boltbox
     user: ${USERID}:${GROUPID}
     container_name: lnd-node
     ports:
@@ -54,14 +54,16 @@ services:
       - PUBLICIP=${LND_PUBLIC_IP}
       - RPCUSER
       - RPCPASS
-      - NETWORK
+      - NETWORK=${NETWORK:-testnet}
       - CHAIN
-      - DEBUG=info
-      - NEUTRINO
+      - DEBUG
+      - BACKEND=neutrino
+      - NEUTRINO=faucet.lightning.community:18333
       - LND_REST_PORT
       - LND_RPC_PORT
       - TLSPATH
+      - TLSEXTRADOMAIN=lnd
     volumes:
-      - ~/.chainpoint/node/.lnd:/root/.lnd:z
+      - ~/.chainpoint/core/.lnd:/lnd-data:z
     networks:
       - chainpoint-node
