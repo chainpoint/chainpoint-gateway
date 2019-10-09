@@ -18,6 +18,7 @@ services:
     networks:
       - chainpoint-node
     environment:
+      HOME: /root
       HOT_WALLET_PASS: ${HOT_WALLET_PASS}
       LND_SOCKET: ${LND_SOCKET}
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"

@@ -29,6 +29,7 @@ services:
     secrets:
       - HOT_WALLET_PASS
     environment:
+      HOME: /root
       HOT_WALLET_PASS: DOCKER-SECRET->HOT_WALLET_PASS
       LND_SOCKET: ${LND_SOCKET}
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
