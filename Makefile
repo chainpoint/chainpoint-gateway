@@ -73,6 +73,7 @@ build-config:
 ## build-rocksdb   : Ensure the RocksDB data dir exists
 .PHONY : build-rocksdb
 build-rocksdb:
+	@echo Setting up directories...
 	@mkdir -p ${NODE_DATADIR}/data/rocksdb && chmod 777 ${NODE_DATADIR}/data/rocksdb
 
 ## pull            : Pull Docker images
@@ -95,7 +96,8 @@ init: build-rocksdb init-yarn init-swarm
 
 ## init-yarn       : Initialize dependencies
 init-yarn:
-	@yarn 
+	@echo Installing packages...
+	@yarn >/dev/null
 
 ## init-swarm      : Initialize a docker swarm
 .PHONY : init-swarm
