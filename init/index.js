@@ -28,6 +28,8 @@ const _ = require('lodash')
 const rp = require('request-promise-native')
 const retry = require('async-retry')
 
+const QUIET_OUTPUT = true
+
 const LND_SOCKET = '127.0.0.1:10009'
 const MIN_CHANNEL_SATOSHI = 100000
 const CHANNEL_OPEN_OVERHEAD_SAFE = 20000
@@ -88,13 +90,16 @@ async function initializeLndNodeAsync(initAnswers) {
     let uid = (await exec.quiet('id -u $USER')).stdout.trim()
     let gid = (await exec.quiet('id -g $USER')).stdout.trim()
     console.log(chalk.yellow(`Starting Lightning node...`))
-    await exec([
-      `docker-compose pull lnd && 
+    await exec(
+      [
+        `docker-compose pull lnd && 
       mkdir -p ${home}/.chainpoint/node/.lnd && 
       export USERID=${uid} && 
       export GROUPID=${gid} && 
       docker-compose run -e NETWORK=${initAnswers.NETWORK} -d --service-ports lnd`
-    ])
+      ],
+      { quiet: QUIET_OUTPUT }
+    )
   } catch (error) {
     throw new Error(`Could not start Lightning node : ${error.message}`)
   }
@@ -444,8 +449,9 @@ async function start() {
     console.error(chalk.red(`An unexpected error has occurred : ${error.message}`))
   } finally {
     try {
-      console.log(`\nShutting down Lightning node...\n`)
-      await exec([`docker-compose down`])
+      console.log(chalk.yellow(`Shutting down Lightning node...`))
+      await exec([`docker-compose down`], { quiet: QUIET_OUTPUT })
+      console.error(chalk.yellow(`Shutdown complete`))
     } catch (error) {
       console.error(chalk.red(`Unable to shut down Lightning node : ${error.message}`))
     }
