@@ -334,7 +334,7 @@ async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
       let info = await lnd.callMethodAsync('lightning', 'getInfoAsync', null, NEW_WALLET_PASS)
       if (info.synced_to_chain) {
         console.log(chalk.green('\n*****************************************'))
-        console.log(chalk.green('Your lightning node is now fully synced.\n'))
+        console.log(chalk.green('Your lightning node is now fully synced.'))
         console.log(chalk.green('*****************************************'))
         isSynced = true
       } else {
