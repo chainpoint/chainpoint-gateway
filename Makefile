@@ -104,6 +104,17 @@ init-yarn:
 init-swarm:
 	@node ./init/index.js
 
+## init-swarm-restart     : Initialize a docker swarm, abondon current configuration
+.PHONY : init-swarm-restart
+init-swarm-restart:
+	@docker-compose down &> /dev/null
+	@rm -rf ~/.chainpoint/node/.lnd
+	@rm -rf ./init/init.json
+	@node ./init/index.js
+
+## init-restart         : Bring up yarn, swarm, and generate secrets, abondon current configuration
+init-restart: build-rocksdb init-yarn init-swarm-restart
+
 ## deploy          : deploys a swarm stack
 deploy:
 	set -a && source .env && set +a && export USERID=${UID} && export GROUPID=${GID} && docker stack deploy -c swarm-compose.yaml chainpoint-node
