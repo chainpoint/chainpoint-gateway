@@ -57,7 +57,7 @@ services:
       - RPCPASS
       - NETWORK=${NETWORK:-testnet}
       - CHAIN
-      - DEBUG
+      - DEBUG=info
       - BACKEND=neutrino
       - NEUTRINO=faucet.lightning.community:18333
       - LND_REST_PORT
