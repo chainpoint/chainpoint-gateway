@@ -9,3 +9,4 @@ yarn-debug.log*
 yarn-error.log*
 cli/scripts/test.js
 test.js
+init/init.json
