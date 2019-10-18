@@ -11,8 +11,9 @@ RUN mkdir /home/node/app
 
 WORKDIR /home/node/app
 
-COPY package.json yarn.lock server.js run.sh run_prod.sh env_secrets_expand.sh prod_secrets_expand.sh /home/node/app/
+COPY package.json yarn.lock server.js /home/node/app/
 RUN yarn
+COPY ./scripts/*.sh /home/node/app/
 
 RUN mkdir -p /home/node/app/lib
 COPY ./lib/*.js /home/node/app/lib/
