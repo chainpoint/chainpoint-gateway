@@ -37,8 +37,6 @@ const CHANNEL_OPEN_OVERHEAD_SAFE = 20000
 const CORE_SEED_IPS_MAINNET = []
 const CORE_SEED_IPS_TESTNET = ['35.222.97.4', '34.67.148.93']
 
-const NEW_WALLET_PASS = generator.generate({ length: 20, numbers: false })
-
 const initQuestionConfig = [
   {
     type: 'list',
@@ -85,7 +83,7 @@ function displayTitleScreen() {
   console.log('\n')
 }
 
-async function initializeLndNodeAsync(initAnswers) {
+async function startLndNodeAsync(initAnswers) {
   try {
     let uid = (await exec.quiet('id -u $USER')).stdout.trim()
     let gid = (await exec.quiet('id -g $USER')).stdout.trim()
@@ -105,13 +103,18 @@ async function initializeLndNodeAsync(initAnswers) {
   }
 
   await utils.sleepAsync(10000)
+}
 
+async function initializeLndNodeAsync(initAnswers) {
+  await startLndNodeAsync(initAnswers)
+
+  let walletSecret = generator.generate({ length: 20, numbers: false })
   try {
     console.log(chalk.yellow(`Initializing Lightning wallet...`))
     let lnd = new lightning(LND_SOCKET, initAnswers.NETWORK, true, true)
     let seed = await lnd.callMethodRawAsync('unlocker', 'genSeedAsync', {}, true)
     await lnd.callMethodRawAsync('unlocker', 'initWalletAsync', {
-      wallet_password: NEW_WALLET_PASS,
+      wallet_password: walletSecret,
       cipher_seed_mnemonic: seed.cipher_seed_mnemonic
     })
 
@@ -119,8 +122,8 @@ async function initializeLndNodeAsync(initAnswers) {
 
     console.log(chalk.yellow(`Create new address for wallet...`))
     lnd = new lightning(LND_SOCKET, initAnswers.NETWORK, false, true)
-    let newAddress = await lnd.callMethodAsync('lightning', 'newAddressAsync', { type: 0 }, NEW_WALLET_PASS)
-    return { cipherSeedMnemonic: seed.cipher_seed_mnemonic, newAddress: newAddress.address }
+    let newAddress = await lnd.callMethodAsync('lightning', 'newAddressAsync', { type: 0 }, walletSecret)
+    return { cipherSeedMnemonic: seed.cipher_seed_mnemonic, newAddress: newAddress.address, walletSecret: walletSecret }
   } catch (error) {
     throw new Error(`Could not initialize Lightning wallet : ${error.message}`)
   }
@@ -131,7 +134,7 @@ async function createDockerSecretsAsync(initAnswers, walletInfo) {
     console.log(chalk.yellow('Creating Docker secrets...'))
     await exec.quiet([
       `docker swarm init --advertise-addr=${initAnswers.NODE_PUBLIC_IP_ADDRESS} || echo "Swarm already initialized"`,
-      `printf ${NEW_WALLET_PASS} | docker secret create HOT_WALLET_PASS -`,
+      `printf ${walletInfo.walletSecret} | docker secret create HOT_WALLET_PASS -`,
       `printf ${walletInfo.cipherSeedMnemonic.join(' ')} | docker secret create HOT_WALLET_SEED -`,
       `printf ${walletInfo.newAddress} | docker secret create HOT_WALLET_ADDRESS -`
     ])
@@ -144,7 +147,7 @@ function displayInitResults(walletInfo) {
   console.log(chalk.green(`\n****************************************************`))
   console.log(chalk.green(`Lightning initialization has completed successfully.`))
   console.log(chalk.green(`****************************************************\n`))
-  console.log(chalk.yellow(`Lightning Wallet Password: `) + NEW_WALLET_PASS)
+  console.log(chalk.yellow(`Lightning Wallet Password: `) + walletInfo.walletSecret)
   console.log(chalk.yellow(`Lightning Wallet Seed: `) + walletInfo.cipherSeedMnemonic.join(' '))
   console.log(chalk.yellow(`Lightning Wallet Address:`) + walletInfo.newAddress)
   console.log(chalk.magenta(`\n******************************************************`))
@@ -167,7 +170,7 @@ async function setENVValuesAsync(newENVData) {
   fs.writeFileSync(path.resolve(__dirname, '../', '.env'), updatedEnvContents)
 }
 
-async function getPeerListAsync(seedIPs) {
+async function getCorePeerListAsync(seedIPs) {
   seedIPs = _.shuffle(seedIPs)
 
   let peersReceived = false
@@ -190,9 +193,9 @@ async function getPeerListAsync(seedIPs) {
   throw new Error('Unable to retrieve Core peer list')
 }
 
-async function askCoreConnectQuestionsAsync(network) {
+async function askCoreConnectQuestionsAsync(progress) {
   let peerList = _.shuffle(
-    await getPeerListAsync(network === 'maininet' ? CORE_SEED_IPS_MAINNET : CORE_SEED_IPS_TESTNET)
+    await getCorePeerListAsync(progress.network === 'maininet' ? CORE_SEED_IPS_MAINNET : CORE_SEED_IPS_TESTNET)
   )
   let peerCount = peerList.length
 
@@ -257,11 +260,14 @@ async function askCoreConnectQuestionsAsync(network) {
     }
   }
 
+  progress.coreLNDUris = coreLNDUris
+  writeInitProgress(progress)
+
   return coreLNDUris
 }
 
-async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
-  const coreConnectCount = coreLNDUris.length
+async function askFundAmountAsync(progress) {
+  const coreConnectCount = progress.coreLNDUris.length
   console.log(chalk.yellow(`\nYou have chosen to connect to ${coreConnectCount} Core(s).`))
   console.log(
     chalk.yellow(
@@ -304,37 +310,47 @@ async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
 
   console.log(
     chalk.magenta(
-      `\n***************************************************************************************************************`
+      `\n**************************************************************************************************************`
     )
   )
   console.log(
     chalk.magenta(
       `Please send ${finalFundAmount} Satoshi (${finalFundAmount / 10 ** 8} BTC) to your wallet with address ${
-        walletInfo.newAddress
-      }.`
+        progress.walletAddress
+      }`
     )
   )
   console.log(
     chalk.magenta(
-      `***************************************************************************************************************\n`
+      `**************************************************************************************************************\n`
     )
   )
 
+  progress.finalFundAmount = finalFundAmount
+  progress.finalChannelAmount = finalChannelAmount
+  writeInitProgress(progress)
+
+  return progress
+}
+
+async function waitForSyncAndFundingAsync(progress) {
   console.log(
     chalk.yellow(
-      `This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least ${finalFundAmount} Satoshi.\n`
+      `This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least ${
+        progress.finalFundAmount
+      } Satoshi.\n`
     )
   )
 
   let isSynced = false
   let isFunded = false
-  let lnd = new lightning(LND_SOCKET, network, false, true)
+  let lnd = new lightning(LND_SOCKET, progress.network, false, true)
   while (!isSynced) {
     try {
-      let info = await lnd.callMethodAsync('lightning', 'getInfoAsync', null, NEW_WALLET_PASS)
+      let info = await lnd.callMethodAsync('lightning', 'getInfoAsync', null, progress.walletSecret)
       if (info.synced_to_chain) {
         console.log(chalk.green('\n*****************************************'))
-        console.log(chalk.green('Your lightning node is now fully synced.'))
+        console.log(chalk.green('Your lightning node is fully synced.'))
         console.log(chalk.green('*****************************************'))
         isSynced = true
       } else {
@@ -352,10 +368,10 @@ async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
   }
   while (!isFunded) {
     try {
-      let balance = await lnd.callMethodAsync('lightning', 'walletBalanceAsync', null, NEW_WALLET_PASS)
-      if (balance.confirmed_balance >= finalFundAmount) {
+      let balance = await lnd.callMethodAsync('lightning', 'walletBalanceAsync', null, progress.walletSecret)
+      if (balance.confirmed_balance >= progress.finalFundAmount) {
         console.log(chalk.green('\n***********************************************'))
-        console.log(chalk.green('Your lightning wallet is now adequately funded.'))
+        console.log(chalk.green('Your lightning wallet is adequately funded.'))
         console.log(chalk.green('***********************************************\n'))
         isFunded = true
       } else {
@@ -373,20 +389,29 @@ async function waitForSyncAndFundingAsync(coreLNDUris, network, walletInfo) {
       if (!isFunded) await utils.sleepAsync(30000)
     }
   }
-
-  return finalChannelAmount
 }
 
-async function createCoreLNDPeerConnectionsAsync(coreLNDUris, network) {
-  let lnd = new lightning(LND_SOCKET, network, false, true)
-  for (let lndUri of coreLNDUris) {
+async function createCoreLNDPeerConnectionsAsync(progress) {
+  let lnd = new lightning(LND_SOCKET, progress.network, false, true)
+  let peerPubKeys = []
+  try {
+    let peerList = await lnd.callMethodAsync('lightning', 'listPeersAsync', null, progress.walletSecret)
+    for (let peer of peerList.peers) {
+      peerPubKeys.push(peer.pub_key)
+    }
+  } catch (error) {
+    throw new Error('Could not retrieve LND peer list')
+  }
+
+  for (let lndUri of progress.coreLNDUris) {
     let [pubkey, host] = lndUri.split('@')
+    if (peerPubKeys.includes(pubkey)) continue // already peered to this node, skip
     try {
       await lnd.callMethodAsync(
         'lightning',
         'connectPeerAsync',
         { addr: { pubkey, host }, perm: true },
-        NEW_WALLET_PASS
+        progress.walletSecret
       )
       console.log(chalk.yellow(`Peer connection established with ${lndUri}`))
     } catch (error) {
@@ -395,19 +420,31 @@ async function createCoreLNDPeerConnectionsAsync(coreLNDUris, network) {
   }
 }
 
-async function createCoreLNDChannelsAsync(coreLNDUris, network, channelFundAmount) {
-  let lnd = new lightning(LND_SOCKET, network, false, true)
-  for (let lndUri of coreLNDUris) {
+async function createCoreLNDChannelsAsync(progress) {
+  let lnd = new lightning(LND_SOCKET, progress.network, false, true)
+  let channelPubKeys = []
+  try {
+    let channelList = await lnd.callMethodAsync('lightning', 'listChannelsAsync', {}, progress.walletSecret)
+    for (let channel of channelList.channels) {
+      channelPubKeys.push(channel.remote_pubkey)
+    }
+  } catch (error) {
+    throw new Error('Could not retrieve LND channel list', error.message)
+  }
+
+  for (let lndUri of progress.coreLNDUris) {
     let pubkey = lndUri.split('@')[0]
+    if (channelPubKeys.includes(pubkey)) continue // already have a channel with this node, skip
     try {
       let channelTxInfo = await lnd.callMethodAsync(
         'lightning',
         'openChannelSyncAsync',
         {
           node_pubkey_string: pubkey,
-          local_funding_amount: channelFundAmount
+          local_funding_amount: progress.finalChannelAmount,
+          push_sat: 0
         },
-        NEW_WALLET_PASS
+        progress.walletSecret
       )
       console.log(chalk.yellow(`Channel created with ${lndUri} in transaction ${channelTxInfo.funding_txid_str}`))
     } catch (error) {
@@ -418,33 +455,74 @@ async function createCoreLNDChannelsAsync(coreLNDUris, network, channelFundAmoun
 
 function displayFinalConnectionSummary() {
   console.log(chalk.green('\n*********************************************************************************'))
-  console.log(chalk.green('\nChainpoint Node and supporting Lighning node has been successfully initialized.'))
+  console.log(chalk.green('\nChainpoint Node and supporting Lighning node have been successfully initialized.'))
   console.log(chalk.green('*********************************************************************************\n'))
+}
+
+function readInitProgress() {
+  // check for existence of .init file
+  let initFileExists = fs.existsSync(path.resolve(__dirname, './init.json'))
+  // load .init file if it exists
+  if (initFileExists) return JSON.parse(fs.readFileSync(path.resolve(__dirname, './init.json')).toString())
+  return {}
+}
+
+function writeInitProgress(progress) {
+  fs.writeFileSync(path.resolve(__dirname, './init.json'), JSON.stringify(progress, null, 2))
+}
+
+function setInitProgressCompleteAsync() {
+  fs.writeFileSync(path.resolve(__dirname, './init.json'), JSON.stringify({ complete: true }, null, 2))
 }
 
 async function start() {
   try {
+    // Check if init has already recorded some progress
+    // This allows recovery from last known step in process
+    // Exit of initialization has already completed successfully
+    let progress = await readInitProgress()
+    if (progress.complete) {
+      console.log(chalk.green('Initialization has already been completed successfully.'))
+      return
+    }
     // Display the title screen
     displayTitleScreen()
-    // Ask initialization questions
-    let initAnswers = await inquirer.prompt(initQuestionConfig)
-    // Initialize the LND wallet and create a new address
-    let walletInfo = await initializeLndNodeAsync(initAnswers)
-    // Store relevant values as Docker secrets
-    await createDockerSecretsAsync(initAnswers, walletInfo)
-    // Update the .env file with generated data
-    await setENVValuesAsync(initAnswers)
-    // Display the generated wallet information to the user
-    displayInitResults(walletInfo)
-    // Determine which Core(s) to connect to
-    let coreLNDUris = await askCoreConnectQuestionsAsync(initAnswers.NETWORK)
+    if (!progress.walletAddress) {
+      // Ask initialization questions
+      let initAnswers = await inquirer.prompt(initQuestionConfig)
+      // Initialize the LND wallet and create a new address
+      let walletInfo = await initializeLndNodeAsync(initAnswers)
+      // Store relevant values as Docker secrets
+      await createDockerSecretsAsync(initAnswers, walletInfo)
+      // Update the .env file with generated data
+      await setENVValuesAsync(initAnswers)
+      // Display the generated wallet information to the user
+      displayInitResults(walletInfo)
+      progress.network = initAnswers.NETWORK
+      progress.walletAddress = walletInfo.newAddress
+      progress.walletSecret = walletInfo.walletSecret
+      writeInitProgress(progress)
+    } else {
+      await startLndNodeAsync({ NETWORK: progress.network })
+    }
+    if (!progress.coreLNDUris) {
+      // Determine which Core(s) to connect to
+      let coreLNDUris = await askCoreConnectQuestionsAsync(progress)
+      progress.coreLNDUris = coreLNDUris
+    }
+    // Ask funding questions
+    if (!progress.finalChannelAmount > 0) {
+      progress = await askFundAmountAsync(progress)
+    }
     // Wait for sync and wallet funding
-    let channelFundAmount = await waitForSyncAndFundingAsync(coreLNDUris, initAnswers.NETWORK, walletInfo)
+    await waitForSyncAndFundingAsync(progress)
     // Create peer connections to desired Cores
-    await createCoreLNDPeerConnectionsAsync(coreLNDUris, initAnswers.NETWORK)
+    await createCoreLNDPeerConnectionsAsync(progress)
     // Create channles to desired Cores
-    await createCoreLNDChannelsAsync(coreLNDUris, initAnswers.NETWORK, channelFundAmount)
+    await createCoreLNDChannelsAsync(progress)
     await displayFinalConnectionSummary()
+    // Initialization complete, mark progress file as such
+    setInitProgressCompleteAsync()
   } catch (error) {
     console.error(chalk.red(`An unexpected error has occurred : ${error.message}`))
   } finally {
