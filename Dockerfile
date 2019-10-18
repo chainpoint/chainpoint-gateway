@@ -11,9 +11,11 @@ RUN mkdir /home/node/app
 
 WORKDIR /home/node/app
 
-COPY package.json yarn.lock server.js /home/node/app/
+COPY package.json yarn.lock server.js .env /home/node/app/
 RUN yarn
-COPY ./scripts/*.sh /home/node/app/
+
+RUN mkdir -p /home/node/app/scripts
+COPY ./scripts/*.sh /home/node/app/scripts/
 
 RUN mkdir -p /home/node/app/lib
 COPY ./lib/*.js /home/node/app/lib/
@@ -30,4 +32,4 @@ RUN chmod -R 777 /root
 
 EXPOSE 80
 
-CMD ["./run.sh"]
+CMD ["yarn", "start"]
