@@ -34,7 +34,7 @@ logs:
 ## up              : Start Node
 .PHONY : up
 up: build-config build build-rocksdb
-	docker-compose up -d --no-build
+	docker-compose up -d
 
 ## down            : Shutdown Node
 .PHONY : down
