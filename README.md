@@ -72,7 +72,7 @@ At minimum, the following software is required for any installation of Core:
 - `Git`
 - `Docker`
 
-Provided BASH is installed, a script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be found [here](https://github.com/chainpoint/chainpoint-core/blob/master/cli/scripts/install_deps.sh).
+Provided BASH is installed, a script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be found [here](https://github.com/chainpoint/chainpoint-node-src/blob/master/init/install_deps.sh).
 
 ### Installation
 
