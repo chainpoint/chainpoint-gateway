@@ -455,7 +455,7 @@ async function createCoreLNDChannelsAsync(progress) {
 
 function displayFinalConnectionSummary() {
   console.log(chalk.green('\n*********************************************************************************'))
-  console.log(chalk.green('\nChainpoint Node and supporting Lighning node have been successfully initialized.'))
+  console.log(chalk.green('Chainpoint Node and supporting Lighning node have been successfully initialized.'))
   console.log(chalk.green('*********************************************************************************\n'))
 }
 
