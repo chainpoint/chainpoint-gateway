@@ -36,15 +36,15 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
       tags:
         - 'Hashes'
-  '/proofs/{hash_id_node}':
+  '/proofs/{proof_id}':
     get:
-      summary: 'Retrieves a proof by hash_id_node'
+      summary: 'Retrieves a proof by proof_id'
       operationId: 'getProof'
       parameters:
-        - name: 'hash_id_node'
+        - name: 'proof_id'
           in: 'path'
           required: true
-          description: 'The hash_id_node of the proof to retrieve'
+          description: 'The proof_id of the proof to retrieve'
           schema:
             type: 'string'
             format: 'uuid'
@@ -83,7 +83,7 @@ paths:
         - name: 'hashids'
           in: 'header'
           required: true
-          description: 'Comma separated hash_id_node list of the proofs to retrieve'
+          description: 'Comma separated proof_id list of the proofs to retrieve'
           schema:
             type: 'string'
       responses:
@@ -232,7 +232,7 @@ components:
          items:
           type: 'object'
           properties:
-            hash_id_node:
+            proof_id:
               type: 'string'
               example: '5a001650-2f4a-11e7-ad22-37b426116bc4'
             hash:
@@ -241,7 +241,7 @@ components:
     GetProofsJSONResponse:
       type: 'object'
       properties:
-        hash_id_node:
+        proof_id:
           type: 'string'
           example: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
         proof:
@@ -250,7 +250,7 @@ components:
             '@context': 'https://w3id.org/chainpoint/v3'
             type: 'Chainpoint'
             hash: '11cd8a380e8d5fd3ac47c1f880390341d40b11485e8ae946d8fa3d466f23fe89'
-            hash_id_node: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
+            proof_id: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
             hash_submitted_node_at: '2019-05-17T18:55:30Z'
             hash_id_core: '5a22fb80-78d5-11e9-8186-01d1f712eccc'
             hash_submitted_core_at: '2019-05-17T18:55:34Z'
@@ -278,7 +278,7 @@ components:
     GetProofsBase64Response:
       type: 'object'
       properties:
-        hash_id_node:
+        proof_id:
           type: 'string'
           example: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
         proof:
@@ -308,7 +308,7 @@ components:
         hash:
           type: 'string'
           example: '11cd8a380e8d5fd3ac47c1f880390341d40b11485e8ae946d8fa3d466f23fe89'
-        hash_id_node:
+        proof_id:
           type: 'string'
           example: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
         hash_submitted_node_at:

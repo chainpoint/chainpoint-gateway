@@ -20,7 +20,7 @@ describe('Proofs Controller', () => {
           case 'bbb27662-2e21-11e9-b210-d663bd873d93':
             return [
               {
-                hashIdNode: hashIds[0],
+                proofId: hashIds[0],
                 hash: '18af1184ae64160f8a4019f43ddc825db95f11a0e468f8da6cb9f8bbe1dbd784',
                 proofState: [],
                 submission: {
@@ -32,7 +32,7 @@ describe('Proofs Controller', () => {
           default:
             return [
               {
-                hashIdNode: hashIds[0],
+                proofId: hashIds[0],
                 hash: null,
                 proofState: null,
                 submission: null
@@ -157,7 +157,7 @@ describe('Proofs Controller', () => {
           expect(res.body).to.be.a('array')
           expect(res.body).to.have.length(1)
           expect(res.body[0])
-            .to.have.property('hash_id_node')
+            .to.have.property('proof_id')
             .and.to.be.a('string')
             .and.to.equal(hashId)
           expect(res.body[0])
@@ -183,7 +183,7 @@ describe('Proofs Controller', () => {
           expect(res.body).to.be.a('array')
           expect(res.body).to.have.length(1)
           expect(res.body[0])
-            .to.have.property('hash_id_node')
+            .to.have.property('proof_id')
             .and.to.be.a('string')
             .and.to.equal(hashId)
           expect(res.body[0])
@@ -216,7 +216,7 @@ describe('Proofs Controller', () => {
           expect(res.body).to.be.a('array')
           expect(res.body).to.have.length(1)
           expect(res.body[0])
-            .to.have.property('hash_id_node')
+            .to.have.property('proof_id')
             .and.to.be.a('string')
             .and.to.equal(hashId)
           expect(res.body[0])
@@ -249,7 +249,7 @@ describe('Proofs Controller', () => {
           expect(res.body).to.be.a('array')
           expect(res.body).to.have.length(1)
           expect(res.body[0])
-            .to.have.property('hash_id_node')
+            .to.have.property('proof_id')
             .and.to.be.a('string')
             .and.to.equal(hashId)
           expect(res.body[0]).to.have.property('proof')
@@ -258,7 +258,7 @@ describe('Proofs Controller', () => {
             .and.to.be.a('string')
             .and.to.equal('18af1184ae64160f8a4019f43ddc825db95f11a0e468f8da6cb9f8bbe1dbd784')
           expect(res.body[0].proof)
-            .to.have.property('hash_id_node')
+            .to.have.property('proof_id')
             .and.to.be.a('string')
             .and.to.equal(hashId)
           expect(res.body[0].proof)

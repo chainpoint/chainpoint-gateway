@@ -2,7 +2,7 @@
   "@context": "https://w3id.org/chainpoint/v3",
   "type": "Chainpoint",
   "hash": "18af1184ae64160f8a4019f43ddc825db95f11a0e468f8da6cb9f8bbe1dbd784",
-  "hash_id_node": "000139a0-2e5c-11e9-bec9-01115ea738e6",
+  "proof_id": "000139a0-2e5c-11e9-bec9-01115ea738e6",
   "hash_submitted_node_at": "2019-02-12T00:20:28Z",
   "hash_id_core": "000139a0-2e5c-11e9-bec9-01115ea738e6",
   "hash_submitted_core_at": "2019-02-12T00:20:28Z",
