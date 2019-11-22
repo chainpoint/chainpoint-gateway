@@ -15,7 +15,7 @@ describe('Proofs Controller', () => {
   beforeEach(async () => {
     insecureServer = await app.startInsecureRestifyServerAsync()
     proofs.setRocksDB({
-      getProofStatesBatchByHashIdNodesAsync: async hashIds => {
+      getProofStatesBatchByProofIdsAsync: async hashIds => {
         switch (hashIds[0]) {
           case 'bbb27662-2e21-11e9-b210-d663bd873d93':
             return [

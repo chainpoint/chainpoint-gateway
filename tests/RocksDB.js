@@ -30,7 +30,7 @@ describe('RocksDB Methods', () => {
     it('should return the same data that was inserted', async () => {
       let sampleData = generateSampleProofStateData(100)
       await rocksDB.saveProofStatesBatchAsync(sampleData.state)
-      let queriedState = await rocksDB.getProofStatesBatchByHashIdNodesAsync(sampleData.hashIdNodes)
+      let queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(sampleData.hashIdNodes)
       insertedProofStateHashIdNodes = sampleData.hashIdNodes
       queriedState = convertStateBackToBinaryForm(queriedState)
       expect(queriedState).to.deep.equal(sampleData.state)
@@ -126,7 +126,7 @@ describe('RocksDB Methods', () => {
 
     it('should prune proof state data as expected', async () => {
       // retrieve inserted proof state, confirm it still exists
-      let queriedState = await rocksDB.getProofStatesBatchByHashIdNodesAsync(insertedProofStateHashIdNodes)
+      let queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(insertedProofStateHashIdNodes)
       expect(queriedState).to.be.a('array')
       expect(queriedState.length).to.be.greaterThan(0)
       for (let x = 0; x < queriedState.length; x++) {
@@ -138,7 +138,7 @@ describe('RocksDB Methods', () => {
       await rocksDB.pruneOldProofStateDataAsync()
 
       // retrieve inserted proof state, confirm it has all beed pruned
-      queriedState = await rocksDB.getProofStatesBatchByHashIdNodesAsync(insertedProofStateHashIdNodes)
+      queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(insertedProofStateHashIdNodes)
       expect(queriedState).to.be.a('array')
       expect(queriedState.length).to.be.greaterThan(0)
       for (let x = 0; x < queriedState.length; x++) {
