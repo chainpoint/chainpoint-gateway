@@ -10,27 +10,29 @@ secrets:
 services:
   chainpoint-node:
     restart: on-failure
+    entrypoint: /home/node/app/scripts/run_prod.sh
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ~/.chainpoint/node/data/rocksdb:/root/.chainpoint/node/data/rocksdb
       - ./.env:/home/node/app/.env
       - ~/.chainpoint/node/.lnd:/root/.lnd:ro
     image: gcr.io/chainpoint-registry/github_chainpoint_chainpoint-node-src:${DOCKER_TAG:-latest}
+    user: ${USERID}:${GROUPID}
     build: .
     depends_on:
       - lnd
     container_name: chainpoint-node
     ports:
-      - "80:80"
+      - "80:8080"
     networks:
       - chainpoint-node
     secrets:
       - HOT_WALLET_PASS
     environment:
+      HOME: /root
       HOT_WALLET_PASS: DOCKER-SECRET->HOT_WALLET_PASS
       LND_SOCKET: ${LND_SOCKET}
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
-      CHAINPOINT_NODE_HTTP_PORT: "${CHAINPOINT_NODE_HTTP_PORT}"
       AGGREGATION_INTERVAL_SECONDS: "${AGGREGATION_INTERVAL_SECONDS}"
       PROOF_EXPIRE_MINUTES: "${PROOF_EXPIRE_MINUTES}"
       POST_HASHES_MAX: "${POST_HASHES_MAX}"
@@ -50,26 +52,31 @@ services:
     image: tierion/lnd:boltbox
     user: ${USERID}:${GROUPID}
     entrypoint: "./start-lnd.sh"
-    container_name: lnd-node
     ports:
-      - target: 8080
-        published: 8080
-        protocol: tcp
-        mode: host
-      - target: 9735
-        published: 9735
-        protocol: tcp
-        mode: host
-      - target: 10009
-        published: 10009
-        protocol: tcp
-        mode: host
-    restart: always
+    - target: 8080
+      published: 8080
+      protocol: tcp
+      mode: host
+    - target: 9735
+      published: 9735
+      protocol: tcp
+      mode: host
+    - target: 10009
+      published: 10009
+      protocol: tcp
+      mode: host
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 15
+        window: 90s
+      endpoint_mode: dnsrr
     environment:
-      - PUBLICIP=${NODE_RAW_IP}
+      - PUBLICIP=${LND_PUBLIC_IP}
       - RPCUSER
       - RPCPASS
-      - NETWORK
+      - NETWORK=${NETWORK:-testnet}
       - CHAIN
       - DEBUG=info
       - BACKEND=neutrino

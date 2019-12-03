@@ -14,14 +14,14 @@ services:
     build: .
     container_name: chainpoint-node
     ports:
-      - "80:80"
+      - "80:8080"
     networks:
       - chainpoint-node
     environment:
+      HOME: /root
       HOT_WALLET_PASS: ${HOT_WALLET_PASS}
       LND_SOCKET: ${LND_SOCKET}
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
-      CHAINPOINT_NODE_HTTP_PORT: "${CHAINPOINT_NODE_HTTP_PORT}"
       AGGREGATION_INTERVAL_SECONDS: "${AGGREGATION_INTERVAL_SECONDS}"
       PROOF_EXPIRE_MINUTES: "${PROOF_EXPIRE_MINUTES}"
       POST_HASHES_MAX: "${POST_HASHES_MAX}"
@@ -52,10 +52,10 @@ services:
         mode: host
     restart: always
     environment:
-      - PUBLICIP=${NODE_RAW_IP}
+      - PUBLICIP=${LND_PUBLIC_IP}
       - RPCUSER
       - RPCPASS
-      - NETWORK
+      - NETWORK=${NETWORK:-testnet}
       - CHAIN
       - DEBUG=info
       - BACKEND=neutrino
