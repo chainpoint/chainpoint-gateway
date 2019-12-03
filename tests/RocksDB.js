@@ -175,7 +175,7 @@ function generateSampleProofStateData(batchSize) {
     let newHashIdNode = uuidv1()
     let submitId = uuidv1()
     results.state.push({
-      hashIdNode: newHashIdNode,
+      proofId: newHashIdNode,
       hash: crypto.randomBytes(32).toString('hex'),
       proofState: [Buffer.from(Math.round(Math.random()) ? '00' : '01', 'hex'), crypto.randomBytes(32)],
       submission: {
@@ -216,7 +216,7 @@ function generateSampleHashObjects(batchSize) {
 
   for (let x = 0; x < batchSize; x++) {
     results.push({
-      hash_id_node: uuidv1(),
+      proof_id: uuidv1(),
       hash: crypto.randomBytes(32).toString('hex')
     })
   }

@@ -202,7 +202,7 @@ describe('Hashes Controller', () => {
           expect(res.body.hashes).to.have.length(1)
           expect(Object.keys(res.body.hashes[0]).length).to.equal(2)
           expect(res.body.hashes[0])
-            .to.have.property('hash_id_node')
+            .to.have.property('proof_id')
             .and.to.be.a('string')
           expect(res.body.hashes[0])
             .to.have.property('hash')

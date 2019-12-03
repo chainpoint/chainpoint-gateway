@@ -28,7 +28,7 @@ describe('Aggregator Methods', () => {
       aggregator.setRocksDB({
         getIncomingHashesUpToAsync: async () => {
           let delOps = IncomingHashes.map(item => {
-            return { type: 'del', key: item.hash_id_node }
+            return { type: 'del', key: item.proof_id }
           })
           return [IncomingHashes, delOps]
         }
@@ -55,13 +55,13 @@ describe('Aggregator Methods', () => {
       aggregator.setRocksDB({
         getIncomingHashesUpToAsync: async () => {
           let delOps = IncomingHashes.map(item => {
-            return { type: 'del', key: item.hash_id_node }
+            return { type: 'del', key: item.proof_id }
           })
           return [IncomingHashes, delOps]
         },
         deleteBatchAsync: async delOps => {
           let delHashIds = delOps.map(item => item.key)
-          IncomingHashes = IncomingHashes.filter(item => !delHashIds.includes(item.hash_id_node))
+          IncomingHashes = IncomingHashes.filter(item => !delHashIds.includes(item.proof_id))
         },
         saveProofStatesBatchAsync: async items => {
           ProofStateData = items
@@ -88,7 +88,7 @@ describe('Aggregator Methods', () => {
       expect(ProofStateData.length).to.equal(hashCount)
       for (let x = 0; x < hashCount; x++) {
         expect(ProofStateData[x])
-          .to.have.property('hashIdNode')
+          .to.have.property('proofId')
           .and.and.be.a('string')
         expect(ProofStateData[x])
           .to.have.property('hash')
@@ -97,7 +97,7 @@ describe('Aggregator Methods', () => {
           .to.have.property('proofState')
           .and.and.be.a('array')
         // add the additional nodeId operation to get final leaf values
-        let hashIdBuffer = Buffer.from(`node_id:${ProofStateData[x].hashIdNode}`, 'utf8')
+        let hashIdBuffer = Buffer.from(`node_id:${ProofStateData[x].proofId}`, 'utf8')
         let hashBuffer = Buffer.from(ProofStateData[x].hash, 'hex')
         ProofStateData[x].hash = crypto
           .createHash('sha256')
@@ -155,7 +155,7 @@ function generateIncomingHashData(batchSize) {
   for (let x = 0; x < batchSize; x++) {
     let newHashIdNode = uuidv1()
     hashes.push({
-      hash_id_node: newHashIdNode,
+      proof_id: newHashIdNode,
       hash: crypto.randomBytes(32).toString('hex')
     })
   }

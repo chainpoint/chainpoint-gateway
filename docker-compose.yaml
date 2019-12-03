@@ -14,14 +14,14 @@ services:
     build: .
     container_name: chainpoint-node
     ports:
-      - "80:80"
+      - "80:8080"
     networks:
       - chainpoint-node
     environment:
+      HOME: /root
       HOT_WALLET_PASS: ${HOT_WALLET_PASS}
       LND_SOCKET: ${LND_SOCKET}
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
-      CHAINPOINT_NODE_HTTP_PORT: "${CHAINPOINT_NODE_HTTP_PORT}"
       AGGREGATION_INTERVAL_SECONDS: "${AGGREGATION_INTERVAL_SECONDS}"
       PROOF_EXPIRE_MINUTES: "${PROOF_EXPIRE_MINUTES}"
       POST_HASHES_MAX: "${POST_HASHES_MAX}"
@@ -33,8 +33,9 @@ services:
 
   # Lightning node
   lnd:
-    image: tierion/lnd:latest
+    image: tierion/lnd:boltbox
     user: ${USERID}:${GROUPID}
+    entrypoint: "./start-lnd.sh"
     container_name: lnd-node
     ports:
       - target: 8080
@@ -51,17 +52,19 @@ services:
         mode: host
     restart: always
     environment:
-      - PUBLICIP=${NODE_RAW_IP}
+      - PUBLICIP=${LND_PUBLIC_IP}
       - RPCUSER
       - RPCPASS
-      - NETWORK
+      - NETWORK=${NETWORK:-testnet}
       - CHAIN
       - DEBUG=info
-      - NEUTRINO
+      - BACKEND=neutrino
+      - NEUTRINO=faucet.lightning.community:18333
       - LND_REST_PORT
       - LND_RPC_PORT
       - TLSPATH
+      - TLSEXTRADOMAIN=lnd
     volumes:
-      - ~/.chainpoint/node/.lnd:/root/.lnd:z
+      - ~/.chainpoint/node/.lnd:/lnd-data:z
     networks:
       - chainpoint-node

@@ -34,7 +34,7 @@ logs:
 ## up              : Start Node
 .PHONY : up
 up: build-config build build-rocksdb
-	docker-compose up -d --no-build
+	docker-compose up -d
 
 ## down            : Shutdown Node
 .PHONY : down
@@ -73,7 +73,8 @@ build-config:
 ## build-rocksdb   : Ensure the RocksDB data dir exists
 .PHONY : build-rocksdb
 build-rocksdb:
-	mkdir -p ${NODE_DATADIR}/data/rocksdb && chmod 777 ${NODE_DATADIR}/data/rocksdb
+	@echo Setting up directories...
+	@mkdir -p ${NODE_DATADIR}/data/rocksdb && chmod 777 ${NODE_DATADIR}/data/rocksdb
 
 ## pull            : Pull Docker images
 .PHONY : pull
@@ -90,24 +91,36 @@ git-pull:
 .PHONY : upgrade
 upgrade: down git-pull up
 
-## init						: Bring up yarn, swarm, and generate secrets
-init: init-yarn init-swarm
+## init	         : Bring up yarn, swarm, and generate secrets
+init: build-rocksdb init-yarn init-swarm
+	cp .env.sample .env
 
-## init-yarn				: Initialize dependencies
+## init-yarn       : Initialize dependencies
 init-yarn:
-	@yarn
+	@echo Installing packages...
+	@yarn >/dev/null
 
-## init-swarm               : Initialize a docker swarm
+## init-swarm      : Initialize a docker swarm
 .PHONY : init-swarm
 init-swarm:
-	@docker swarm init || echo "Swarm already initialized"
-	@cli/run_init.sh
+	@node ./init/index.js
 
-## deploy					: deploys a swarm stack
+## init-swarm-restart     : Initialize a docker swarm, abondon current configuration
+.PHONY : init-swarm-restart
+init-swarm-restart:
+	@docker-compose down &> /dev/null
+	@rm -rf ~/.chainpoint/node/.lnd
+	@rm -rf ./init/init.json
+	@node ./init/index.js
+
+## init-restart         : Bring up yarn, swarm, and generate secrets, abondon current configuration
+init-restart: build-rocksdb init-yarn init-swarm-restart
+
+## deploy          : deploys a swarm stack
 deploy:
 	set -a && source .env && set +a && export USERID=${UID} && export GROUPID=${GID} && docker stack deploy -c swarm-compose.yaml chainpoint-node
 
-## optimize-network          : increases number of sockets host can use
+## optimize-network: increases number of sockets host can use
 optimize-network:
 	@sudo sysctl net.core.somaxconn=1024
 	@sudo sysctl net.ipv4.tcp_fin_timeout=30
@@ -115,6 +128,7 @@ optimize-network:
 	@sudo sysctl net.core.netdev_max_backlog=2000
 	@sudo sysctl net.ipv4.tcp_max_syn_backlog=2048
 
-## stop						: removes a swarm stack
+## stop	         : removes a swarm stack
 stop:
 	docker stack rm chainpoint-node
+	rm -rf ${HOMEDIR}/.chainpoint/core/.lnd/tls.*
