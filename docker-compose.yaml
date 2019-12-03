@@ -35,6 +35,7 @@ services:
   lnd:
     image: tierion/lnd:boltbox
     user: ${USERID}:${GROUPID}
+    entrypoint: "./start-lnd.sh"
     container_name: lnd-node
     ports:
       - target: 8080
