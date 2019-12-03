@@ -40,10 +40,10 @@ services:
       NODE_ENV: ${NODE_ENV}
     tty: true
     logging:
-      driver: syslog
+      driver: 'json-file'
       options:
-        syslog-address: "udp://logs.papertrailapp.com:27635"
-        tag: "chp-node/{{.Name}}/{{.ID}}"
+        max-size: '1g'
+        max-file: '5'
 
   # Lightning node
   lnd:
@@ -82,3 +82,8 @@ services:
       - ~/.chainpoint/node/.lnd:/lnd-data:z
     networks:
       - chainpoint-node
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '1g'
+        max-file: '5'

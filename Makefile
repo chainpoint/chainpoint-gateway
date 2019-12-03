@@ -91,7 +91,7 @@ git-pull:
 upgrade: down git-pull up
 
 ## init						: Bring up yarn, swarm, and generate secrets
-init: init-yarn init-swarm
+init: build-rocksdb init-yarn init-swarm
 
 ## init-yarn				: Initialize dependencies
 init-yarn:

@@ -78,6 +78,12 @@ async function createSwarmAndSecrets(lndOpts) {
       console.log(chalk.red(`Could not exec docker secret creation: ${err}`))
     }
 
+    try {
+      await exec([`docker-compose down`])
+    } catch (err) {
+      console.log(chalk.red(`Could not bring down LND: ${err}`))
+    }
+
     return updateOrCreateEnv([], {
       NETWORK: lndOpts.NETWORK,
       NODE_PUBLIC_IP_ADDRESS: `http://${lndOpts.NODE_PUBLIC_IP_ADDRESS}`,
