@@ -93,7 +93,6 @@ upgrade: down git-pull up
 
 ## init	         : Bring up yarn, swarm, and generate secrets
 init: build-rocksdb init-yarn init-swarm
-	cp .env.sample .env
 
 ## init-yarn       : Initialize dependencies
 init-yarn:

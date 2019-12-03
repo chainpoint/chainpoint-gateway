@@ -104,7 +104,7 @@ async function startLndNodeAsync(initAnswers) {
     throw new Error(`Could not start Lightning node : ${error.message}`)
   }
 
-  await utils.sleepAsync(10000)
+  await utils.sleepAsync(20000)
 }
 
 async function initializeLndNodeAsync(initAnswers) {
