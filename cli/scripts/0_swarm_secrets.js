@@ -35,7 +35,9 @@ async function createSwarmAndSecrets(lndOpts) {
       let uid = (await exec.quiet('id -u $USER')).stdout.trim()
       let gid = (await exec.quiet('id -g $USER')).stdout.trim()
       await exec([
-        `export LND_SOCKET=${LND_SOCKET} && mkdir -p ${home}/.chainpoint/node/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
+        `export LND_SOCKET=${LND_SOCKET} && export NETWORK=${
+          lndOpts.NETWORK
+        } && mkdir -p ${home}/.chainpoint/node/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
       ])
       await utils.sleepAsync(10000)
     } catch (err) {
