@@ -95,6 +95,11 @@ init: init-yarn init-swarm
 
 ## init-yarn				: Initialize dependencies
 init-yarn:
+	curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+	sudo apt -y install nodejs
+	sudo chown -R $$USER:$$GROUP ~/.npm
+	sudo chown -R $$USER:$$GROUP ~/.config
+	sudo npm install -g yarn
 	@yarn
 
 ## init-swarm               : Initialize a docker swarm

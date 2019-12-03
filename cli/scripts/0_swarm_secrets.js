@@ -37,7 +37,7 @@ async function createSwarmAndSecrets(lndOpts) {
       await exec([
         `export LND_SOCKET=${LND_SOCKET} && mkdir -p ${home}/.chainpoint/node/.lnd && export USERID=${uid} && export GROUPID=${gid} && docker-compose run -d --service-ports lnd`
       ])
-      await utils.sleepAsync(5000)
+      await utils.sleepAsync(10000)
     } catch (err) {
       console.log(chalk.red(`Could not bring up LND: ${err}`))
     }
