@@ -123,3 +123,4 @@ optimize-network:
 ## stop						: removes a swarm stack
 stop:
 	docker stack rm chainpoint-node
+	rm -rf ${HOMEDIR}/.chainpoint/node/.lnd/tls.*
