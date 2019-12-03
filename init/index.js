@@ -90,11 +90,13 @@ async function startLndNodeAsync(initAnswers) {
     console.log(chalk.yellow(`Starting Lightning node...`))
     await exec(
       [
-        `docker-compose pull lnd && 
+        `docker-compose pull lnd &&
       mkdir -p ${home}/.chainpoint/node/.lnd && 
       export USERID=${uid} && 
       export GROUPID=${gid} && 
-      docker-compose run -e NETWORK=${initAnswers.NETWORK} -d --service-ports lnd`
+      export NETWORK=${initAnswers.NETWORK} &&
+      export PUBLICIP=${initAnswers.LND_PUBLIC_IP} &&
+      docker-compose run -d --service-ports lnd`
       ],
       { quiet: QUIET_OUTPUT }
     )
