@@ -91,28 +91,14 @@ git-pull:
 .PHONY : upgrade
 upgrade: down git-pull up
 
-<<<<<<< HEAD
-## init						: Bring up yarn, swarm, and generate secrets
-init: build-rocksdb init-yarn init-swarm
-=======
 ## init	         : Bring up yarn, swarm, and generate secrets
 init: build-rocksdb init-yarn init-swarm
 	cp .env.sample .env
->>>>>>> v2
 
 ## init-yarn       : Initialize dependencies
 init-yarn:
-<<<<<<< HEAD
-	curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-	sudo apt -y install nodejs
-	sudo chown -R $$USER:$$GROUP ~/.npm
-	sudo chown -R $$USER:$$GROUP ~/.config
-	sudo npm install -g yarn
-	@yarn
-=======
 	@echo Installing packages...
 	@yarn >/dev/null
->>>>>>> v2
 
 ## init-swarm      : Initialize a docker swarm
 .PHONY : init-swarm
@@ -145,8 +131,4 @@ optimize-network:
 ## stop	         : removes a swarm stack
 stop:
 	docker stack rm chainpoint-node
-<<<<<<< HEAD
 	rm -rf ${HOMEDIR}/.chainpoint/node/.lnd/tls.*
-=======
-	rm -rf ${HOMEDIR}/.chainpoint/core/.lnd/tls.*
->>>>>>> v2
