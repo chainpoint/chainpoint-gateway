@@ -25,7 +25,7 @@ describe('Proofs Controller', () => {
                 proofState: [],
                 submission: {
                   submitId: 'e4c59c50-37cd-11e9-b270-d778f1c6df42',
-                  cores: [{ ip: '65.1.1.1', hashIdCore: '000139a0-2e5c-11e9-bec9-01115ea738e6' }]
+                  cores: [{ ip: '65.1.1.1', proofId: '000139a0-2e5c-11e9-bec9-01115ea738e6' }]
                 }
               }
             ]

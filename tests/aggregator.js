@@ -131,7 +131,7 @@ describe('Aggregator Methods', () => {
           .and.and.be.a('string')
           .and.to.equal(ip1)
         expect(ProofStateData[x].submission.cores[0])
-          .to.have.property('hashIdCore')
+          .to.have.property('proofId')
           .and.and.be.a('string')
           .and.to.equal(newHashIdCore1)
         expect(ProofStateData[x].submission.cores[1]).to.be.a('object')
@@ -140,7 +140,7 @@ describe('Aggregator Methods', () => {
           .and.and.be.a('string')
           .and.to.equal(ip2)
         expect(ProofStateData[x].submission.cores[1])
-          .to.have.property('hashIdCore')
+          .to.have.property('proofId')
           .and.and.be.a('string')
           .and.to.equal(newHashIdCore2)
       }

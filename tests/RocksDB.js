@@ -181,9 +181,9 @@ function generateSampleProofStateData(batchSize) {
       submission: {
         submitId: submitId,
         cores: [
-          { ip: '65.1.12.122', hashIdCore: uuidv1() },
-          { ip: '65.1.12.123', hashIdCore: uuidv1() },
-          { ip: '65.1.12.124', hashIdCore: uuidv1() }
+          { ip: '65.1.12.122', proofId: uuidv1() },
+          { ip: '65.1.12.123', proofId: uuidv1() },
+          { ip: '65.1.12.124', proofId: uuidv1() }
         ]
       }
     })

@@ -145,11 +145,11 @@ describe('Cached Proofs Methods', () => {
     let ip = '65.1.1.1'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip, hashIdCore: hashId1 }]
+      cores: [{ ip: ip, proofId: hashId1 }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip, hashIdCore: hashId2 }]
+      cores: [{ ip: ip, proofId: hashId2 }]
     }
     before(() => {
       cachedProofs.setCoreProofCache({})
@@ -209,11 +209,11 @@ describe('Cached Proofs Methods', () => {
     let ip = '65.1.1.1'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip, hashIdCore: hashId1 }]
+      cores: [{ ip: ip, proofId: hashId1 }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip, hashIdCore: hashId2 }]
+      cores: [{ ip: ip, proofId: hashId2 }]
     }
     let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
@@ -280,11 +280,11 @@ describe('Cached Proofs Methods', () => {
     let ip = '65.1.1.1'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip, hashIdCore: hashId1 }]
+      cores: [{ ip: ip, proofId: hashId1 }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip, hashIdCore: hashId2 }]
+      cores: [{ ip: ip, proofId: hashId2 }]
     }
     let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tcal-proof.chp.json'))
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tbtc-proof.chp.json'))
@@ -350,11 +350,11 @@ describe('Cached Proofs Methods', () => {
     let ip = '65.1.1.1'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip, hashIdCore: hashId1 }]
+      cores: [{ ip: ip, proofId: hashId1 }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip, hashIdCore: hashId2 }]
+      cores: [{ ip: ip, proofId: hashId2 }]
     }
     let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
@@ -434,15 +434,15 @@ describe('Cached Proofs Methods', () => {
     let ip = '65.1.1.1'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip, hashIdCore: hashId1 }]
+      cores: [{ ip: ip, proofId: hashId1 }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip, hashIdCore: hashId2 }]
+      cores: [{ ip: ip, proofId: hashId2 }]
     }
     let submission3 = {
       submitId: submitId3,
-      cores: [{ ip: ip, hashIdCore: hashId3 }]
+      cores: [{ ip: ip, proofId: hashId3 }]
     }
     let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
@@ -536,11 +536,11 @@ describe('Cached Proofs Methods', () => {
     let ip = '65.1.1.1'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip, hashIdCore: hashId1 }]
+      cores: [{ ip: ip, proofId: hashId1 }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip, hashIdCore: hashId2 }]
+      cores: [{ ip: ip, proofId: hashId2 }]
     }
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
     let cacheContents = {
@@ -610,11 +610,11 @@ describe('Cached Proofs Methods', () => {
     let ip = '65.1.1.1'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip, hashIdCore: hashId1 }]
+      cores: [{ ip: ip, proofId: hashId1 }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip, hashIdCore: hashId2 }]
+      cores: [{ ip: ip, proofId: hashId2 }]
     }
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
     before(() => {
@@ -687,11 +687,11 @@ describe('Cached Proofs Methods', () => {
     let ip2 = '65.2.2.2'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip1, hashIdCore: hashId1a }, { ip: ip2, hashIdCore: hashId1b }]
+      cores: [{ ip: ip1, proofId: hashId1a }, { ip: ip2, proofId: hashId1b }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip1, hashIdCore: hashId2a }, { ip: ip2, hashIdCore: hashId2b }]
+      cores: [{ ip: ip1, proofId: hashId2a }, { ip: ip2, proofId: hashId2b }]
     }
     let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
@@ -773,11 +773,11 @@ describe('Cached Proofs Methods', () => {
     let ip2 = '65.2.2.2'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip1, hashIdCore: hashId1a }]
+      cores: [{ ip: ip1, proofId: hashId1a }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [{ ip: ip1, hashIdCore: hashId2a }, { ip: ip2, hashIdCore: hashId2b }]
+      cores: [{ ip: ip1, proofId: hashId2a }, { ip: ip2, proofId: hashId2b }]
     }
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
     before(() => {
@@ -849,15 +849,11 @@ describe('Cached Proofs Methods', () => {
     let ip2c = '65.5.5.5'
     let submission1 = {
       submitId: submitId1,
-      cores: [{ ip: ip1a, hashIdCore: hashId1a }, { ip: ip1b, hashIdCore: hashId1b }]
+      cores: [{ ip: ip1a, proofId: hashId1a }, { ip: ip1b, proofId: hashId1b }]
     }
     let submission2 = {
       submitId: submitId2,
-      cores: [
-        { ip: ip2a, hashIdCore: hashId2a },
-        { ip: ip2b, hashIdCore: hashId2b },
-        { ip: ip2c, hashIdCore: hashId2c }
-      ]
+      cores: [{ ip: ip2a, proofId: hashId2a }, { ip: ip2b, proofId: hashId2b }, { ip: ip2c, proofId: hashId2c }]
     }
     let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
     let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
