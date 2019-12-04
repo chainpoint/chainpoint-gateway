@@ -15,12 +15,12 @@ describe('Proofs Controller', () => {
   beforeEach(async () => {
     insecureServer = await app.startInsecureRestifyServerAsync()
     proofs.setRocksDB({
-      getProofStatesBatchByProofIdsAsync: async hashIds => {
-        switch (hashIds[0]) {
+      getProofStatesBatchByProofIdsAsync: async proofIds => {
+        switch (proofIds[0]) {
           case 'bbb27662-2e21-11e9-b210-d663bd873d93':
             return [
               {
-                proofId: hashIds[0],
+                proofId: proofIds[0],
                 hash: '18af1184ae64160f8a4019f43ddc825db95f11a0e468f8da6cb9f8bbe1dbd784',
                 proofState: [],
                 submission: {
@@ -32,7 +32,7 @@ describe('Proofs Controller', () => {
           default:
             return [
               {
-                proofId: hashIds[0],
+                proofId: proofIds[0],
                 hash: null,
                 proofState: null,
                 submission: null
@@ -69,7 +69,7 @@ describe('Proofs Controller', () => {
   describe('GET /proofs', () => {
     it('should return the proper error with bad hash_id in uri', done => {
       request(insecureServer)
-        .get('/proofs/badhashid')
+        .get('/proofs/badproofid')
         .expect('Content-type', /json/)
         .expect(409)
         .end((err, res) => {
@@ -108,7 +108,7 @@ describe('Proofs Controller', () => {
     it('should return the proper error with too many hash_ids', done => {
       request(insecureServer)
         .get('/proofs')
-        .set('hashids', 'a3127662-2e21-11e9-b210-d663bd873d93,a3127662-2e21-11e9-b210-d663bd873d99')
+        .set('proofids', 'a3127662-2e21-11e9-b210-d663bd873d93,a3127662-2e21-11e9-b210-d663bd873d99')
         .expect('Content-type', /json/)
         .expect(409)
         .end((err, res) => {
@@ -128,7 +128,7 @@ describe('Proofs Controller', () => {
     it('should return the proper error with invalid hash_id in header', done => {
       request(insecureServer)
         .get('/proofs')
-        .set('hashids', 'invalid')
+        .set('proofids', 'invalid')
         .expect('Content-type', /json/)
         .expect(409)
         .end((err, res) => {
@@ -146,10 +146,10 @@ describe('Proofs Controller', () => {
     })
 
     it('should return the proper empty result with unknown hash_id', done => {
-      let hashId = 'a3127662-2e21-11e9-b210-d663bd873d93'
+      let proofId = 'a3127662-2e21-11e9-b210-d663bd873d93'
       request(insecureServer)
         .get('/proofs')
-        .set('hashids', hashId)
+        .set('proofids', proofId)
         .expect('Content-type', /json/)
         .expect(200)
         .end((err, res) => {
@@ -159,7 +159,7 @@ describe('Proofs Controller', () => {
           expect(res.body[0])
             .to.have.property('proof_id')
             .and.to.be.a('string')
-            .and.to.equal(hashId)
+            .and.to.equal(proofId)
           expect(res.body[0])
             .to.have.property('proof')
             .and.to.equal(null)
@@ -172,10 +172,10 @@ describe('Proofs Controller', () => {
     })
 
     it('should return successfully with a base64 proof with no Accept setting', done => {
-      let hashId = 'bbb27662-2e21-11e9-b210-d663bd873d93'
+      let proofId = 'bbb27662-2e21-11e9-b210-d663bd873d93'
       request(insecureServer)
         .get('/proofs')
-        .set('hashids', hashId)
+        .set('proofids', proofId)
         .expect('Content-type', /json/)
         .expect(200)
         .end((err, res) => {
@@ -185,7 +185,7 @@ describe('Proofs Controller', () => {
           expect(res.body[0])
             .to.have.property('proof_id')
             .and.to.be.a('string')
-            .and.to.equal(hashId)
+            .and.to.equal(proofId)
           expect(res.body[0])
             .to.have.property('proof')
             .and.to.be.a('string')
@@ -204,10 +204,10 @@ describe('Proofs Controller', () => {
     })
 
     it('should return successfully with a base64 proof with Accept Base64 setting', done => {
-      let hashId = 'bbb27662-2e21-11e9-b210-d663bd873d93'
+      let proofId = 'bbb27662-2e21-11e9-b210-d663bd873d93'
       request(insecureServer)
         .get('/proofs')
-        .set('hashids', hashId)
+        .set('proofids', proofId)
         .set('Accept', 'application/vnd.chainpoint.json+base64')
         .expect('Content-type', /json/)
         .expect(200)
@@ -218,7 +218,7 @@ describe('Proofs Controller', () => {
           expect(res.body[0])
             .to.have.property('proof_id')
             .and.to.be.a('string')
-            .and.to.equal(hashId)
+            .and.to.equal(proofId)
           expect(res.body[0])
             .to.have.property('proof')
             .and.to.be.a('string')
@@ -237,10 +237,10 @@ describe('Proofs Controller', () => {
     })
 
     it('should return successfully with a JSON proof with Accept JSON setting', done => {
-      let hashId = 'bbb27662-2e21-11e9-b210-d663bd873d93'
+      let proofId = 'bbb27662-2e21-11e9-b210-d663bd873d93'
       request(insecureServer)
         .get('/proofs')
-        .set('hashids', hashId)
+        .set('proofids', proofId)
         .set('Accept', 'application/vnd.chainpoint.ld+json')
         .expect('Content-type', /json/)
         .expect(200)
@@ -251,7 +251,7 @@ describe('Proofs Controller', () => {
           expect(res.body[0])
             .to.have.property('proof_id')
             .and.to.be.a('string')
-            .and.to.equal(hashId)
+            .and.to.equal(proofId)
           expect(res.body[0]).to.have.property('proof')
           expect(res.body[0].proof)
             .to.have.property('hash')
@@ -260,7 +260,7 @@ describe('Proofs Controller', () => {
           expect(res.body[0].proof)
             .to.have.property('proof_id')
             .and.to.be.a('string')
-            .and.to.equal(hashId)
+            .and.to.equal(proofId)
           expect(res.body[0].proof)
             .to.have.property('hash_id_core')
             .and.to.be.a('string')

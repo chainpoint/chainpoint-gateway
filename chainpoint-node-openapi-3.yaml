@@ -77,10 +77,10 @@ paths:
       - 'Proofs'
   '/proofs':
     get:
-      summary: 'Retrieves one or more proofs by hashids supplied in header'
+      summary: 'Retrieves one or more proofs by proofids supplied in header'
       operationId: 'getProofs'
       parameters:
-        - name: 'hashids'
+        - name: 'proofids'
           in: 'header'
           required: true
           description: 'Comma separated proof_id list of the proofs to retrieve'

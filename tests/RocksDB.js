@@ -30,8 +30,8 @@ describe('RocksDB Methods', () => {
     it('should return the same data that was inserted', async () => {
       let sampleData = generateSampleProofStateData(100)
       await rocksDB.saveProofStatesBatchAsync(sampleData.state)
-      let queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(sampleData.hashIdNodes)
-      insertedProofStateHashIdNodes = sampleData.hashIdNodes
+      let queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(sampleData.proofIdNodes)
+      insertedProofStateHashIdNodes = sampleData.proofIdNodes
       queriedState = convertStateBackToBinaryForm(queriedState)
       expect(queriedState).to.deep.equal(sampleData.state)
     })
@@ -169,7 +169,7 @@ describe('RocksDB Methods', () => {
 function generateSampleProofStateData(batchSize) {
   let results = {}
   results.state = []
-  results.hashIdNodes = []
+  results.proofIdNodes = []
 
   for (let x = 0; x < batchSize; x++) {
     let newHashIdNode = uuidv1()
@@ -187,7 +187,7 @@ function generateSampleProofStateData(batchSize) {
         ]
       }
     })
-    results.hashIdNodes.push(newHashIdNode)
+    results.proofIdNodes.push(newHashIdNode)
   }
 
   return results
