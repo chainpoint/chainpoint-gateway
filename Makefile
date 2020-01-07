@@ -91,6 +91,11 @@ git-pull:
 .PHONY : upgrade
 upgrade: down git-pull up
 
+## install-deps	         : Install system dependencies
+install-deps:
+	scripts/install_deps.sh
+	echo Please login and logout to enable docker
+
 ## init	         : Bring up yarn, swarm, and generate secrets
 init: build-rocksdb init-yarn init-swarm
 
@@ -104,7 +109,7 @@ init-yarn:
 init-swarm:
 	@node ./init/index.js
 
-## init-swarm-restart     : Initialize a docker swarm, abondon current configuration
+## init-swarm-restart     : Initialize a docker swarm, abandon current configuration
 .PHONY : init-swarm-restart
 init-swarm-restart:
 	@docker-compose down &> /dev/null
