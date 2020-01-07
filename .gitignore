@@ -1,9 +1,11 @@
 .env
 .DS_Store
 .data/
+.vscode
+.nyc_output
 node_modules/
-ui/node_modules/
-keys/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+test.js
+init/init.json

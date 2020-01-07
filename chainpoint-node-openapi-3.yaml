@@ -1,0 +1,372 @@
+openapi: 3.0.0
+info:
+  title: 'Chainpoint Node'
+  description: 'Documentation for the Chainpoint Node API'
+  version: '2.0.0'
+  license:
+    name: 'Apache 2.0'
+    url: 'https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)'
+servers:
+  - url: 'http://35.231.41.69'
+    description: 'Development server (produces testnet proofs)'
+paths:
+  '/hashes':
+    post:
+      summary: 'Submit one or more hashes for anchoring'
+      operationId: 'submitHashes'
+      requestBody:
+        description: 'An array of hex string hashes to be anchored'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostHashesRequest'
+      responses:
+        '200':
+          description: 'An array of hash object and supporting meta information for that array'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/PostHashesResponse'
+        '409':
+          description: 'There was an invalid argument in the request'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+        - 'Hashes'
+  '/proofs/{proof_id}':
+    get:
+      summary: 'Retrieves a proof by proof_id'
+      operationId: 'getProof'
+      parameters:
+        - name: 'proof_id'
+          in: 'path'
+          required: true
+          description: 'The proof_id of the proof to retrieve'
+          schema:
+            type: 'string'
+            format: 'uuid'
+      responses:
+        '200':
+          description: 'The requested proof object'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/GetProofsBase64Response'
+            'application/vnd.chainpoint.ld+json':
+              schema:
+                $ref: '#/components/schemas/GetProofsJSONResponse'
+            'application/vnd.chainpoint.json+base64':
+              schema:
+                $ref: '#/components/schemas/GetProofsBase64Response'
+        '409':
+          description: 'There was an invalid argument in the request'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            'application/vnd.chainpoint.ld+json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            'application/vnd.chainpoint.json+base64':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+      - 'Proofs'
+  '/proofs':
+    get:
+      summary: 'Retrieves one or more proofs by proofids supplied in header'
+      operationId: 'getProofs'
+      parameters:
+        - name: 'proofids'
+          in: 'header'
+          required: true
+          description: 'Comma separated proof_id list of the proofs to retrieve'
+          schema:
+            type: 'string'
+      responses:
+        '200':
+          description: 'An array of the requested proof objects'
+          content:
+            'application/json':
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/GetProofsBase64Response'
+            'application/vnd.chainpoint.ld+json':
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/GetProofsJSONResponse'
+            'application/vnd.chainpoint.json+base64':
+              schema:
+                type: 'array'
+                items:
+                  $ref: '#/components/schemas/GetProofsBase64Response'
+        '409':
+          description: 'There was an invalid argument in the request'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            'application/vnd.chainpoint.ld+json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+            'application/vnd.chainpoint.json+base64':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+      - 'Proofs'
+  '/verify':
+    post:
+      summary: 'Submit one or more proofs for verification'
+      operationId: 'verifyProofs'
+      requestBody:
+        description: 'Array of one or more proofs to be verified'
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostVerifyRequest'
+      responses:
+        '200':
+          description: 'An array of the verification results'
+          content:
+            'application/json':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PostVerifyResponse'
+        '409':
+          description: 'There was an invalid argument in the request'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+      - 'Verify'
+  '/calendar/{tx_id}/data':
+    get:
+      summary: 'Retrieves the the data embedded in a calendar transaction'
+      operationId: 'getCalendarTxData'
+      parameters:
+        - name: 'tx_id'
+          in: 'path'
+          required: true
+          description: 'The calendar transaction id from which to retrieve the embedded data'
+          schema:
+            type: 'string'
+      responses:
+        '200':
+          description: 'The data value embedded within the calendar transaction'
+          content:
+            'application/json':
+              schema:
+                type: 'string'
+                example: 'f18bf0968b224f73528d99cc83ca9e79d467f34875e85f36e2c1f074ff2dc657'
+        '404':
+          description: 'The requested transaction was not found'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: 'There was an invalid argument in the request'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+      tags:
+      - 'Calendar'
+  '/config':
+    get:
+      summary: 'Retrieves some basic information for the Node'
+      operationId: 'getNodeConfig'
+      responses:
+        '200':
+          description: 'Basic information about the Node and it''s environment'
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/GetConfigResponse'
+      tags:
+      - 'Config'
+components:
+  schemas:
+    PostHashesRequest:
+      type: 'object'
+      properties:
+        hashes:
+          type: 'array'
+          items:
+            type: 'string'
+            example: '1957db7fe23e4be1740ddeb941ddda7ae0a6b782e536a9e00b5aa82db1e84547'
+            pattern: '^([a-fA-F0-9]{2}){20,64}$'
+            minLength: 40
+            maxLength: 128
+    PostHashesResponse:
+      type: 'object'
+      properties:
+        meta:
+         type: 'object'
+         properties:
+          submitted_at:
+            type: 'string'
+            format: 'date-time'
+            example: '2017-05-02T15:16:44Z'
+          processing_hints:
+            type: 'object'
+            properties:
+              cal:
+                type: 'string'
+                format: 'date-time'
+                example: '2017-05-02T15:17:44Z'
+              btc:
+                type: 'string'
+                format: 'date-time'
+                example: '2017-05-02T16:17:44Z'
+        hashes:
+         type: 'array'
+         items:
+          type: 'object'
+          properties:
+            proof_id:
+              type: 'string'
+              example: '5a001650-2f4a-11e7-ad22-37b426116bc4'
+            hash:
+              type: 'string'
+              example: '11cd8a380e8d5fd3ac47c1f880390341d40b11485e8ae946d8fa3d466f23fe89'
+    GetProofsJSONResponse:
+      type: 'object'
+      properties:
+        proof_id:
+          type: 'string'
+          example: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
+        proof:
+          type: 'object'
+          example:
+            '@context': 'https://w3id.org/chainpoint/v3'
+            type: 'Chainpoint'
+            hash: '11cd8a380e8d5fd3ac47c1f880390341d40b11485e8ae946d8fa3d466f23fe89'
+            proof_id: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
+            hash_submitted_node_at: '2019-05-17T18:55:30Z'
+            hash_id_core: '5a22fb80-78d5-11e9-8186-01d1f712eccc'
+            hash_submitted_core_at: '2019-05-17T18:55:34Z'
+            branches:
+              - label: 'cal_anchor_branch'
+                ops:
+                  - l: 'node_id:577c6c90-78d5-11e9-9c57-010a193d9f8c'
+                  - op: 'sha-256'
+                  - l: 'core_id:5a22fb80-78d5-11e9-8186-01d1f712eccc'
+                  - op: 'sha-256'
+                  - l: 'nistv2:1558119240000:eb591780782f746fda5e7ac8011064fda657ae451bd1ae6b71e2f5d7e24e9d49bdc25db6d901ccf8736bbf135c451d1edc9c6065b577d69f3fd9be6a1a8d0763'
+                  - op: 'sha-256'
+                  - l: '1766c5a6c10cf8ae5cce76c6d89cb9bc8696a2acf8e7ed4dbe05a71802cae38a'
+                  - op: 'sha-256'
+                  - anchors:
+                      - type: 'cal'
+                        anchor_id: 'b220c0443b5f8b1394a38a102892590b4c21d8ad1382cd9e4d59b9834f6a769f'
+                        uris:
+                          - 'http://35.245.9.90/calendar/b220c0443b5f8b1394a38a102892590b4c21d8ad1382cd9e4d59b9834f6a769f/data'
+        anchors_complete:
+          type: 'array'
+          items:
+            type: 'string'
+            example: 'cal'
+    GetProofsBase64Response:
+      type: 'object'
+      properties:
+        proof_id:
+          type: 'string'
+          example: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
+        proof:
+          type: 'string'
+          example: 'eJyNk79u1EAQh1+Gksvt7P91dRKvQJXmNDszy1k67JPtBCgDDW0KOpqQoAREg4QoeY97G+y7S4AAUrbzrr5vfyP/9u3NgtpmkJfDj9UwbPpqPn9haj5qu2dzWmHdbNq6Gean5mp4tZHPT+62rlbYr7YLAOKIJiqJ7AobJBsISozKJGUssFUZwEYnESVZz7GgYet90aZITF8mzbLmZdOybB+5EMhTUrMw6mYAkmaJXJgpUAjJcCqRvu+Q/iQ/r4dB9uQSh29aQZqpkQpPIVbOVUYd3+mp7SY9al1y/F0fIfpRz1ACaCH6Sz+R/9bb45vcYUMr6c9ff1xjlvVXwvVy2mq75f7sst30788u1tvHu5w1Vw+Z8exDu7nuVzjTzu/gXYoJfsAE9+F3Td0Pp7oC5yJA0laNq5LsEoSoQtQlWF8YnQSkqACUt+OndwHFOsgMKD4HEF0cB9FWEtuUmbTj7DkpICoxGJ9zAeNoZBiEKZFX3uVxXvapmMIpi0fAyCp4cz/lAoL35NATqFGH4ogkeBorkyinTNEnjxrHMwnClrMohwGi0oRiIt4XJqO10irezm1MqKC6bXk++lXvqe3V+OeqA3F20W0XQRBJMhoxbABRUzBG5zFkZBNztihZNEDBWGL23hvtQhFO1hSXAvwR53rfif78ze4dXY6XfTrUpObrw7VXJ13dn2+P/hdxPlLSMHbzAzCfqvoTAAQ82A=='
+        anchors_complete:
+          type: 'array'
+          items:
+            type: 'string'
+            example: 'cal'
+    PostVerifyRequest:
+      type: 'object'
+      properties:
+        proofs:
+          type: 'array'
+          items:
+            type: 'string'
+            example: 'eJyNk79u1EAQh1+Gksvt7P91dRKvQJXmNDszy1k67JPtBCgDDW0KOpqQoAREg4QoeY97G+y7S4AAUrbzrr5vfyP/9u3NgtpmkJfDj9UwbPpqPn9haj5qu2dzWmHdbNq6Gean5mp4tZHPT+62rlbYr7YLAOKIJiqJ7AobJBsISozKJGUssFUZwEYnESVZz7GgYet90aZITF8mzbLmZdOybB+5EMhTUrMw6mYAkmaJXJgpUAjJcCqRvu+Q/iQ/r4dB9uQSh29aQZqpkQpPIVbOVUYd3+mp7SY9al1y/F0fIfpRz1ACaCH6Sz+R/9bb45vcYUMr6c9ff1xjlvVXwvVy2mq75f7sst30788u1tvHu5w1Vw+Z8exDu7nuVzjTzu/gXYoJfsAE9+F3Td0Pp7oC5yJA0laNq5LsEoSoQtQlWF8YnQSkqACUt+OndwHFOsgMKD4HEF0cB9FWEtuUmbTj7DkpICoxGJ9zAeNoZBiEKZFX3uVxXvapmMIpi0fAyCp4cz/lAoL35NATqFGH4ogkeBorkyinTNEnjxrHMwnClrMohwGi0oRiIt4XJqO10irezm1MqKC6bXk++lXvqe3V+OeqA3F20W0XQRBJMhoxbABRUzBG5zFkZBNztihZNEDBWGL23hvtQhFO1hSXAvwR53rfif78ze4dXY6XfTrUpObrw7VXJ13dn2+P/hdxPlLSMHbzAzCfqvoTAAQ82A=='
+          minItems: 1
+          maxItems: 1000
+    PostVerifyResponse:
+      type: 'object'
+      properties:
+        proof_index:
+          type: 'integer'
+          example: 0
+        hash:
+          type: 'string'
+          example: '11cd8a380e8d5fd3ac47c1f880390341d40b11485e8ae946d8fa3d466f23fe89'
+        proof_id:
+          type: 'string'
+          example: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
+        hash_submitted_node_at:
+          type: 'string'
+          format: 'date-time'
+          example: '2019-05-17T18:55:30Z'
+        hash_id_core:
+          type: 'string'
+          example: '5a22fb80-78d5-11e9-8186-01d1f712eccc'
+        hash_submitted_core_at:
+          type: 'string'
+          format: 'date-time'
+          example: '2019-05-17T18:55:34Z'
+        anchors:
+          type: 'array'
+          items:
+            type: 'object'
+            properties:
+              branch:
+                type: 'string'
+                example: 'cal_anchor_branch'
+              type:
+                type: 'string'
+                example: 'cal'
+              valid:
+                type: 'boolean'
+                example: true
+        status:
+          type: 'string'
+          example: 'verified'
+    GetConfigResponse:
+      type: 'object'
+      properties:
+        version:
+          type: 'string'
+          example: '2.0.0'
+        time:
+          type: 'string'
+          format: 'date-time'
+          example: '2019-05-17T19:53:49.140Z'
+    ErrorResponse:
+      type: 'object'
+      properties:
+        code:
+          type: 'string'
+        message:
+          type: 'string'
+tags:
+  - name: 'Hashes'
+    description: 'Your hashes to be anchored'
+  - name: 'Proofs'
+    description: 'Your Chainpoint proofs created for each of your hashes'
+  - name: 'Verify'
+    description: 'Verification process for your proofs'
+  - name: 'Calendar'
+    description: 'Chainpoint calendar transaction data'
+  - name: 'Config'
+    description: 'Configuration information about the Node'
+externalDocs:
+  description: 'Find out more about Chainpoint'
+  url: 'https://chainpoint.org'
