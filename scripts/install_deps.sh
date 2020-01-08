@@ -19,6 +19,7 @@ if [[ "$OSTYPE" == "linux-gnu" ]]; then
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
     sudo apt-get update && sudo apt-get install yarn
     sudo curl -L "https://github.com/docker/compose/releases/download/1.25.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
     sudo ln -sf /usr/local/bin/docker-compose /usr/bin/docker-compose || echo Binary is not at usual location or is already linked
 elif [[ "$OSTYPE" == "darwin"* ]]; then
     ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
