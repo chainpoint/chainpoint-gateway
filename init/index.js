@@ -88,18 +88,15 @@ async function startLndNodeAsync(initAnswers) {
     let uid = (await exec.quiet('id -u $USER')).stdout.trim()
     let gid = (await exec.quiet('id -g $USER')).stdout.trim()
     console.log(chalk.yellow(`Starting Lightning node...`))
-    await exec(
-      [
-        `docker-compose pull lnd &&
+    await exec([
+      `docker-compose pull lnd &&
       mkdir -p ${home}/.chainpoint/node/.lnd && 
       export USERID=${uid} && 
       export GROUPID=${gid} && 
       export NETWORK=${initAnswers.NETWORK} &&
       export PUBLICIP=${initAnswers.LND_PUBLIC_IP} &&
       docker-compose run -d --service-ports lnd`
-      ],
-      { quiet: QUIET_OUTPUT }
-    )
+    ])
   } catch (error) {
     throw new Error(`Could not start Lightning node : ${error.message}`)
   }
@@ -120,7 +117,7 @@ async function initializeLndNodeAsync(initAnswers) {
       cipher_seed_mnemonic: seed.cipher_seed_mnemonic
     })
 
-    await utils.sleepAsync(20000)
+    await utils.sleepAsync(10000)
 
     console.log(chalk.yellow(`Create new address for wallet...`))
     lnd = new lightning(LND_SOCKET, initAnswers.NETWORK, false, true)
