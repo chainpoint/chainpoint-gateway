@@ -120,7 +120,7 @@ async function initializeLndNodeAsync(initAnswers) {
       cipher_seed_mnemonic: seed.cipher_seed_mnemonic
     })
 
-    await utils.sleepAsync(10000)
+    await utils.sleepAsync(20000)
 
     console.log(chalk.yellow(`Create new address for wallet...`))
     lnd = new lightning(LND_SOCKET, initAnswers.NETWORK, false, true)
@@ -362,6 +362,7 @@ async function waitForSyncAndFundingAsync(progress) {
           )
         )
       }
+      await utils.sleepAsync(5000)
     } catch (error) {
       console.log(chalk.red(`An error occurred while checking node state : ${error.message}`))
     } finally {
