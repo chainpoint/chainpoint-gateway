@@ -362,7 +362,6 @@ async function waitForSyncAndFundingAsync(progress) {
           )
         )
       }
-      await utils.sleepAsync(5000)
     } catch (error) {
       console.log(chalk.red(`An error occurred while checking node state : ${error.message}`))
     } finally {
