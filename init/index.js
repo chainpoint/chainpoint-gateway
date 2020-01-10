@@ -422,32 +422,37 @@ async function createCoreLNDPeerConnectionsAsync(progress) {
 async function createCoreLNDChannelsAsync(progress) {
   let lnd = new lightning(LND_SOCKET, progress.network, false, true)
   let channelPubKeys = []
-  try {
-    let channelList = await lnd.callMethodAsync('lightning', 'listChannelsAsync', {}, progress.walletSecret)
-    for (let channel of channelList.channels) {
-      channelPubKeys.push(channel.remote_pubkey)
-    }
-  } catch (error) {
-    throw new Error('Could not retrieve LND channel list', error.message)
-  }
-
-  for (let lndUri of progress.coreLNDUris) {
-    let pubkey = lndUri.split('@')[0]
-    if (channelPubKeys.includes(pubkey)) continue // already have a channel with this node, skip
+  let backendError = true
+  while (backendError) {
+    backendError = false
     try {
-      let channelTxInfo = await lnd.callMethodAsync(
-        'lightning',
-        'openChannelSyncAsync',
-        {
-          node_pubkey_string: pubkey,
-          local_funding_amount: progress.finalChannelAmount,
-          push_sat: 0
-        },
-        progress.walletSecret
-      )
-      console.log(chalk.yellow(`Channel created with ${lndUri} in transaction ${channelTxInfo.funding_txid_str}`))
+      let channelList = await lnd.callMethodAsync('lightning', 'listChannelsAsync', {}, progress.walletSecret)
+      for (let channel of channelList.channels) {
+        channelPubKeys.push(channel.remote_pubkey)
+      }
     } catch (error) {
-      throw new Error(`Unable to create a channel with ${lndUri} : ${error.message}`)
+      backendError = true
+      console.log(chalk.red(`Could not retrieve LND channel list: ${error.message}`))
+    }
+    for (let lndUri of progress.coreLNDUris) {
+      let pubkey = lndUri.split('@')[0]
+      if (channelPubKeys.includes(pubkey)) continue // already have a channel with this node, skip
+      try {
+        let channelTxInfo = await lnd.callMethodAsync(
+          'lightning',
+          'openChannelSyncAsync',
+          {
+            node_pubkey_string: pubkey,
+            local_funding_amount: progress.finalChannelAmount,
+            push_sat: 0
+          },
+          progress.walletSecret
+        )
+        console.log(chalk.yellow(`Channel created with ${lndUri} in transaction ${channelTxInfo.funding_txid_str}`))
+      } catch (error) {
+        backendError = true
+        console.log(chalk.red(`Unable to create a channel with ${lndUri} : ${error.message}`))
+      }
     }
   }
 }
