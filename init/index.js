@@ -433,6 +433,7 @@ async function createCoreLNDChannelsAsync(progress) {
     } catch (error) {
       backendError = true
       console.log(chalk.red(`Could not retrieve LND channel list: ${error.message}`))
+      continue
     }
     for (let lndUri of progress.coreLNDUris) {
       let pubkey = lndUri.split('@')[0]
