@@ -4,12 +4,13 @@ process.env.NODE_ENV = 'test'
 
 // test related packages
 const expect = require('chai').expect
+const { Lsat } = require('lsat-js')
 
 const cores = require('../lib/cores.js')
-
+const data = require('./sample-data/lsat-data.json')
 const { version } = require('../package.json')
 
-describe('Cores Methods', function() {
+describe.only('Cores Methods', function() {
   this.timeout(5000)
 
   describe('startPruneExpiredItemsInterval', () => {
@@ -415,33 +416,63 @@ describe('Cores Methods', function() {
     })
   })
 
-  describe('submitHashAsync', () => {
+  describe('parse402Response', () => {
+    let lsat, challenge, response
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
-      cores.setRP(async () => {
-        throw 'No Invoice!'
-      })
+      challenge = data.challenge1000
+      lsat = Lsat.fromChallenge(challenge)
+      response = {
+        status: 402,
+        headers: {
+          'WWW-Authenticate': challenge
+        }
+      }
     })
-    it('should return [] on 1 of 1 get invoice failure', async () => {
-      let result = await cores.submitHashAsync('deadbeefcafe')
-      expect(result).to.be.a('array')
-      expect(result.length).to.equal(0)
+
+    it('should throw if no LSAT challenge present in response or not a 402', () => {
+      const parseWrongStatusCode = () => cores.parse402Response({ ...response, status: 401 })
+      const parseMissingHeader = () => cores.parse402Response({ status: 402 })
+      expect(parseWrongStatusCode).to.throw()
+      expect(parseMissingHeader).to.throw()
+    })
+
+    it('should should return an LSAT with invoice information', () => {
+      const lsatFromResponse = cores.parse402Response(response)
+      expect(lsatFromResponse.invoice).to.exist
+      expect(lsatFromResponse.invoice).to.equal(lsat.invoice)
     })
   })
 
+  // describe('submitHashAsync', () => {
+  //   before(() => {
+  //     cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
+  //     cores.setRP(async () => {
+  //       throw 'No Invoice!'
+  //     })
+  //   })
+  //   it('should return [] on 1 of 1 get invoice failure', async () => {
+  //     let result = await cores.submitHashAsync('deadbeefcafe')
+  //     expect(result).to.be.a('array')
+  //     expect(result.length).to.equal(0)
+  //   })
+  // })
+
   describe('submitHashAsync', () => {
     before(() => {
-      cores.setRP(async () => {
-        return { body: 'ok' }
-      })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 5, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
-      cores.setLN({
-        callMethodAsync: async (s, m) => {
-          if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
-          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
-          return {}
+      cores.setRP(async () => {
+        return {
+          headers: {
+            'WWW-Authenticate': data.challenge10
+          }
         }
       })
+      // cores.setLN({
+      //   callMethodAsync: async (s, m) => {
+      //     if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+      //     if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
+      //     return {}
+      //   }
     })
     it('should return [] on 1 of 1 invoice amount to high failure', async () => {
       let result = await cores.submitHashAsync('deadbeefcafe')
@@ -456,7 +487,11 @@ describe('Cores Methods', function() {
       let counter = 0
       cores.setRP(async () => {
         if (++counter % 2 === 0) throw 'Bad Submit'
-        return { body: 'ok' }
+        return {
+          headers: {
+            'WWW-Authenticate': data.challenge10
+          }
+        }
       })
     })
     it('should return [] on 1 of 1 submit failure', async () => {
@@ -469,12 +504,16 @@ describe('Cores Methods', function() {
   describe('submitHashAsync', () => {
     before(() => {
       cores.setRP(async () => {
-        return { body: 'ok' }
+        return {
+          headers: {
+            'WWW-Authenticate': data.challenge10
+          }
+        }
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
       cores.setLN({
         callMethodAsync: async (s, m) => {
-          if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          // if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
           if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
@@ -497,12 +536,16 @@ describe('Cores Methods', function() {
       let counter = 0
       cores.setRP(async () => {
         if (counter++ % 4 === 0) throw 'Bad IP!'
-        return { body: 'ok' }
+        return {
+          headers: {
+            'WWW-Authenticate': data.challenge10
+          }
+        }
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
       cores.setLN({
         callMethodAsync: async (s, m) => {
-          if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          // if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
           if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
@@ -529,16 +572,22 @@ describe('Cores Methods', function() {
     before(() => {
       let counter = 0
       cores.setRP(async () => {
-        return { body: 'ok' }
+        let challenge = data.challenge10
+        if (++counter % 2 === 0) challenge = data.challenge1000
+        return {
+          headers: {
+            'WWW-Authenticate': challenge
+          }
+        }
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
       cores.setLN({
         callMethodAsync: async (s, m) => {
-          if (m === 'decodePayReqAsync') {
-            let tokens = 10
-            if (++counter % 2 === 0) tokens = 15
-            return { description: 'id:qwe', tokens }
-          }
+          // if (m === 'decodePayReqAsync') {
+          //   let tokens = 10
+          //   if (++counter % 2 === 0) tokens = 15
+          //   return { description: 'id:qwe', tokens }
+          // }
           if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
@@ -564,12 +613,16 @@ describe('Cores Methods', function() {
   describe('submitHashAsync', () => {
     before(() => {
       cores.setRP(async () => {
-        return { body: 'ok' }
+        return {
+          headers: {
+            'WWW-Authenticate': data.challenge10
+          }
+        }
       })
       cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
       cores.setLN({
         callMethodAsync: async (s, m) => {
-          if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
+          // if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
           if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
