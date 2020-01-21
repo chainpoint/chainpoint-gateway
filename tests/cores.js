@@ -422,7 +422,7 @@ describe.only('Cores Methods', function() {
       challenge = data.challenge1000
       lsat = Lsat.fromChallenge(challenge)
       response = {
-        status: 402,
+        statusCode: 402,
         headers: {
           'WWW-Authenticate': challenge
         }
@@ -430,8 +430,8 @@ describe.only('Cores Methods', function() {
     })
 
     it('should throw if no LSAT challenge present in response or not a 402', () => {
-      const parseWrongStatusCode = () => cores.parse402Response({ ...response, status: 401 })
-      const parseMissingHeader = () => cores.parse402Response({ status: 402 })
+      const parseWrongStatusCode = () => cores.parse402Response({ ...response, statusCode: 401 })
+      const parseMissingHeader = () => cores.parse402Response({ statusCode: 402 })
       expect(parseWrongStatusCode).to.throw()
       expect(parseMissingHeader).to.throw()
     })
@@ -460,7 +460,7 @@ describe.only('Cores Methods', function() {
         headers: {
           'WWW-Authenticate': data.challenge10
         },
-        status: 402,
+        statusCode: 402,
         body: {
           error: {
             message: 'Payment Required.'
@@ -478,7 +478,7 @@ describe.only('Cores Methods', function() {
     it('should return [] on 1 of 1 invoice amount to high failure', async () => {
       cores.setENV({ ...env, MAX_SATOSHI_PER_HASH: 5 })
       cores.setRP(async () => {
-        return challengeResponse
+        throw challengeResponse
       })
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
@@ -489,7 +489,7 @@ describe.only('Cores Methods', function() {
       let counter = 0
       cores.setRP(async () => {
         if (++counter === 1) throw 'Bad Submit'
-        return challengeResponse
+        throw challengeResponse
       })
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
@@ -499,7 +499,7 @@ describe.only('Cores Methods', function() {
     it('should succeed on 1 of 1 item submitted', async () => {
       cores.setRP(async options => {
         if (options.headers['Authorization']) return { body: 'ok' }
-        return challengeResponse
+        throw challengeResponse
       })
 
       let result = await cores.submitHashAsync('deadbeefcafe')
@@ -516,7 +516,7 @@ describe.only('Cores Methods', function() {
       cores.setRP(async options => {
         if (options.uri.includes(coreList[1])) throw 'Bad IP!'
         if (options.headers['Authorization']) return { body: 'ok' }
-        return challengeResponse
+        throw challengeResponse
       })
       cores.setENV({
         ...env,
@@ -546,10 +546,10 @@ describe.only('Cores Methods', function() {
       cores.setRP(async options => {
         if (options.uri.includes(coreList[1])) {
           let response = { ...challengeResponse, headers: { 'WWW-Authenticate': data.challenge1000 } }
-          return response
+          throw response
         }
         if (options.headers['Authorization']) return { body: 'ok' }
-        return challengeResponse
+        throw challengeResponse
       })
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
@@ -573,7 +573,7 @@ describe.only('Cores Methods', function() {
       })
       cores.setRP(async options => {
         if (options.headers['Authorization']) return { body: 'ok' }
-        return challengeResponse
+        throw challengeResponse
       })
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
