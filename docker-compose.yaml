@@ -4,10 +4,10 @@ networks:
   chainpoint-node:
     driver: bridge
   # Useful networks for local dev/testing
-  # chainpoint-core_chainpoint:
-  #   external: true
-  # boltbox-simnet:
-  #   external: true
+  chainpoint-core_chainpoint:
+    external: true
+  boltbox-simnet:
+    external: true
 
 services:
   chainpoint-node:
@@ -28,6 +28,8 @@ services:
       HOME: /root
       HOT_WALLET_PASS: ${HOT_WALLET_PASS}
       LND_SOCKET: ${LND_SOCKET}
+      LND_MACAROON: ${LND_MACAROON}
+      LND_TLS_CERT: ${LND_TLS_CERT}
       CHAINPOINT_CORE_CONNECT_IP_LIST: '${CHAINPOINT_CORE_CONNECT_IP_LIST}'
       PORT: '${PORT:-80}'
       AGGREGATION_INTERVAL_SECONDS: '${AGGREGATION_INTERVAL_SECONDS}'
