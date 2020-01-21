@@ -457,13 +457,15 @@ describe.only('Cores Methods', function() {
         }
       })
       challengeResponse = {
-        headers: {
-          'WWW-Authenticate': data.challenge10
-        },
-        statusCode: 402,
-        body: {
-          error: {
-            message: 'Payment Required.'
+        response: {
+          headers: {
+            'WWW-Authenticate': data.challenge10
+          },
+          statusCode: 402,
+          body: {
+            error: {
+              message: 'Payment Required.'
+            }
           }
         }
       }
