@@ -1,4 +1,4 @@
-/* global describe, it, before */
+/* global describe, it, before, beforeEach, afterEach */
 
 process.env.NODE_ENV = 'test'
 
@@ -443,83 +443,65 @@ describe.only('Cores Methods', function() {
     })
   })
 
-  // describe('submitHashAsync', () => {
-  //   before(() => {
-  //     cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
-  //     cores.setRP(async () => {
-  //       throw 'No Invoice!'
-  //     })
-  //   })
-  //   it('should return [] on 1 of 1 get invoice failure', async () => {
-  //     let result = await cores.submitHashAsync('deadbeefcafe')
-  //     expect(result).to.be.a('array')
-  //     expect(result.length).to.equal(0)
-  //   })
-  // })
-
   describe('submitHashAsync', () => {
-    before(() => {
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 5, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
-      cores.setRP(async () => {
-        return {
-          headers: {
-            'WWW-Authenticate': data.challenge10
-          }
-        }
-      })
-      // cores.setLN({
-      //   callMethodAsync: async (s, m) => {
-      //     if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
-      //     if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
-      //     return {}
-      //   }
-    })
-    it('should return [] on 1 of 1 invoice amount to high failure', async () => {
-      let result = await cores.submitHashAsync('deadbeefcafe')
-      expect(result).to.be.a('array')
-      expect(result.length).to.equal(0)
-    })
-  })
+    let challengeResponse, env, coreList
 
-  describe('submitHashAsync', () => {
-    before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
-      let counter = 0
-      cores.setRP(async () => {
-        if (++counter % 2 === 0) throw 'Bad Submit'
-        return {
-          headers: {
-            'WWW-Authenticate': data.challenge10
-          }
-        }
-      })
-    })
-    it('should return [] on 1 of 1 submit failure', async () => {
-      let result = await cores.submitHashAsync('deadbeefcafe')
-      expect(result).to.be.a('array')
-      expect(result.length).to.equal(0)
-    })
-  })
-
-  describe('submitHashAsync', () => {
-    before(() => {
-      cores.setRP(async () => {
-        return {
-          headers: {
-            'WWW-Authenticate': data.challenge10
-          }
-        }
-      })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'] })
+    beforeEach(() => {
+      coreList = ['65.1.1.1', '65.2.2.2', '65.3.3.3']
+      env = { MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: [coreList[0]] }
+      cores.setENV(env)
       cores.setLN({
         callMethodAsync: async (s, m) => {
-          // if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
           if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
           return {}
         }
       })
+      challengeResponse = {
+        headers: {
+          'WWW-Authenticate': data.challenge10
+        },
+        status: 402,
+        body: {
+          error: {
+            message: 'Payment Required.'
+          }
+        }
+      }
     })
+
+    afterEach(() => {
+      cores.setENV({})
+      cores.setLN({})
+      cores.setRP()
+    })
+
+    it('should return [] on 1 of 1 invoice amount to high failure', async () => {
+      cores.setENV({ ...env, MAX_SATOSHI_PER_HASH: 5 })
+      cores.setRP(async () => {
+        return challengeResponse
+      })
+      let result = await cores.submitHashAsync('deadbeefcafe')
+      expect(result).to.be.a('array')
+      expect(result.length).to.equal(0)
+    })
+
+    it('should return [] on 1 of 1 submit failure', async () => {
+      let counter = 0
+      cores.setRP(async () => {
+        if (++counter === 1) throw 'Bad Submit'
+        return challengeResponse
+      })
+      let result = await cores.submitHashAsync('deadbeefcafe')
+      expect(result).to.be.a('array')
+      expect(result.length).to.equal(0)
+    })
+
     it('should succeed on 1 of 1 item submitted', async () => {
+      cores.setRP(async options => {
+        if (options.headers['Authorization']) return { body: 'ok' }
+        return challengeResponse
+      })
+
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(1)
@@ -529,106 +511,70 @@ describe.only('Cores Methods', function() {
       expect(result[0]).to.have.property('response')
       expect(result[0].response).to.equal('ok')
     })
-  })
 
-  describe('submitHashAsync', () => {
-    before(() => {
-      let counter = 0
-      cores.setRP(async () => {
-        if (counter++ % 4 === 0) throw 'Bad IP!'
-        return {
-          headers: {
-            'WWW-Authenticate': data.challenge10
-          }
-        }
-      })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
-      cores.setLN({
-        callMethodAsync: async (s, m) => {
-          // if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
-          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
-          return {}
-        }
-      })
-    })
     it('should succeed on 2 of 3 item submitted, one bad IP', async () => {
+      cores.setRP(async options => {
+        if (options.uri.includes(coreList[1])) throw 'Bad IP!'
+        if (options.headers['Authorization']) return { body: 'ok' }
+        return challengeResponse
+      })
+      cores.setENV({
+        ...env,
+        CHAINPOINT_CORE_CONNECT_IP_LIST: coreList
+      })
+
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(2)
       expect(result[0]).to.be.a('object')
       expect(result[0]).to.have.property('ip')
-      expect(result[0].ip).to.equal('65.1.1.1')
+      expect(result[0].ip).to.equal(coreList[0])
       expect(result[0]).to.have.property('response')
       expect(result[0].response).to.equal('ok')
       expect(result[1]).to.be.a('object')
       expect(result[1]).to.have.property('ip')
-      expect(result[1].ip).to.equal('65.3.3.3')
+      expect(result[1].ip).to.equal(coreList[2])
       expect(result[1]).to.have.property('response')
       expect(result[1].response).to.equal('ok')
     })
-  })
 
-  describe('submitHashAsync', () => {
-    before(() => {
-      let counter = 0
-      cores.setRP(async () => {
-        let challenge = data.challenge10
-        if (++counter % 2 === 0) challenge = data.challenge1000
-        return {
-          headers: {
-            'WWW-Authenticate': challenge
-          }
-        }
-      })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
-      cores.setLN({
-        callMethodAsync: async (s, m) => {
-          // if (m === 'decodePayReqAsync') {
-          //   let tokens = 10
-          //   if (++counter % 2 === 0) tokens = 15
-          //   return { description: 'id:qwe', tokens }
-          // }
-          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
-          return {}
-        }
-      })
-    })
     it('should succeed on 2 of 3 item submitted, one invoice amount too high', async () => {
+      cores.setENV({
+        ...env,
+        CHAINPOINT_CORE_CONNECT_IP_LIST: coreList
+      })
+      cores.setRP(async options => {
+        if (options.uri.includes(coreList[1])) {
+          let response = { ...challengeResponse, headers: { 'WWW-Authenticate': data.challenge1000 } }
+          return response
+        }
+        if (options.headers['Authorization']) return { body: 'ok' }
+        return challengeResponse
+      })
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(2)
       expect(result[0]).to.be.a('object')
       expect(result[0]).to.have.property('ip')
-      expect(result[0].ip).to.equal('65.1.1.1')
+      expect(result[0].ip).to.equal(coreList[0])
       expect(result[0]).to.have.property('response')
       expect(result[0].response).to.equal('ok')
       expect(result[1]).to.be.a('object')
       expect(result[1]).to.have.property('ip')
-      expect(result[1].ip).to.equal('65.3.3.3')
+      expect(result[1].ip).to.equal(coreList[2])
       expect(result[1]).to.have.property('response')
       expect(result[1].response).to.equal('ok')
     })
-  })
 
-  describe('submitHashAsync', () => {
-    before(() => {
-      cores.setRP(async () => {
-        return {
-          headers: {
-            'WWW-Authenticate': data.challenge10
-          }
-        }
-      })
-      cores.setENV({ MAX_SATOSHI_PER_HASH: 10, CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'] })
-      cores.setLN({
-        callMethodAsync: async (s, m) => {
-          // if (m === 'decodePayReqAsync') return { description: 'id:qwe', tokens: 10 }
-          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
-          return {}
-        }
-      })
-    })
     it('should succeed on 3 of 3 item submitted', async () => {
+      cores.setENV({
+        ...env,
+        CHAINPOINT_CORE_CONNECT_IP_LIST: coreList
+      })
+      cores.setRP(async options => {
+        if (options.headers['Authorization']) return { body: 'ok' }
+        return challengeResponse
+      })
       let result = await cores.submitHashAsync('deadbeefcafe')
       expect(result).to.be.a('array')
       expect(result.length).to.equal(3)
