@@ -424,7 +424,7 @@ describe.only('Cores Methods', function() {
       response = {
         statusCode: 402,
         headers: {
-          'WWW-Authenticate': challenge
+          'www-authenticate': challenge
         }
       }
     })
@@ -457,11 +457,12 @@ describe.only('Cores Methods', function() {
         }
       })
       challengeResponse = {
+        statusCode: 402,
         response: {
-          headers: {
-            'WWW-Authenticate': data.challenge10
-          },
           statusCode: 402,
+          headers: {
+            'www-authenticate': data.challenge10
+          },
           body: {
             error: {
               message: 'Payment Required.'
@@ -474,7 +475,7 @@ describe.only('Cores Methods', function() {
     afterEach(() => {
       cores.setENV({})
       cores.setLN({})
-      cores.setRP()
+      cores.setRP(() => {})
     })
 
     it('should return [] on 1 of 1 invoice amount to high failure', async () => {
@@ -499,7 +500,7 @@ describe.only('Cores Methods', function() {
     })
 
     it('should succeed on 1 of 1 item submitted', async () => {
-      cores.setRP(async options => {
+      cores.setRP(options => {
         if (options.headers['Authorization']) return { body: 'ok' }
         throw challengeResponse
       })
@@ -547,7 +548,20 @@ describe.only('Cores Methods', function() {
       })
       cores.setRP(async options => {
         if (options.uri.includes(coreList[1])) {
-          let response = { ...challengeResponse, headers: { 'WWW-Authenticate': data.challenge1000 } }
+          let response = {
+            statusCode: 402,
+            response: {
+              statusCode: 402,
+              headers: {
+                'www-authenticate': data.challenge1000
+              },
+              body: {
+                error: {
+                  message: 'Payment Required.'
+                }
+              }
+            }
+          }
           throw response
         }
         if (options.headers['Authorization']) return { body: 'ok' }
