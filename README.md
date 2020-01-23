@@ -1,51 +1,34 @@
 # Chainpoint Node Source
 
-## TODO: Update content to reflect new version
-
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# Important Notice
 
-This software is intended to be run as part of Chainpoint Network V3. It is for operators wanting to help run the anchoring service. If you are interested in running a Chainpoint Core, or installing a copy of our command line interface please instead visit:
-
-https://github.com/chainpoint/chainpoint-core
-
-https://github.com/chainpoint/chainpoint-cli
-
-## Introduction to Chainpoint
-
-Chainpoint is a protocol for facilitating the decentralized notarization of data using the Bitcoin blockchain. It makes the process of _anchoring_ data fingerprints (hashes) to Bitcoin more cost-effective by creating intermediate, decentralized tiers between the user and the Bitcoin blockchain.
-
-The first tier is the [Chainpoint Node](https://github.com/chainpoint/chainpoint-node-src), which [_aggregates_](https://github.com/Tierion/merkle-tools) user submissions into a single datapoint every minute. This datapoint is then submitted to the second tier, the Chainpoint Core Network.
-The Core Network consists of many Cores running in concert to create a Tendermint-based blockchain, the Calendar. Every hour, a random Core is elected to anchor the state of the Calendar to Bitcoin, then write back the result to the Calendar. The more Cores there are, the less frequently a given Core will be selected to anchor, which reduces the burden of paying Bitcoin fees.
-
-After the Cores anchor to Bitcoin, the Chainpoint Nodes retrieve the result and construct a [cryptographic proof](https://github.com/chainpoint/chainpoint-cli) showing the user's data was included in the Bitcoin blockchain. Because the Bitcoin blockchain is viewable by everyone and secured by Bitcoin Mining, writing data to Bitcoin constitutes a reliable form of notarization-
-it is a good way of attesting to the existence of certain data (ie proving you knew something) at a particular point in time.
-
-Users can install a release of [Chainpoint-CLI](https://github.com/chainpoint/chainpoint-cli) to submit data to a Chainpoint Node and retrieve a [Chainpoint Proof](https://chainpoint.org/#v3x).
 
 ## What is Chainpoint Node?
 
-Chainpoint Nodes allows anyone to run a server that accepts hashes, anchors them to public blockchains, create and verify proofs, and participate in the Chainpoint Network.
+Chainpoint Nodes allows anyone to run a server that accepts hashes, anchors them to public blockchains, and retrieves and verify the resulting proofs.
 
 This repository contains the source code for the Chainpoint Node
 software. The code in this repository is primarily intended for
 developer use. It is used to generate the public Docker images that
 are used by those wanting to run their own Node.
 
-If you want to run your own Chainpoint Node please instead
-see the following repository which provides installation
-and run instructions.
 
-[https://github.com/chainpoint/chainpoint-node](https://github.com/chainpoint/chainpoint-node)
 
-## Installing Chainpoint Core
+## Installing Chainpoint Node
 
 ### Requirements
 
-#### Hardware
+At minimum, the following software is required for any installation of Core:
+
+- `*Nix-based OS (Ubuntu Linux and MacOS have been tested)`
+- `BASH`
+- `Git`
+- `Docker`
+
+A BASH script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be found [here](https://github.com/chainpoint/chainpoint-node-src/blob/master/scripts/install_deps.sh).
 
 Chainpoint Node has been tested with a couple of different hardware configurations.
 
@@ -65,14 +48,7 @@ Recommended:
 
 #### Software
 
-At minimum, the following software is required for any installation of Core:
 
-- `*Nix-based OS (Ubuntu Linux and MacOS have been tested)`
-- `BASH`
-- `Git`
-- `Docker`
-
-Provided BASH is installed, a script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be found [here](https://github.com/chainpoint/chainpoint-node-src/blob/master/scripts/install_deps.sh).
 
 ### Installation
 

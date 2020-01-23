@@ -17,11 +17,6 @@ CORE_DATADIR := ${HOMEDIR}/.chainpoint/core
 UID := $(shell id -u $$USER)
 GID := $(shell id -g $$USER)
 
-# Specify the binary dependencies
-REQUIRED_BINS := docker docker-compose
-$(foreach bin,$(REQUIRED_BINS),\
-	$(if $(shell command -v $(bin) 2> /dev/null),$(),$(error Please install `$(bin)` first!)))
-
 .PHONY : help
 help : Makefile
 	@sed -n 's/^##//p' $<

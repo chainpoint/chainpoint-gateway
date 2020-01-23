@@ -152,6 +152,7 @@ function displayInitResults(walletInfo) {
   console.log(chalk.magenta(`\n******************************************************`))
   console.log(chalk.magenta(`You should back up this information in a secure place.`))
   console.log(chalk.magenta(`******************************************************\n\n`))
+  console.log(chalk.green(`\nPlease fund the Lightning Wallet Address above with Bitcoin and wait for 6 confirmation before running 'make deploy'\n`))
 }
 
 async function setENVValuesAsync(newENVData) {
