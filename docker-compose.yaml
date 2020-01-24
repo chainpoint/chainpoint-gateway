@@ -4,10 +4,10 @@ networks:
   chainpoint-node:
     driver: bridge
   # Useful networks for local dev/testing
-  # chainpoint-core_chainpoint:
-  #   external: true
-  # boltbox-simnet:
-  #   external: true
+  chainpoint-core_chainpoint:
+    external: true
+  boltbox-simnet:
+    external: true
 
 services:
   chainpoint-node:
@@ -19,7 +19,8 @@ services:
     build: .
     container_name: chainpoint-node
     ports:
-      - '${PORT}:${CHAINPOINT_NODE_PORT}'
+      # - '${PORT}:${CHAINPOINT_NODE_PORT}'
+      - '80:8080'
     networks:
       - chainpoint-node
       - boltbox-simnet
