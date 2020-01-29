@@ -89,12 +89,11 @@ services:
     ports:
       - '9000'
     environment:
-      LND_DIR: /lnd-data
-      LND_MACAROON: ${LND_MACAROON}
-      LND_TLS_CERT: ${LND_TLS_CERT}
+      NETWORK: ${NETWORK}
+      LND_DIR: /root/.lnd
       LND_SOCKET: ${LND_SOCKET}
       ACCOUNTING_PORT: ${ACCOUNTING_PORT:-9000}
     volumes:
-      - ~/.chainpoint/node/.lnd:/lnd-data:ro
+      - ~/.chainpoint/node/.lnd:/root/.lnd:ro
     networks:
       - chainpoint-node
