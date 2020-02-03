@@ -27,14 +27,14 @@ A BASH script to install all other dependencies (make, openssl, nodejs, yarn) on
 
 Chainpoint Node has been tested with a couple of different hardware configurations.
 
-Minimum:
+Personal:
 
-- `>= 4GB RAM`
-- `>= 1 CPU Cores`
+- `4GB RAM`
+- `1 CPU Cores`
 - `128+ GB SSD`
 - `Public IPv4 address`
 
-Recommended:
+Server:
 
 - `>= 8GB RAM`
 - `>= 2 CPU Cores`
