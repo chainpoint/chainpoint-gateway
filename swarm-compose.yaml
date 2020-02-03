@@ -1,69 +1,78 @@
-version: '3.4'
+version: "3.7"
 
 networks:
   chainpoint-node:
-    driver: bridge
-  # Useful networks for local dev/testing
-  chainpoint-core_chainpoint:
-    external: true
-  boltbox-simnet:
+
+secrets:
+  HOT_WALLET_PASS:
     external: true
 
 services:
   chainpoint-node:
     restart: on-failure
+    entrypoint: /home/node/app/scripts/run_prod.sh
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
       - ~/.chainpoint/node/data/rocksdb:/root/.chainpoint/node/data/rocksdb
+      - ./.env:/home/node/app/.env
       - ~/.chainpoint/node/.lnd:/root/.lnd:ro
+    image: gcr.io/chainpoint-registry/github_chainpoint_chainpoint-node-src:${DOCKER_TAG:-latest}
+    user: ${USERID}:${GROUPID}
     build: .
+    depends_on:
+      - lnd
     container_name: chainpoint-node
     ports:
-      # - '${PORT}:${CHAINPOINT_NODE_PORT}'
-      - '80:8080'
+      - "80:8080"
     networks:
       - chainpoint-node
-      - boltbox-simnet
-      - chainpoint-core_chainpoint
+    secrets:
+      - HOT_WALLET_PASS
     environment:
       HOME: /root
-      HOT_WALLET_PASS: ${HOT_WALLET_PASS}
+      HOT_WALLET_PASS: DOCKER-SECRET->HOT_WALLET_PASS
       LND_SOCKET: ${LND_SOCKET}
-      LND_MACAROON: ${LND_MACAROON}
-      LND_TLS_CERT: ${LND_TLS_CERT}
-      CHAINPOINT_CORE_CONNECT_IP_LIST: '${CHAINPOINT_CORE_CONNECT_IP_LIST}'
-      PORT: '${PORT:-80}'
-      AGGREGATION_INTERVAL_SECONDS: '${AGGREGATION_INTERVAL_SECONDS}'
-      PROOF_EXPIRE_MINUTES: '${PROOF_EXPIRE_MINUTES}'
-      CHAINPOINT_NODE_PORT: '${CHAINPOINT_NODE_PORT:-9090}'
-      POST_HASHES_MAX: '${POST_HASHES_MAX}'
-      POST_VERIFY_PROOFS_MAX: '${POST_VERIFY_PROOFS_MAX}'
-      GET_PROOFS_MAX: '${GET_PROOFS_MAX}'
-      MAX_SATOSHI_PER_HASH: '${MAX_SATOSHI_PER_HASH}'
+      CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
+      AGGREGATION_INTERVAL_SECONDS: "${AGGREGATION_INTERVAL_SECONDS}"
+      PROOF_EXPIRE_MINUTES: "${PROOF_EXPIRE_MINUTES}"
+      POST_HASHES_MAX: "${POST_HASHES_MAX}"
+      POST_VERIFY_PROOFS_MAX: "${POST_VERIFY_PROOFS_MAX}"
+      GET_PROOFS_MAX: "${GET_PROOFS_MAX}"
+      MAX_SATOSHI_PER_HASH: "${MAX_SATOSHI_PER_HASH}"
       NETWORK: ${NETWORK}
       NODE_ENV: ${NODE_ENV}
     tty: true
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '1g'
+        max-file: '5'
 
   # Lightning node
   lnd:
     image: tierion/lnd:boltbox
     user: ${USERID}:${GROUPID}
-    entrypoint: './start-lnd.sh'
-    container_name: lnd-node
+    entrypoint: "./start-lnd.sh"
     ports:
-      - target: 8080
-        published: 8080
-        protocol: tcp
-        mode: host
-      - target: 9735
-        published: 9735
-        protocol: tcp
-        mode: host
-      - target: 10009
-        published: 10009
-        protocol: tcp
-        mode: host
-    restart: always
+    - target: 8080
+      published: 8080
+      protocol: tcp
+      mode: host
+    - target: 9735
+      published: 9735
+      protocol: tcp
+      mode: host
+    - target: 10009
+      published: 10009
+      protocol: tcp
+      mode: host
+    deploy:
+      restart_policy:
+        condition: any
+        delay: 5s
+        max_attempts: 15
+        window: 90s
+      endpoint_mode: dnsrr
     environment:
       - PUBLICIP=${LND_PUBLIC_IP}
       - RPCUSER
@@ -81,6 +90,11 @@ services:
       - ~/.chainpoint/node/.lnd:/root/.lnd:z
     networks:
       - chainpoint-node
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '1g'
+        max-file: '5'
 
   # ln-accounting
   # Returns accounting reports in harmony format for lnd node
