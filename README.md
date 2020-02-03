@@ -36,8 +36,8 @@ Personal:
 
 Server:
 
-- `>= 8GB RAM`
-- `>= 2 CPU Cores`
+- `8GB RAM`
+- `2 CPU Cores`
 - `256+ GB SSD`
 - `Public IPv4 address`
 
