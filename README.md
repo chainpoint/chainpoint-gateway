@@ -5,16 +5,11 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
-
 ## What is Chainpoint Node?
 
-Chainpoint Nodes allows anyone to run a server that accepts hashes, anchors them to public blockchains, and retrieves and verify the resulting proofs.
+Chainpoint Nodes allows anyone to run a server that accepts hashes, anchors them to public blockchains, and retrieves and verify the resulting Chainpoint Proofs. 
 
-This repository contains the source code for the Chainpoint Node
-software. The code in this repository is primarily intended for
-developer use. It is used to generate the public Docker images that
-are used by those wanting to run their own Node.
-
+Chainpoint Nodes use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay for anchoring services from Chainpoint Cores. The fee starts at 2 satoshis, and the easy deployment of an accompanying Lightning Node enables Node operators to easily become part of the Lightning ecosystem.
 
 
 ## Installing Chainpoint Node
@@ -60,41 +55,81 @@ cd chainpoint-node-src
 make init
 ```
 
-The above make command will download all other dependencies and run an interactive setup wizard. The process is detailed in `Configuration` below.
+The above make command will download all other dependencies and run an interactive setup wizard. The process is detailed in `Deployment` below.
 
-### Initiating Your Chainpoint Node
+### Deployment
 
-First, you will have to run the following command to initate your Node:
+First, you will have to run the following commands to initate your Node:
 
+```bash
+$ sudo apt-get install make git
+$ git clone https://github.com/chainpoint/chainpoint-node-src.git
+$ cd chainpoint-node-src
+$ make install-deps
+
+Please logout and login to allow your user to use docker
+
+
+██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗██████╗  ██████╗ ██╗███╗   ██╗████████╗    ███╗   ██╗ ██████╗ ██████╗ ███████╗
+██╔════╝██║  ██║██╔══██╗██║████╗  ██║██╔══██╗██╔═══██╗██║████╗  ██║╚══██╔══╝    ████╗  ██║██╔═══██╗██╔══██╗██╔════╝
+██║     ███████║███████║██║██╔██╗ ██║██████╔╝██║   ██║██║██╔██╗ ██║   ██║       ██╔██╗ ██║██║   ██║██║  ██║█████╗
+██║     ██╔══██║██╔══██║██║██║╚██╗██║██╔═══╝ ██║   ██║██║██║╚██╗██║   ██║       ██║╚██╗██║██║   ██║██║  ██║██╔══╝
+╚██████╗██║  ██║██║  ██║██║██║ ╚████║██║     ╚██████╔╝██║██║ ╚████║   ██║       ██║ ╚████║╚██████╔╝██████╔╝███████╗
+ ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝      ╚═════╝ ╚═╝╚═╝  ╚═══╝   ╚═╝       ╚═╝  ╚═══╝ ╚═════╝ ╚═════╝ ╚══════╝
+
+
+? Will this Core use Bitcoin mainnet or testnet? Testnet
+? Enter your Node's Public IP Address: 104.154.83.163
+
+Initializing Lightning wallet...
+Create new address for wallet...
+Creating Docker secrets...
+****************************************************
+Lightning initialization has completed successfully.
+****************************************************
+Lightning Wallet Password: kPlIshurrduurSQoXa
+LND Wallet Seed: absorb behind drop safe like herp derp celery galaxy wait orient sign suit castle awake gadget pass pipe sudden ethics hill choose six orphan
+Lightning Wallet Address:tb1qglvlrlg0velrserjuuy7s4uhrsrhuzwgl8hvgm
+******************************************************
+You should back up this information in a secure place.
+******************************************************
+
+Please fund the Lightning Wallet Address above with Bitcoin and wait for 6 confirmation before running 'make deploy'
+
+How many Cores would you like to connect to? (max 4) 2
+Would you like to specify any Core IPs manually? No
+
+You have chosen to connect to 2 Core(s).
+You will now need to fund you wallet with a minimum amount of BTC to cover costs of the initial channel creation and future Core submissions.
+
+? How many Satoshi to commit to each channel/Core? (min 120000) 500000
+? 500000 per channel will require 1000000 Satoshi total funding. Is this OK? (Y/n) y
+
+**************************************************************************************************************
+Please send 1000000 Satoshi (0.01 BTC) to your wallet with address tb1qglvlrlg0velrserjuuy7s4uhrsrhuzwgl8hvgm
+**************************************************************************************************************
+This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least 1000000 Satoshi.
+*****************************************
+Your lightning node is fully synced.
+*****************************************
+2020-01-18T04:32:59.361Z> Awaiting funds for wallet... wallet has a current balance of 0
+
+Peer connection established with 03460d821ca4e9a59c8fc9665315ea98ea1960d86ad58e0ca18484dec776f2141c@3.17.78.45:9735
+Peer connection established with 03eef6610d26489b897d81eb142f28ad5cd48a6b3e5c4e42a697cd00d5eb059313@3.135.54.225:9735
+
+Channel created with 03460d821ca4e9a59c8fc9665315ea98ea1960d86ad58e0ca18484dec776f2141c@3.17.78.45:9735
+Channel created with 03eef6610d26489b897d81eb142f28ad5cd48a6b3e5c4e42a697cd00d5eb059313@3.135.54.225:9735
+
+*********************************************************************************
+Chainpoint Node and supporting Lighning node have been successfully initialized.
+*********************************************************************************
+
+$ make deploy
 ```
-make init
-```
-
-Chainpoint Node currently uses Docker Swarm when running in Production mode. Running `make init` will initialize a Docker Swarm node on the host machine. It is important that you securely store your new Ethereum private key displayed in the console after running the init command. Your Ethereum hot wallet address and private key will be stored as Docker Swarm secrets and accessed by the Chainpoint Node when needed. Subsequent `make` commands will use these new secrets to copmlete the Chainpoint Network registration process and assume its duties as an operating Chainpoint Node. The init command will also copy `.env.sample` to `.env`. The `.env` file will be used by `docker-compose` to set required environment variables. Please open the `.env` file and where appropriate edit any missing or default values.
-
-Reference the `.env.sample` for detailed descriptions and examples of global environment variables Chainpoint Nodes use during operation.
-
-### Starting Your Chainpoint Node
-
-After initializing & configuring your Node, you can start your Node by running the following:
-
-```
-make deploy
-```
-
-This command will start your Node and grant it the ability to start interacting with the Chainpoint Network and accept incoming hashes from clients.
 
 ## Node Public API
 
 Every Node provides a public HTTP API. This is documented in greater detail on the [Node HTTP API wiki](https://github.com/chainpoint/chainpoint-node/wiki/Node-HTTP-API)
-
-# FAQs
-
-## Initializing Your Node
-
-### How is the Chainpoint Node using Docker Swarm Secrets?
-
-The Chainpoint Node currently creates two secrets managed by Docker Swarm: 1) ETH_ADDRESS, 2) ETH_PRIVATE_KEY. You can view your systems secrets by running the following command: `docker secret ls`.
 
 ## License
 
