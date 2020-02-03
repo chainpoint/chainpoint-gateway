@@ -41,22 +41,6 @@ Recommended:
 - `256+ GB SSD`
 - `Public IPv4 address`
 
-#### Software
-
-
-
-### Installation
-
-Running the following commands in BASH will download and setup the Core installation:
-
-```
-git clone https://github.com/chainpoint/chainpoint-node-src.git
-cd chainpoint-node-src
-make init
-```
-
-The above make command will download all other dependencies and run an interactive setup wizard. The process is detailed in `Deployment` below.
-
 ### Deployment
 
 First, you will have to run the following commands to initate your Node:
