@@ -1,31 +1,31 @@
 version: "3.7"
 
 networks:
-  chainpoint-node:
+  chainpoint-gateway:
 
 secrets:
   HOT_WALLET_PASS:
     external: true
 
 services:
-  chainpoint-node:
+  chainpoint-gateway:
     restart: on-failure
     entrypoint: /home/node/app/scripts/run_prod.sh
     volumes:
       - ./ip-blacklist.txt:/home/node/app/ip-blacklist.txt:ro
-      - ~/.chainpoint/node/data/rocksdb:/root/.chainpoint/node/data/rocksdb
+      - ~/.chainpoint/gateway/data/rocksdb:/root/.chainpoint/gateway/data/rocksdb
       - ./.env:/home/node/app/.env
-      - ~/.chainpoint/node/.lnd:/root/.lnd:ro
-    image: gcr.io/chainpoint-registry/github_chainpoint_chainpoint-node-src:${DOCKER_TAG:-latest}
+      - ~/.chainpoint/gateway/.lnd:/root/.lnd:ro
+    image: gcr.io/chainpoint-registry/github_chainpoint_chainpoint-gateway:${DOCKER_TAG:-latest}
     user: ${USERID}:${GROUPID}
     build: .
     depends_on:
       - lnd
-    container_name: chainpoint-node
+    container_name: chainpoint-gateway
     ports:
       - "80:8080"
     networks:
-      - chainpoint-node
+      - chainpoint-gateway
     secrets:
       - HOT_WALLET_PASS
     environment:
@@ -87,9 +87,9 @@ services:
       - TLSPATH
       - TLSEXTRADOMAIN=lnd
     volumes:
-      - ~/.chainpoint/node/.lnd:/root/.lnd:z
+      - ~/.chainpoint/gateway/.lnd:/root/.lnd:z
     networks:
-      - chainpoint-node
+      - chainpoint-gateway
     logging:
       driver: 'json-file'
       options:
@@ -108,6 +108,6 @@ services:
       LND_SOCKET: ${LND_SOCKET}
       ACCOUNTING_PORT: ${ACCOUNTING_PORT:-9000}
     volumes:
-      - ~/.chainpoint/node/.lnd:/root/.lnd:ro
+      - ~/.chainpoint/gateway/.lnd:/root/.lnd:ro
     networks:
-      - chainpoint-node
+      - chainpoint-gateway

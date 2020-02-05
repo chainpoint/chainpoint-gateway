@@ -8,7 +8,7 @@ SHELL := /bin/bash
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 # Get home directory of current users
-NODE_DATADIR := $(shell eval printf "~$$USER")/.chainpoint/node
+NODE_DATADIR := $(shell eval printf "~$$USER")/.chainpoint/gateway
 
 # Get home directory of current users
 HOMEDIR := $(shell eval printf "~$$USER")
@@ -24,7 +24,7 @@ help : Makefile
 ## logs            : Tail Node logs
 .PHONY : logs
 logs:
-	docker-compose logs -f -t | grep chainpoint-node
+	docker-compose logs -f -t | grep chainpoint-gateway
 
 ## up              : Start Node
 .PHONY : up
@@ -45,7 +45,7 @@ clean: down
 ## burn            : Shutdown and **destroy** all local Node data
 .PHONY : burn
 burn: clean
-	@sudo rm -rf ${HOMEDIR}/.chainpoint/node/.lnd
+	@sudo rm -rf ${HOMEDIR}/.chainpoint/gateway/.lnd
 
 ## restart         : Restart Node
 .PHONY : restart
@@ -54,8 +54,8 @@ restart: down up
 ## build           : Build Node image
 .PHONY : build
 build:
-	docker build -t chainpoint-node .
-	docker tag chainpoint-node gcr.io/chainpoint-registry/github-chainpoint-chainpoint-node-src:latest
+	docker build -t chainpoint-gateway .
+	docker tag chainpoint-gateway gcr.io/chainpoint-registry/github-chainpoint-chainpoint-gateway:latest
 	docker container prune -f
 
 ## build-config    : Copy the .env config from .env.sample
@@ -108,7 +108,7 @@ init-swarm:
 .PHONY : init-swarm-restart
 init-swarm-restart:
 	@docker-compose down &> /dev/null
-	@rm -rf ~/.chainpoint/node/.lnd
+	@rm -rf ~/.chainpoint/gateway/.lnd
 	@rm -rf ./init/init.json
 	@node ./init/index.js
 
@@ -117,7 +117,7 @@ init-restart: build-rocksdb init-yarn init-swarm-restart
 
 ## deploy          : deploys a swarm stack
 deploy:
-	set -a && source .env && set +a && export USERID=${UID} && export GROUPID=${GID} && docker stack deploy -c swarm-compose.yaml chainpoint-node
+	set -a && source .env && set +a && export USERID=${UID} && export GROUPID=${GID} && docker stack deploy -c swarm-compose.yaml chainpoint-gateway
 
 ## optimize-network: increases number of sockets host can use
 optimize-network:
@@ -129,5 +129,5 @@ optimize-network:
 
 ## stop	         : removes a swarm stack
 stop:
-	docker stack rm chainpoint-node
-	rm -rf ${HOMEDIR}/.chainpoint/node/.lnd/tls.*
+	docker stack rm chainpoint-gateway
+	rm -rf ${HOMEDIR}/.chainpoint/gateway/.lnd/tls.*

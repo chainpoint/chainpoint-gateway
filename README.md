@@ -1,18 +1,18 @@
-# Chainpoint Node Source
+# Chainpoint Gateway Source
 
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 
-## What is Chainpoint Node?
+## What is Chainpoint Gateway?
 
-Chainpoint Nodes allows anyone to run a server that accepts hashes, anchors them to public blockchains, and retrieves and verify the resulting Chainpoint Proofs. 
+Chainpoint Gateways allows anyone to run a server that accepts hashes, anchors them to public blockchains, and retrieves and verify the resulting Chainpoint Proofs. 
 
-Chainpoint Nodes use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay for anchoring services from Chainpoint Cores. The fee starts at 2 satoshis, and the easy deployment of an accompanying Lightning Node enables Node operators to easily become part of the Lightning ecosystem.
+Chainpoint Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay for anchoring services from Chainpoint Cores. The fee starts at 2 satoshis, and the easy deployment of an accompanying Lightning Node enables Node operators to easily become part of the Lightning ecosystem.
 
 
-## Installing Chainpoint Node
+## Installing Chainpoint Gateway
 
 ### Requirements
 
@@ -25,7 +25,7 @@ At minimum, the following software is required for any installation of Core:
 
 A BASH script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be found [here](https://github.com/chainpoint/chainpoint-node-src/blob/master/scripts/install_deps.sh).
 
-Chainpoint Node has been tested with a couple of different hardware configurations.
+Chainpoint Gateway has been tested with a couple of different hardware configurations.
 
 Personal:
 
@@ -105,7 +105,7 @@ Channel created with 03460d821ca4e9a59c8fc9665315ea98ea1960d86ad58e0ca18484dec77
 Channel created with 03eef6610d26489b897d81eb142f28ad5cd48a6b3e5c4e42a697cd00d5eb059313@3.135.54.225:9735
 
 *********************************************************************************
-Chainpoint Node and supporting Lighning node have been successfully initialized.
+Chainpoint Gateway and supporting Lighning node have been successfully initialized.
 *********************************************************************************
 
 $ make deploy
