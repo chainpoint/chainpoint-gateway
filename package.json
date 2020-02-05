@@ -1,7 +1,7 @@
 {
   "name": "chainpoint-gateway",
   "description": "A Chainpoint Network Gateway is a key part of a scalable solution for anchoring data to public blockchains.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
