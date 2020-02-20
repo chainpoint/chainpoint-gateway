@@ -6,8 +6,6 @@ networks:
   # Useful networks for local dev/testing
   chainpoint-core_chainpoint:
     external: true
-  boltbox-simnet:
-    external: true
 
 services:
   chainpoint-gateway:
@@ -23,7 +21,6 @@ services:
       - '80:8080'
     networks:
       - chainpoint-gateway
-      - boltbox-simnet
       - chainpoint-core_chainpoint
     environment:
       HOME: /root
