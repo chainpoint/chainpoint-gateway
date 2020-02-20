@@ -9,7 +9,7 @@
 
 Chainpoint Gateways allows anyone to run a server that accepts hashes, anchors them to public blockchains, and retrieves and verify the resulting Chainpoint Proofs. 
 
-Chainpoint Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay for anchoring services from Chainpoint Cores. The fee starts at 2 satoshis, and the easy deployment of an accompanying Lightning Node enables Node operators to easily become part of the Lightning ecosystem.
+Chainpoint Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay for anchoring services from Chainpoint Cores. The fee starts at 2 satoshis, and the easy deployment of an accompanying Lightning Node enables Gateway operators to easily become part of the Lightning ecosystem.
 
 
 ## Installing Chainpoint Gateway
@@ -53,6 +53,11 @@ $ make install-deps
 
 Please logout and login to allow your user to use docker
 
+$ exit
+
+$ ssh user@<your_ip>
+$ make init
+
 
  ██████╗██╗  ██╗ █████╗ ██╗███╗   ██╗██████╗  ██████╗ ██╗███╗   ██╗████████╗     ██████╗  █████╗ ████████╗███████╗██╗    ██╗ █████╗ ██╗   ██╗
 ██╔════╝██║  ██║██╔══██╗██║████╗  ██║██╔══██╗██╔═══██╗██║████╗  ██║╚══██╔══╝    ██╔════╝ ██╔══██╗╚══██╔══╝██╔════╝██║    ██║██╔══██╗╚██╗ ██╔╝
@@ -63,7 +68,7 @@ Please logout and login to allow your user to use docker
 
 
 ? Will this Core use Bitcoin mainnet or testnet? Testnet
-? Enter your Node's Public IP Address: 104.154.83.163
+? Enter your Gateways's Public IP Address: 104.154.83.163
 
 Initializing Lightning wallet...
 Create new address for wallet...
@@ -113,7 +118,7 @@ $ make deploy
 
 ## Gateway Public API
 
-Every Gateway provides a public HTTP API. This is documented in greater detail on the [Gateway HTTP API wiki](https://github.com/chainpoint/chainpoint-gateway/wiki/Node-HTTP-API)
+Every Gateway provides a public HTTP API. This is documented in greater detail on the [Gateway HTTP API wiki](https://github.com/chainpoint/chainpoint-gateway/wiki/Gateway-HTTP-API)
 
 ## License
 
