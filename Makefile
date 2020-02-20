@@ -8,7 +8,7 @@ SHELL := /bin/bash
 ROOT_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 
 # Get home directory of current users
-NODE_DATADIR := $(shell eval printf "~$$USER")/.chainpoint/gateway
+GATEWAY_DATADIR := $(shell eval printf "~$$USER")/.chainpoint/gateway
 
 # Get home directory of current users
 HOMEDIR := $(shell eval printf "~$$USER")
@@ -39,8 +39,8 @@ down:
 ## clean           : Shutdown and **destroy** all local Node data
 .PHONY : clean
 clean: down
-	@sudo rm -rf ${NODE_DATADIR}/data/rocksdb/*
-	@sudo chmod 777 ${NODE_DATADIR}/data/rocksdb
+	@sudo rm -rf ${GATEWAY_DATADIR}/data/rocksdb/*
+	@sudo chmod 777 ${GATEWAY_DATADIR}/data/rocksdb
 
 ## burn            : Shutdown and **destroy** all local Node data
 .PHONY : burn
@@ -69,7 +69,7 @@ build-config:
 .PHONY : build-rocksdb
 build-rocksdb:
 	@echo Setting up directories...
-	@mkdir -p ${NODE_DATADIR}/data/rocksdb && chmod 777 ${NODE_DATADIR}/data/rocksdb
+	@mkdir -p ${GATEWAY_DATADIR}/data/rocksdb && chmod 777 ${GATEWAY_DATADIR}/data/rocksdb
 
 ## pull            : Pull Docker images
 .PHONY : pull
