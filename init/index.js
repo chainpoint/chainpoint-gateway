@@ -283,7 +283,7 @@ async function askFundAmountAsync(progress) {
   console.log(chalk.yellow(`\nYou have chosen to connect to ${coreConnectCount} Core(s).`))
   console.log(
     chalk.yellow(
-      'You will now need to fund you wallet with a minimum amount of BTC to cover costs of the initial channel creation and future Core submissions.\n'
+      'You will now need to fund you wallet with a minimum amount of BTC to cover costs of the initial channel creation and future Core submissions.\nThe init process will wait for your funding to confirm with the Bitcoin Network.'
     )
   )
 
@@ -350,7 +350,7 @@ async function waitForSyncAndFundingAsync(progress) {
     chalk.yellow(
       `This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least ${
         progress.finalFundAmount
-      } Satoshi.\n`
+      } Satoshi. The init process should resume automatically. \n`
     )
   )
 
@@ -435,38 +435,33 @@ async function createCoreLNDPeerConnectionsAsync(progress) {
 async function createCoreLNDChannelsAsync(progress) {
   let lnd = new lightning(LND_SOCKET, progress.network, false, true)
   let channelPubKeys = []
-  let backendError = true
-  while (backendError) {
-    backendError = false
-    try {
-      let channelList = await lnd.callMethodAsync('lightning', 'listChannelsAsync', {}, progress.walletSecret)
-      for (let channel of channelList.channels) {
-        channelPubKeys.push(channel.remote_pubkey)
-      }
-    } catch (error) {
-      backendError = true
-      console.log(chalk.red(`Could not retrieve LND channel list: ${error.message}`))
-      continue
+  try {
+    let channelList = await lnd.callMethodAsync('lightning', 'listChannelsAsync', {}, progress.walletSecret)
+    for (let channel of channelList.channels) {
+      channelPubKeys.push(channel.remote_pubkey)
     }
-    for (let lndUri of progress.coreLNDUris) {
-      let pubkey = lndUri.split('@')[0]
-      if (channelPubKeys.includes(pubkey)) continue // already have a channel with this node, skip
-      try {
-        let channelTxInfo = await lnd.callMethodAsync(
-          'lightning',
-          'openChannelSyncAsync',
-          {
-            node_pubkey_string: pubkey,
-            local_funding_amount: progress.finalChannelAmount,
-            push_sat: 0
-          },
-          progress.walletSecret
-        )
-        console.log(chalk.yellow(`Channel created with ${lndUri} in transaction ${channelTxInfo.funding_txid_str}`))
-      } catch (error) {
-        backendError = true
-        console.log(chalk.red(`Unable to create a channel with ${lndUri} : ${error.message}`))
-      }
+  } catch (error) {
+    console.log(chalk.red(`Could not retrieve LND channel list: ${error.message}`))
+  }
+  for (let lndUri of progress.coreLNDUris) {
+    let pubkey = lndUri.split('@')[0]
+    if (channelPubKeys.includes(pubkey)) continue // already have a channel with this node, skip
+    try {
+      let channelTxInfo = await lnd.callMethodAsync(
+        'lightning',
+        'openChannelSyncAsync',
+        {
+          node_pubkey_string: pubkey,
+          local_funding_amount: progress.finalChannelAmount,
+          push_sat: 0
+        },
+        progress.walletSecret
+      )
+      console.log(
+        chalk.yellow(`Channel created with ${lndUri} with the following properties: ${JSON.stringify(channelTxInfo)}`)
+      )
+    } catch (error) {
+      console.log(chalk.red(`Unable to create a channel with ${lndUri} : ${error.message}`))
     }
   }
 }
@@ -542,7 +537,7 @@ async function start() {
     // Initialization complete, mark progress file as such
     setInitProgressCompleteAsync()
   } catch (error) {
-    console.error(chalk.red(`An unexpected error has occurred : ${error.message}`))
+    console.error(chalk.red(`An unexpected error has occurred : ${error.message}. Please run 'make init' again.`))
   } finally {
     try {
       console.log(chalk.yellow(`Shutting down Lightning node...`))
