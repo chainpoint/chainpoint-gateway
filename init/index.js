@@ -88,7 +88,7 @@ async function startLndNodeAsync(initAnswers) {
     let uid = (await exec.quiet('id -u $USER')).stdout.trim()
     let gid = (await exec.quiet('id -g $USER')).stdout.trim()
     console.log(chalk.yellow(`Starting Lightning node...`))
-    await exec([
+    await exec.quiet([
       `docker-compose pull lnd &&
       mkdir -p ${home}/.chainpoint/gateway/.lnd && 
       export USERID=${uid} && 
@@ -152,7 +152,11 @@ function displayInitResults(walletInfo) {
   console.log(chalk.magenta(`\n******************************************************`))
   console.log(chalk.magenta(`You should back up this information in a secure place.`))
   console.log(chalk.magenta(`******************************************************\n\n`))
-  console.log(chalk.green(`\nPlease fund the Lightning Wallet Address above with Bitcoin and wait for 6 confirmation before running 'make deploy'\n`))
+  console.log(
+    chalk.green(
+      `\nPlease fund the Lightning Wallet Address above with Bitcoin and wait for 6 confirmation before running 'make deploy'\n`
+    )
+  )
 }
 
 async function setENVValuesAsync(newENVData) {
