@@ -3,9 +3,6 @@ version: '3.4'
 networks:
   chainpoint-gateway:
     driver: bridge
-  # Useful networks for local dev/testing
-  chainpoint-core_chainpoint:
-    external: true
 
 services:
   chainpoint-gateway:
@@ -21,7 +18,6 @@ services:
       - '80:8080'
     networks:
       - chainpoint-gateway
-      - chainpoint-core_chainpoint
     environment:
       HOME: /root
       HOT_WALLET_PASS: ${HOT_WALLET_PASS}

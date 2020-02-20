@@ -102,6 +102,7 @@ init-yarn:
 ## init-swarm      : Initialize a docker swarm
 .PHONY : init-swarm
 init-swarm:
+    @mkdir -p ${HOMEDIR}/.chainpoint/gateway/.lnd
 	@node ./init/index.js
 
 ## init-swarm-restart     : Initialize a docker swarm, abandon current configuration
