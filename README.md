@@ -21,7 +21,7 @@ At minimum, the following software is required for any installation of Core:
 - `Git`
 - `Docker`
 
-A BASH script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be found [here](https://github.com/chainpoint/chainpoint-gateway/blob/master/scripts/install_deps.sh).
+A BASH script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be run from `make install-deps`.
 
 Chainpoint Gateway has been tested with a couple of different hardware configurations.
 
@@ -54,6 +54,7 @@ Please logout and login to allow your user to use docker
 $ exit
 
 $ ssh user@<your_ip>
+$ cd chainpoint-gateway
 $ make init
 
 
