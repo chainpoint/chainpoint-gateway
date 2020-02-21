@@ -307,9 +307,7 @@ async function askFundAmountAsync(progress) {
       {
         type: 'confirm',
         name: 'AGREE',
-        message: `${
-          fundAnswer1.AMOUNT
-        } per channel will require ${totalFundsNeeded} Satoshi total funding. Is this OK?`,
+        message: `${fundAnswer1.AMOUNT} per channel will require ${totalFundsNeeded} Satoshi total funding. Is this OK?`,
         default: true
       }
     ]
@@ -348,9 +346,7 @@ async function askFundAmountAsync(progress) {
 async function waitForSyncAndFundingAsync(progress) {
   console.log(
     chalk.yellow(
-      `This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least ${
-        progress.finalFundAmount
-      } Satoshi. The init process should resume automatically. \n`
+      `This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least ${progress.finalFundAmount} Satoshi. The init process should resume automatically. \n`
     )
   )
 
@@ -458,7 +454,11 @@ async function createCoreLNDChannelsAsync(progress) {
         progress.walletSecret
       )
       console.log(
-        chalk.yellow(`Channel created with ${lndUri} with the following properties: ${JSON.stringify(channelTxInfo)}`)
+        chalk.yellow(
+          `Channel created with ${lndUri} with the following transaction Id: ${Buffer.from(
+            channelTxInfo.funding_txid_bytes.data
+          ).toString('hex')}`
+        )
       )
     } catch (error) {
       console.log(chalk.red(`Unable to create a channel with ${lndUri} : ${error.message}`))
