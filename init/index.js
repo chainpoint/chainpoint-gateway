@@ -139,8 +139,9 @@ async function initializeLndNodeAsync(initAnswers) {
 async function createDockerSecretsAsync(initAnswers, walletInfo) {
   try {
     console.log(chalk.yellow('Creating Docker secrets...'))
+    await exec.quiet([`docker swarm init --advertise-addr=${initAnswers.LND_PUBLIC_IP}`])
+    await utils.sleepAsync(2000) // wait for swarm to initialize
     await exec.quiet([
-      `docker swarm init --advertise-addr=${initAnswers.NODE_PUBLIC_IP_ADDRESS} || echo "Swarm already initialized"`,
       `printf ${walletInfo.walletSecret} | docker secret create HOT_WALLET_PASS -`,
       `printf ${walletInfo.cipherSeedMnemonic.join(' ')} | docker secret create HOT_WALLET_SEED -`,
       `printf ${walletInfo.newAddress} | docker secret create HOT_WALLET_ADDRESS -`
