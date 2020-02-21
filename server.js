@@ -33,15 +33,17 @@ async function startAsync() {
     // display NETWORK value
     logger.info(`App : Startup : Network : ${env.NETWORK}`)
 
+    // establish a connection with the database
     await openStorageConnectionAsync()
 
+    // connect to the Cores listed in .env and check/open lightning connections
+    await cores.connectAsync()
+
+    // start API server
     await apiServer.startAsync()
 
     // start the interval processes for refreshing the IP blocklist
     apiServer.startIPBlacklistRefreshInterval()
-
-    // connect to the Cores listed in .env and check/open lightning connections
-    await cores.connectAsync()
 
     // start the interval processes for aggregating and submitting hashes to Core
     aggregator.startAggInterval()
