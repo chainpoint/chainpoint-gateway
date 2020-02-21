@@ -6,6 +6,8 @@ networks:
 secrets:
   HOT_WALLET_PASS:
     external: true
+  HOT_WALLET_ADDRESS:
+    external: true
 
 services:
   chainpoint-gateway:
@@ -43,6 +45,8 @@ services:
       MAX_SATOSHI_PER_HASH: "${MAX_SATOSHI_PER_HASH}"
       NETWORK: ${NETWORK}
       NODE_ENV: ${NODE_ENV}
+      CHANNEL_AMOUNT: ${CHANNEL_AMOUNT}
+      FUND_AMOUNT: ${FUND_AMOUNT}
     tty: true
     logging:
       driver: 'json-file'
