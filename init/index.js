@@ -404,69 +404,6 @@ async function waitForSyncAndFundingAsync(progress) {
   }
 }
 
-async function createCoreLNDPeerConnectionsAsync(progress) {
-  let lnd = new lightning(LND_SOCKET, progress.network, false, true)
-  let peerPubKeys = []
-  try {
-    let peerList = await lnd.callMethodAsync('lightning', 'listPeersAsync', null, progress.walletSecret)
-    for (let peer of peerList.peers) {
-      peerPubKeys.push(peer.pub_key)
-    }
-  } catch (error) {
-    throw new Error('Could not retrieve LND peer list')
-  }
-
-  for (let lndUri of progress.coreLNDUris) {
-    let [pubkey, host] = lndUri.split('@')
-    if (peerPubKeys.includes(pubkey)) continue // already peered to this node, skip
-    try {
-      await lnd.callMethodAsync(
-        'lightning',
-        'connectPeerAsync',
-        { addr: { pubkey, host }, perm: true },
-        progress.walletSecret
-      )
-      console.log(chalk.yellow(`Peer connection established with ${lndUri}`))
-    } catch (error) {
-      throw new Error(`Unable to establish a peer connection with ${lndUri} : ${error.message}`)
-    }
-  }
-}
-
-async function createCoreLNDChannelsAsync(progress) {
-  let lnd = new lightning(LND_SOCKET, progress.network, false, true)
-  let channelPubKeys = []
-  try {
-    let channelList = await lnd.callMethodAsync('lightning', 'listChannelsAsync', {}, progress.walletSecret)
-    for (let channel of channelList.channels) {
-      channelPubKeys.push(channel.remote_pubkey)
-    }
-  } catch (error) {
-    console.log(chalk.red(`Could not retrieve LND channel list: ${error.message}`))
-  }
-  for (let lndUri of progress.coreLNDUris) {
-    let pubkey = lndUri.split('@')[0]
-    if (channelPubKeys.includes(pubkey)) continue // already have a channel with this node, skip
-    try {
-      let channelTxInfo = await lnd.callMethodAsync(
-        'lightning',
-        'openChannelSyncAsync',
-        {
-          node_pubkey_string: pubkey,
-          local_funding_amount: progress.finalChannelAmount,
-          push_sat: 0
-        },
-        progress.walletSecret
-      )
-      console.log(
-        chalk.yellow(`Channel created with ${lndUri} with the following properties: ${JSON.stringify(channelTxInfo)}`)
-      )
-    } catch (error) {
-      console.log(chalk.red(`Unable to create a channel with ${lndUri} : ${error.message}`))
-    }
-  }
-}
-
 function displayFinalConnectionSummary() {
   console.log(chalk.green('\n*********************************************************************************'))
   console.log(chalk.green('Chainpoint Gateway and supporting Lighning node have been successfully initialized.'))
@@ -530,10 +467,10 @@ async function start() {
     }
     // Wait for sync and wallet funding
     await waitForSyncAndFundingAsync(progress)
-    // Create peer connections to desired Cores
-    await createCoreLNDPeerConnectionsAsync(progress)
-    // Create channles to desired Cores
-    await createCoreLNDChannelsAsync(progress)
+    await setENVValuesAsync({
+      CHANNEL_AMOUNT: progress.finalChannelAmount,
+      FUND_AMOUNT: progress.finalFundAmount
+    })
     await displayFinalConnectionSummary()
     // Initialization complete, mark progress file as such
     setInitProgressCompleteAsync()

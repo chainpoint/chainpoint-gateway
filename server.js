@@ -40,6 +40,9 @@ async function startAsync() {
     // start the interval processes for refreshing the IP blocklist
     apiServer.startIPBlacklistRefreshInterval()
 
+    // connect to the Cores listed in .env and check/open lightning connections
+    await cores.connectAsync()
+
     // start the interval processes for aggregating and submitting hashes to Core
     aggregator.startAggInterval()
 
