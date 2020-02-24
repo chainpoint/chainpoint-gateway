@@ -45,6 +45,7 @@ clean: stop
 ## burn            : Shutdown and **destroy** all local Gateway data
 .PHONY : burn
 burn: clean
+	@docker swarm leave --force
 	@rm -rf ${HOMEDIR}/.chainpoint/gateway/.lnd
 	@rm -rf init/init.json
 
@@ -107,8 +108,8 @@ init-swarm:
 
 ## init-swarm-restart     : Initialize a docker swarm, abandon current configuration
 .PHONY : init-swarm-restart
-init-swarm-restart:
-	@docker-compose down &> /dev/null
+init-swarm-restart: stop
+	@docker swarm leave --force
 	@rm -rf ~/.chainpoint/gateway/.lnd
 	@rm -rf ./init/init.json
 	@node ./init/index.js
