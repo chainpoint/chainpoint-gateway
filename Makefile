@@ -38,7 +38,7 @@ down:
 
 ## clean           : Shutdown and **destroy** all local Gateway data
 .PHONY : clean
-clean: down
+clean: stop
 	@rm -rf ${GATEWAY_DATADIR}/data/rocksdb/*
 	@chmod 777 ${GATEWAY_DATADIR}/data/rocksdb
 
