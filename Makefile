@@ -21,12 +21,12 @@ GID := $(shell id -g $$USER)
 help : Makefile
 	@sed -n 's/^##//p' $<
 
-## logs            : Tail Node logs
+## logs            : Tail Gateway logs
 .PHONY : logs
 logs:
-	docker-compose logs -f -t | grep chainpoint-gateway
+	docker service logs -f chainpoint-gateway_chainpoint-gateway --raw
 
-## up              : Start Node
+## up              : Start Gateway in dev mode
 .PHONY : up
 up: build-config build build-rocksdb
 	docker-compose up -d
@@ -36,22 +36,23 @@ up: build-config build build-rocksdb
 down:
 	docker-compose down
 
-## clean           : Shutdown and **destroy** all local Node data
+## clean           : Shutdown and **destroy** all local Gateway data
 .PHONY : clean
 clean: down
-	@sudo rm -rf ${GATEWAY_DATADIR}/data/rocksdb/*
-	@sudo chmod 777 ${GATEWAY_DATADIR}/data/rocksdb
+	@rm -rf ${GATEWAY_DATADIR}/data/rocksdb/*
+	@chmod 777 ${GATEWAY_DATADIR}/data/rocksdb
 
-## burn            : Shutdown and **destroy** all local Node data
+## burn            : Shutdown and **destroy** all local Gateway data
 .PHONY : burn
 burn: clean
-	@sudo rm -rf ${HOMEDIR}/.chainpoint/gateway/.lnd
+	@rm -rf ${HOMEDIR}/.chainpoint/gateway/.lnd
+	@rm -rf init/init.json
 
-## restart         : Restart Node
+## restart         : Restart Gateway in dev mode
 .PHONY : restart
 restart: down up
 
-## build           : Build Node image
+## build           : Build Gateway image
 .PHONY : build
 build:
 	docker build -t chainpoint-gateway .
