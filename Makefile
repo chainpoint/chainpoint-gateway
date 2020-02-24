@@ -45,9 +45,9 @@ clean: stop
 ## burn            : Shutdown and **destroy** all local Gateway data
 .PHONY : burn
 burn: clean
-	@docker swarm leave --force || echo "already left swarm"
 	@rm -rf ${HOMEDIR}/.chainpoint/gateway/.lnd
 	@rm -rf init/init.json
+	@docker swarm leave --force || echo "already left swarm"
 
 ## restart         : Restart Gateway in dev mode
 .PHONY : restart
@@ -109,10 +109,10 @@ init-swarm:
 ## init-swarm-restart     : Initialize a docker swarm, abandon current configuration
 .PHONY : init-swarm-restart
 init-swarm-restart: stop
-	@docker swarm leave --force || echo "already left swarm"
 	@rm -rf ~/.chainpoint/gateway/.lnd
 	@rm -rf ./init/init.json
 	@node ./init/index.js
+	@docker swarm leave --force || echo "already left swarm"
 
 ## init-restart         : Bring up yarn, swarm, and generate secrets, abondon current configuration
 init-restart: build-rocksdb init-yarn init-swarm-restart
