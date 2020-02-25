@@ -10,7 +10,7 @@ Gateways receive hashes from Clients, aggregate hashes in a merkle tree, and per
 
 Gateway setup takes 45 - 90 mins, due to activities that require the automated tools to interact with the Bitcoin Blockchain. 
 
-* Lightning Node synch (10 - 15 minutes)
+* Lightning Node sync (10 - 15 minutes)
 * Funding the Lightning wallet and waiting for 3 confirmations (avg 30 mins)
 
 ## Installation
