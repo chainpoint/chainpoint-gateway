@@ -96,17 +96,23 @@ You will now need to fund you wallet with a minimum amount of BTC to cover costs
 **************************************************************************************************************
 Please send 1000000 Satoshi (0.01 BTC) to your wallet with address tb1qglvlrlg0velrserjuuy7s4uhrsrhuzwgl8hvgm
 **************************************************************************************************************
-This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least 1000000 Satoshi.
+
+This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least 400000 Satoshi. The init process should resume automatically.
+
+2020-02-24T17:12:12.244Z> Syncing in progress... currently at block height 1576000
+2020-02-24T17:12:42.259Z> Syncing in progress... currently at block height 1596000
+2020-02-24T17:13:12.269Z> Syncing in progress... currently at block height 1608000
+2020-02-24T17:13:42.279Z> Syncing in progress... currently at block height 1626000
+2020-02-24T17:14:12.286Z> Syncing in progress... currently at block height 1650000
+2020-02-24T17:14:42.297Z> Syncing in progress... currently at block height 1662000
+
 *****************************************
 Your lightning node is fully synced.
 *****************************************
-2020-01-18T04:32:59.361Z> Awaiting funds for wallet... wallet has a current balance of 0
 
-Peer connection established with 03460d821ca4e9a59c8fc9665315ea98ea1960d86ad58e0ca18484dec776f2141c@3.17.78.45:9735
-Peer connection established with 03eef6610d26489b897d81eb142f28ad5cd48a6b3e5c4e42a697cd00d5eb059313@3.135.54.225:9735
-
-Channel created with 03460d821ca4e9a59c8fc9665315ea98ea1960d86ad58e0ca18484dec776f2141c@3.17.78.45:9735
-Channel created with 03eef6610d26489b897d81eb142f28ad5cd48a6b3e5c4e42a697cd00d5eb059313@3.135.54.225:9735
+***********************************************
+Your lightning wallet is adequately funded.
+***********************************************
 
 *********************************************************************************
 Chainpoint Gateway and supporting Lighning node have been successfully initialized.
@@ -114,6 +120,8 @@ Chainpoint Gateway and supporting Lighning node have been successfully initializ
 
 $ make deploy
 ```
+
+After running `make deploy`, the Gateway will peer and open channels with Core's lightning nodes. This allows the Gateway to pay for hashes. This process may take several minutes upon first run.
 
 ## Troubleshooting
 
