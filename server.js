@@ -57,6 +57,9 @@ async function startAsync() {
     // start the interval processes for pruning cached transaction data from memory
     cores.startPruneExpiredItemsInterval()
 
+    // start monitoring health of peer/channel connections
+    cores.startConnectionMonitoringInterval()
+
     logger.info(`App : Startup : Complete`)
   } catch (err) {
     logger.error(`App : Startup : ${err.message}`)
