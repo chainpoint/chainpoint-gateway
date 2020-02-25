@@ -4,17 +4,20 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-## What is Chainpoint Gateway?
+Developers run a Gateway if they want a dedicated server to create and verify Chainpoint proofs.
 
-Chainpoint Gateways allows anyone to run a server that accepts hashes, anchors them to public blockchains, and retrieves and verify the resulting Chainpoint Proofs.
+Gateways receive hashes from Clients, aggregate hashes in a merkle tree, and periodically send a merkle root to one or more Cores. Each Gateway has an integrated Lightning Node running LND. Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay Cores an Anchor Fee for submitting a merkle root. The default Anchor Fee is 2 satoshis.
 
-Chainpoint Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay for anchoring services from Chainpoint Cores. The fee starts at 2 satoshis, and the easy deployment of an accompanying Lightning Node enables Gateway operators to easily become part of the Lightning ecosystem.
+Gateway setup takes 45 - 90 mins, due to activities that require the automated tools to interact with the Bitcoin Blockchain. 
 
-## Installing Chainpoint Gateway
+* Lightning Node synch (10 - 15 minutes)
+* Funding the Lightning wallet and waiting for 3 confirmations (avg 30 mins)
+
+## Installation
 
 ### Requirements
 
-At minimum, the following software is required for any installation of Core:
+The following software is required:
 
 - `*Nix-based OS (Ubuntu Linux and MacOS have been tested)`
 - `BASH`
@@ -23,16 +26,16 @@ At minimum, the following software is required for any installation of Core:
 
 A BASH script to install all other dependencies (make, openssl, nodejs, yarn) on Ubuntu and Mac can be run from `make install-deps`.
 
-Chainpoint Gateway has been tested with a couple of different hardware configurations.
+Chainpoint Gateway has been tested with different hardware configurations.
 
-Personal:
+Minimum:
 
 - `4GB RAM`
 - `1 CPU Cores`
 - `128+ GB SSD`
 - `Public IPv4 address`
 
-Server:
+Mid-Range:
 
 - `8GB RAM`
 - `2 CPU Cores`
@@ -41,7 +44,7 @@ Server:
 
 ### Deployment
 
-First, you will have to run the following commands to initiate your Node:
+Run the following commands to initiate your Gateway:
 
 ```bash
 $ sudo apt-get install make git
@@ -66,7 +69,7 @@ $ make init
  ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝  ╚═══╝╚═╝      ╚═════╝ ╚═╝╚═╝  ╚═══╝   ╚═╝        ╚═════╝ ╚═╝  ╚═╝   ╚═╝   ╚══════╝ ╚══╝╚══╝ ╚═╝  ╚═╝   ╚═╝
 
 
-? Will this Core use Bitcoin mainnet or testnet? Testnet
+? Will this Gateway use Bitcoin mainnet or testnet? testnet
 ? Enter your Gateways's Public IP Address: 104.154.83.163
 
 Initializing Lightning wallet...
@@ -82,7 +85,7 @@ Lightning Wallet Address:tb1qglvlrlg0velrserjuuy7s4uhrsrhuzwgl8hvgm
 You should back up this information in a secure place.
 ******************************************************
 
-Please fund the Lightning Wallet Address above with Bitcoin and wait for 6 confirmation before running 'make deploy'
+TODO: REMOVE Please fund the Lightning Wallet Address above with Bitcoin and wait for 6 confirmations before running 'make deploy'
 
 How many Cores would you like to connect to? (max 4) 2
 Would you like to specify any Core IPs manually? No
@@ -107,21 +110,21 @@ This initialization process will now wait until your Lightning node is fully syn
 2020-02-24T17:14:42.297Z> Syncing in progress... currently at block height 1662000
 
 *****************************************
-Your lightning node is fully synced.
+Your Lightning node is fully synced.
 *****************************************
 
 ***********************************************
-Your lightning wallet is adequately funded.
+Your Lightning wallet is adequately funded.
 ***********************************************
 
 *********************************************************************************
-Chainpoint Gateway and supporting Lighning node have been successfully initialized.
+Chainpoint Gateway and integrated Lightning node have been successfully initialized.
 *********************************************************************************
 
 $ make deploy
 ```
 
-After running `make deploy`, the Gateway will peer and open channels with Core's lightning nodes. This allows the Gateway to pay for hashes. This process may take several minutes upon first run.
+After running `make deploy`, the Gateway will automatically peer and open Lightning channels with Cores. This allows the Gateway to authenticate with Cores and pay for Anchor Fees. This process may take several minutes upon first run.
 
 ## Troubleshooting
 
@@ -140,7 +143,7 @@ Every Gateway provides a public HTTP API. This is documented in greater detail o
 [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0)
 
 ```text
-Copyright (C) 2017-2018 Tierion
+Copyright (C) 2017-2020 Tierion
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
