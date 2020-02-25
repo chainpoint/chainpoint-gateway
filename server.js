@@ -33,8 +33,13 @@ async function startAsync() {
     // display NETWORK value
     logger.info(`App : Startup : Network : ${env.NETWORK}`)
 
+    // establish a connection with the database
     await openStorageConnectionAsync()
 
+    // connect to the Cores listed in .env and check/open lightning connections
+    await cores.connectAsync()
+
+    // start API server
     await apiServer.startAsync()
 
     // start the interval processes for refreshing the IP blocklist
@@ -51,6 +56,9 @@ async function startAsync() {
 
     // start the interval processes for pruning cached transaction data from memory
     cores.startPruneExpiredItemsInterval()
+
+    // start monitoring health of peer/channel connections
+    cores.startConnectionMonitoringInterval()
 
     logger.info(`App : Startup : Complete`)
   } catch (err) {

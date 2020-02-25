@@ -41,7 +41,7 @@ Server:
 
 ### Deployment
 
-First, you will have to run the following commands to initate your Node:
+First, you will have to run the following commands to initiate your Node:
 
 ```bash
 $ sudo apt-get install make git

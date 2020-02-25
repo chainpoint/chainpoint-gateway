@@ -6,6 +6,8 @@ networks:
 secrets:
   HOT_WALLET_PASS:
     external: true
+  HOT_WALLET_ADDRESS:
+    external: true
 
 services:
   chainpoint-gateway:
@@ -28,9 +30,11 @@ services:
       - chainpoint-gateway
     secrets:
       - HOT_WALLET_PASS
+      - HOT_WALLET_ADDRESS
     environment:
       HOME: /root
       HOT_WALLET_PASS: DOCKER-SECRET->HOT_WALLET_PASS
+      HOT_WALLET_ADDRESS: DOCKER-SECRET->HOT_WALLET_ADDRESS
       LND_SOCKET: ${LND_SOCKET}
       CHAINPOINT_CORE_CONNECT_IP_LIST: "${CHAINPOINT_CORE_CONNECT_IP_LIST}"
       AGGREGATION_INTERVAL_SECONDS: "${AGGREGATION_INTERVAL_SECONDS}"
@@ -41,6 +45,8 @@ services:
       MAX_SATOSHI_PER_HASH: "${MAX_SATOSHI_PER_HASH}"
       NETWORK: ${NETWORK}
       NODE_ENV: ${NODE_ENV}
+      CHANNEL_AMOUNT: ${CHANNEL_AMOUNT}
+      FUND_AMOUNT: ${FUND_AMOUNT}
     tty: true
     logging:
       driver: 'json-file'

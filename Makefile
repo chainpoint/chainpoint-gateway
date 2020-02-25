@@ -21,12 +21,12 @@ GID := $(shell id -g $$USER)
 help : Makefile
 	@sed -n 's/^##//p' $<
 
-## logs            : Tail Node logs
+## logs            : Tail Gateway logs
 .PHONY : logs
 logs:
-	docker-compose logs -f -t | grep chainpoint-gateway
+	docker service logs -f chainpoint-gateway_chainpoint-gateway --raw
 
-## up              : Start Node
+## up              : Start Gateway in dev mode
 .PHONY : up
 up: build-config build build-rocksdb
 	docker-compose up -d
@@ -36,22 +36,24 @@ up: build-config build build-rocksdb
 down:
 	docker-compose down
 
-## clean           : Shutdown and **destroy** all local Node data
+## clean           : Shutdown and **destroy** all local Gateway data
 .PHONY : clean
-clean: down
-	@sudo rm -rf ${GATEWAY_DATADIR}/data/rocksdb/*
-	@sudo chmod 777 ${GATEWAY_DATADIR}/data/rocksdb
+clean: stop
+	@rm -rf ${GATEWAY_DATADIR}/data/rocksdb/*
+	@chmod 777 ${GATEWAY_DATADIR}/data/rocksdb
 
-## burn            : Shutdown and **destroy** all local Node data
+## burn            : Shutdown and **destroy** all local Gateway data
 .PHONY : burn
 burn: clean
-	@sudo rm -rf ${HOMEDIR}/.chainpoint/gateway/.lnd
+	@rm -rf ${HOMEDIR}/.chainpoint/gateway/.lnd
+	@rm -rf init/init.json
+	@docker swarm leave --force || echo "already left swarm"
 
-## restart         : Restart Node
+## restart         : Restart Gateway in dev mode
 .PHONY : restart
 restart: down up
 
-## build           : Build Node image
+## build           : Build Gateway image
 .PHONY : build
 build:
 	docker build -t chainpoint-gateway .
@@ -106,11 +108,11 @@ init-swarm:
 
 ## init-swarm-restart     : Initialize a docker swarm, abandon current configuration
 .PHONY : init-swarm-restart
-init-swarm-restart:
-	@docker-compose down &> /dev/null
+init-swarm-restart: stop
 	@rm -rf ~/.chainpoint/gateway/.lnd
 	@rm -rf ./init/init.json
 	@node ./init/index.js
+	@docker swarm leave --force || echo "already left swarm"
 
 ## init-restart         : Bring up yarn, swarm, and generate secrets, abondon current configuration
 init-restart: build-rocksdb init-yarn init-swarm-restart
