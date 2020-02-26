@@ -31,7 +31,7 @@ logs:
 up: build-config build build-rocksdb
 	docker-compose up -d
 
-## down            : Shutdown Node
+## down            : Shutdown Gateway
 .PHONY : down
 down:
 	docker-compose down
