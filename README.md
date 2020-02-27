@@ -8,10 +8,10 @@ Developers run a Gateway if they want a dedicated server to create and verify Ch
 
 Gateways receive hashes from Clients, aggregate hashes in a merkle tree, and periodically send a merkle root to one or more Cores. Each Gateway has an integrated Lightning Node running LND. Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay Cores an Anchor Fee for submitting a merkle root. The default Anchor Fee is 2 satoshis.
 
-Gateway setup takes 45 - 90 mins, due to activities that require the automated tools to interact with the Bitcoin Blockchain. 
+Gateway setup takes 45 - 90 mins, due to activities that require the automated tools to interact with the Bitcoin Blockchain.
 
-* Lightning Node sync (10 - 15 minutes)
-* Funding the Lightning wallet and waiting for 3 confirmations (avg 30 mins)
+- Lightning Node sync (10 - 15 minutes)
+- Funding the Lightning wallet and waiting for 3 confirmations (avg 30 mins)
 
 ## Installation
 
@@ -128,11 +128,16 @@ After running `make deploy`, the Gateway will automatically peer and open Lightn
 
 ## Troubleshooting
 
-If `make init` fails and the Lightning wallet hasn't yet been generated and funded, run `make init-restart`, then run `make init` again.
+If your issue isn't addressed here, please [submit an issue](https://github.com/chainpoint/chainpoint-core/issues) to the Chainpoint Core repo.
 
-If the Lightning wallet has already been generated and funded, you can usually just run `make init` again to continue the initialization process.
+### Init Problems
 
-For further help, [submit an issue](https://github.com/chainpoint/chainpoint-core/issues) to the Chainpoint Core repo.
+If `make init` fails and the Lightning wallet hasn't yet been generated and funded, run `make init-restart`, then run `make init` again. If the Lightning wallet has already been generated and funded, you can usually just run `make init` again to continue the initialization process.
+
+### Docker Secrets
+
+Gateway uses docker secrets to store sensitive credentials. If you receive a `secret not found` error for either `HOT_WALLET_PASS` or `HOT_WALLET_ADDRESS` while deploying, this can be remedied by using your saved lnd credentials to recreate the secrets:
+`printf <hot wallet password without quotes> | docker secret create HOT_WALLET_PASS -` or `printf <hot wallet address without quotes> | docker secret create HOT_WALLET_ADDRESS -`.
 
 ## Gateway Public API
 
