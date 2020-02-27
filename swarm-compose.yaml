@@ -23,7 +23,6 @@ services:
     build: .
     depends_on:
       - lnd
-    container_name: chainpoint-gateway
     ports:
       - "80:8080"
     networks:
