@@ -1,14 +1,16 @@
-# Chainpoint Gateway Source
+# Chainpoint Gateway
 
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-Developers run a Gateway if they want a dedicated server to create and verify Chainpoint proofs.
+See [Chainpoint Start](https://github.com/chainpoint/chainpoint-start) for an overview of the Chainpoint Network.
 
-Gateways receive hashes from Clients, aggregate hashes in a merkle tree, and periodically send a merkle root to one or more Cores. Each Gateway has an integrated Lightning Node running LND. Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay Cores an Anchor Fee for submitting a merkle root. The default Anchor Fee is 2 satoshis.
+A Chainpoint Gateway is a dedicated server for generating many Chainpoint proofs with a single request to the Chainpoint Network.
 
-Gateway setup takes 45 - 90 mins, due to activities that require the automated tools to interact with the Bitcoin Blockchain.
+Each Gateway has an integrated Lightning Node running [LND](https://github.com/lightningnetwork/lnd). Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay Cores an `anchor fee`  when submitting a Merkle root. The default anchor fee is 2 [satoshis](https://en.bitcoin.it/wiki/Satoshi_(unit)). Core operators can set their `anchor fee` to adapt to changing market conditions, and compete to receive transactions from Gateways
+
+Gateway setup takes 45 - 90 mins, due to activities that require the automated setup tools to interact with the Bitcoin Blockchain.
 
 - Lightning Node sync (10 - 15 minutes)
 - Funding the Lightning wallet and waiting for 3 confirmations (avg 30 mins)
