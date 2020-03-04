@@ -386,6 +386,11 @@ async function waitForSyncAndFundingAsync(progress) {
         console.log(chalk.green('\n***********************************************'))
         console.log(chalk.green('Your lightning wallet is adequately funded.'))
         console.log(chalk.green('***********************************************\n'))
+        console.log(
+          chalk.yellow(
+            'Your wallet may require up to 5 more confirmations (~60 Minutes) before your gateway can open payment channels to submit hashes\n'
+          )
+        )
         isFunded = true
       } else {
         console.log(
