@@ -41,7 +41,7 @@ const initQuestionConfig = [
   {
     type: 'list',
     name: 'NETWORK',
-    message: 'Will this Core use Bitcoin mainnet or testnet?',
+    message: 'Will this Gateway use Bitcoin mainnet or testnet?',
     choices: [
       {
         name: 'Mainnet',
@@ -284,7 +284,7 @@ async function askFundAmountAsync(progress) {
   console.log(chalk.yellow(`\nYou have chosen to connect to ${coreConnectCount} Core(s).`))
   console.log(
     chalk.yellow(
-      'You will now need to fund you wallet with a minimum amount of BTC to cover costs of the initial Lightning channel(s) creation and future Core submissions.\nThe init process will wait for your funding to confirm with the Bitcoin Network.'
+      'You will now need to fund your wallet with a minimum amount of BTC to cover costs of the initial Lightning channel(s) creation and future Core submissions.\nThe init process will wait for your funding to confirm with the Bitcoin Network.'
     )
   )
 
