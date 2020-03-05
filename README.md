@@ -61,7 +61,7 @@ Logout and login to allow your user to use Docker
 $ exit
 ```
 
-### Configure Gateway
+#### Configure Gateway
 
 ```
 $ ssh user@<your_ip>
@@ -81,7 +81,7 @@ $ make init
 ? Enter your Gateways's Public IP Address: 104.154.83.163
 ```
 
-### Initialize Lightning
+#### Initialize Lightning
 
 ```
 Initializing Lightning wallet...
