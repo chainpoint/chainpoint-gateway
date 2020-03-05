@@ -155,6 +155,8 @@ Gateway uses docker secrets to store sensitive credentials. If you receive a `se
 
 Every Gateway provides a public HTTP API. This is documented in greater detail on the [Gateway HTTP API wiki](https://github.com/chainpoint/chainpoint-gateway/wiki/Gateway-HTTP-API)
 
+Additionally, lightning node information for your Gateway can be found at `http://<gateway_ip>/config`.
+
 ## License
 
 [Apache License, Version 2.0](https://opensource.org/licenses/Apache-2.0)
