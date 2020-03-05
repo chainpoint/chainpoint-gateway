@@ -41,7 +41,7 @@ const initQuestionConfig = [
   {
     type: 'list',
     name: 'NETWORK',
-    message: 'Will this Core use Bitcoin mainnet or testnet?',
+    message: 'Will this Gateway use Bitcoin mainnet or testnet?',
     choices: [
       {
         name: 'Mainnet',
@@ -216,7 +216,7 @@ async function askCoreConnectQuestionsAsync(progress) {
     {
       type: 'number',
       name: 'CORE_COUNT',
-      message: `How many Cores would you like to connect to? (max ${peerCount})`,
+      message: `Connecting with more Cores improves the reliability but is more expensive (2 is recommended).\nHow many Cores would you like to connect to? (max ${peerCount})`,
       validate: input => input > 0 && input <= peerCount
     },
     {
@@ -284,7 +284,7 @@ async function askFundAmountAsync(progress) {
   console.log(chalk.yellow(`\nYou have chosen to connect to ${coreConnectCount} Core(s).`))
   console.log(
     chalk.yellow(
-      'You will now need to fund you wallet with a minimum amount of BTC to cover costs of the initial channel creation and future Core submissions.\nThe init process will wait for your funding to confirm with the Bitcoin Network.'
+      'You will now need to fund your wallet with a minimum amount of BTC to cover costs of the initial Lightning channel(s) creation and future Core submissions.\nThe init process will wait for your funding to confirm with the Bitcoin Network.'
     )
   )
 
@@ -386,6 +386,11 @@ async function waitForSyncAndFundingAsync(progress) {
         console.log(chalk.green('\n***********************************************'))
         console.log(chalk.green('Your lightning wallet is adequately funded.'))
         console.log(chalk.green('***********************************************\n'))
+        console.log(
+          chalk.yellow(
+            'Your wallet may require up to 5 more confirmations (~60 Minutes) before your gateway can open payment channels to submit hashes\n'
+          )
+        )
         isFunded = true
       } else {
         console.log(

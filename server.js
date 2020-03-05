@@ -40,7 +40,7 @@ async function startAsync() {
     await cores.connectAsync()
 
     // start API server
-    await apiServer.startAsync()
+    await apiServer.startAsync(cores.getLn())
 
     // start the interval processes for refreshing the IP blocklist
     apiServer.startIPBlacklistRefreshInterval()
