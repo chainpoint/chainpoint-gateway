@@ -8,7 +8,7 @@ See [Chainpoint Start](https://github.com/chainpoint/chainpoint-start) for an ov
 
 A Chainpoint Gateway is a dedicated server for generating many Chainpoint proofs with a single request to the Chainpoint Network.
 
-Each Gateway has an integrated Lightning Node running [LND](https://github.com/lightningnetwork/lnd). Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay Cores an `anchor fee`  when submitting a Merkle root. The default anchor fee is 2 [satoshis](https://en.bitcoin.it/wiki/Satoshi_(unit)). Core operators can set their `anchor fee` to adapt to changing market conditions, and compete to receive transactions from Gateways
+Each Gateway has an integrated Lightning Node running [LND](https://github.com/lightningnetwork/lnd). Gateways use [Lightning Service Authentication Tokens](https://www.npmjs.com/package/lsat-js) (LSATs) to pay Cores an `anchor fee` when submitting a Merkle root. The default anchor fee is 2 [satoshis](<https://en.bitcoin.it/wiki/Satoshi_(unit)>). Core operators can set their `anchor fee` to adapt to changing market conditions, and compete to receive transactions from Gateways
 
 Gateway setup takes 45 - 90 mins, due to activities that require the automated setup tools to interact with the Bitcoin Blockchain.
 
@@ -48,16 +48,22 @@ Mid-Range:
 
 Run the following commands to initiate your Gateway:
 
+#### Install Dependencies
+
 ```bash
 $ sudo apt-get install make git
 $ git clone https://github.com/chainpoint/chainpoint-gateway.git
 $ cd chainpoint-gateway
 $ make install-deps
 
-Please logout and login to allow your user to use docker
+Logout and login to allow your user to use Docker
 
 $ exit
+```
 
+### Configure Gateway
+
+```
 $ ssh user@<your_ip>
 $ cd chainpoint-gateway
 $ make init
@@ -73,7 +79,11 @@ $ make init
 
 ? Will this Gateway use Bitcoin mainnet or testnet? testnet
 ? Enter your Gateways's Public IP Address: 104.154.83.163
+```
 
+### Initialize Lightning
+
+```
 Initializing Lightning wallet...
 Create new address for wallet...
 Creating Docker secrets...
@@ -126,7 +136,7 @@ Chainpoint Gateway and integrated Lightning node have been successfully initiali
 $ make deploy
 ```
 
-After running `make deploy`, the Gateway will automatically peer and open Lightning channels with Cores. This allows the Gateway to authenticate with Cores and pay for Anchor Fees. This process may take several minutes upon first run.
+After running `make deploy`, the Gateway will automatically peer and open Lightning channels with Cores. This may take up to 6 confirmations (~60 minutes). This will allow the Gateway to authenticate with Cores and pay for Anchor Fees. This process may take several minutes upon first run.
 
 ## Troubleshooting
 
