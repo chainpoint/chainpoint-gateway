@@ -91,7 +91,7 @@ upgrade: down git-pull up
 ## install-deps	         : Install system dependencies
 install-deps:
 	scripts/install_deps.sh
-	echo Please login and logout to enable docker
+	@echo Please login and logout to enable docker
 
 ## init	         : Bring up yarn, swarm, and generate secrets
 init: build-rocksdb init-yarn init-swarm
