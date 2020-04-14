@@ -141,37 +141,4 @@ describe('Utils Methods', () => {
       done()
     })
   })
-
-  describe('UI password check function', () => {
-    it('should return false when value is false', done => {
-      let val = false
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(false)
-      done()
-    })
-    it("should return false when value is 'false'", done => {
-      let val = 'false'
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(false)
-      done()
-    })
-    it("should return false when value is 'FALSE'", done => {
-      let val = 'FALSE'
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(false)
-      done()
-    })
-    it("should return false when value is 'False'", done => {
-      let val = 'False'
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(false)
-      done()
-    })
-    it('should return password if not any variation of false', done => {
-      let val = 'not false'
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(val)
-      done()
-    })
-  })
 })

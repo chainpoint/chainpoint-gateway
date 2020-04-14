@@ -8,7 +8,6 @@ const { Lsat } = require('lsat-js')
 
 const cores = require('../lib/cores.js')
 const data = require('./sample-data/lsat-data.json')
-const { version } = require('../package.json')
 
 describe.only('Cores Methods', function() {
   this.timeout(5000)
@@ -300,8 +299,6 @@ describe.only('Cores Methods', function() {
       await cores.connectAsync()
       expect(options).to.be.a('object')
       expect(options).to.have.property('headers')
-      expect(options.headers).to.have.property('X-Node-Version')
-      expect(options.headers['X-Node-Version']).to.equal(version)
     })
   })
 

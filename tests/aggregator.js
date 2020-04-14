@@ -96,13 +96,6 @@ describe('Aggregator Methods', () => {
         expect(ProofStateData[x])
           .to.have.property('proofState')
           .and.and.be.a('array')
-        // add the additional nodeId operation to get final leaf values
-        let proofIdBuffer = Buffer.from(`node_id:${ProofStateData[x].proofId}`, 'utf8')
-        let hashBuffer = Buffer.from(ProofStateData[x].hash, 'hex')
-        ProofStateData[x].hash = crypto
-          .createHash('sha256')
-          .update(Buffer.concat([proofIdBuffer, hashBuffer]))
-          .digest()
         // convert from binary
         let proofState = []
         for (let y = 0; y < ProofStateData[x].proofState.length; y += 2) {
@@ -153,9 +146,9 @@ function generateIncomingHashData(batchSize) {
   let hashes = []
 
   for (let x = 0; x < batchSize; x++) {
-    let newHashIdNode = uuidv1()
+    let newProofId = uuidv1()
     hashes.push({
-      proof_id: newHashIdNode,
+      proof_id: newProofId,
       hash: crypto.randomBytes(32).toString('hex')
     })
   }
