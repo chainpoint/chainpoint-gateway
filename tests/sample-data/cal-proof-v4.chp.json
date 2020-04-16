@@ -1,0 +1,42 @@
+{
+  "@context": "https://w3id.org/chainpoint/v4",
+  "type": "Chainpoint",
+  "hash": "334987e17f947ad8faf234111370401c040c218d4b9fbd6bb3b9bfd16ff07adb",
+  "proof_id": "49351f20-7f54-11ea-a554-01ca15e3f248",
+  "hash_received": "2020-04-15T20:04:17Z",
+  "branches": [
+    {
+      "label": "aggregator",
+      "ops": [
+        { "r": "774987e17f947ad8faf234111370401c040c218d4b9fbd6bb3b9bfd16ff07adb" },
+        { "op": "sha-256" },
+        { "r": "4b5d3f317903509c1b7d08d1768ca3086caad23b0861529cff408fb47d4e11ff" },
+        { "op": "sha-256" },
+        { "r": "d9d0c5deab2a3a1d35ed153d64f32e350b6d3064e97aa243cb5eeb2fafe4894c" },
+        { "op": "sha-256" }
+      ],
+      "branches": [
+        {
+          "label": "cal_anchor_branch",
+          "ops": [
+            {
+              "l": "nistv2:1586981100:5c73dfde4cc0bfdda7c50524e3b4c944a74849c62d7c8f4d6b7a73a9ec64f7218e940551b1c26c823c3eea4dd6da86d5fd37e9f41d1dcfb2b6dbac0245d14ecc"
+            },
+            { "op": "sha-256" },
+            {
+              "anchors": [
+                {
+                  "type": "cal",
+                  "anchor_id": "8c683710cba1c03abbb8aea43d20872e67def601abcc629775e3f3d03742f7b6",
+                  "uris": [
+                    "http://18.220.31.138/calendar/8c683710cba1c03abbb8aea43d20872e67def601abcc629775e3f3d03742f7b6/data"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
