@@ -71,18 +71,18 @@ describe('Utils Methods', () => {
   })
 
   describe('Proof parsing function - mainnet', () => {
-    it('parseAnchorsComplete should return correct result for cal proof', done => {
+    it('parseCoreProofAnchorsComplete should return correct result for cal proof', done => {
       let proofJSON = fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj, 'mainnet')
+      let res = app.parseCoreProofAnchorsComplete(proofObj, 'mainnet')
       expect(res.length).to.equal(1)
       expect(res[0]).to.equal('cal')
       done()
     })
-    it('parseAnchorsComplete should return correct result for btc proof', done => {
+    it('parseCoreProofAnchorsComplete should return correct result for btc proof', done => {
       let proofJSON = fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj, 'mainnet')
+      let res = app.parseCoreProofAnchorsComplete(proofObj, 'mainnet')
       expect(res.length).to.equal(2)
       expect(res[0]).to.equal('cal')
       expect(res[1]).to.equal('btc')
@@ -90,18 +90,18 @@ describe('Utils Methods', () => {
     })
   })
   describe('Proof parsing function - testnet', () => {
-    it('parseAnchorsComplete should return correct result for tcal proof', done => {
+    it('parseCoreProofAnchorsComplete should return correct result for tcal proof', done => {
       let proofJSON = fs.readFileSync('./tests/sample-data/core-tcal-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj, 'testnet')
+      let res = app.parseCoreProofAnchorsComplete(proofObj, 'testnet')
       expect(res.length).to.equal(1)
       expect(res[0]).to.equal('tcal')
       done()
     })
-    it('parseAnchorsComplete should return correct result for tbtc proof', done => {
+    it('parseCoreProofAnchorsComplete should return correct result for tbtc proof', done => {
       let proofJSON = fs.readFileSync('./tests/sample-data/core-tbtc-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj, 'testnet')
+      let res = app.parseCoreProofAnchorsComplete(proofObj, 'testnet')
       expect(res.length).to.equal(2)
       expect(res[0]).to.equal('tcal')
       expect(res[1]).to.equal('tbtc')
