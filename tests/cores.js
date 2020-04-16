@@ -9,7 +9,7 @@ const { Lsat } = require('lsat-js')
 const cores = require('../lib/cores.js')
 const data = require('./sample-data/lsat-data.json')
 
-describe.only('Cores Methods', function() {
+describe('Cores Methods', function() {
   this.timeout(5000)
 
   describe('startPruneExpiredItemsInterval', () => {
