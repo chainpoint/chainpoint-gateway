@@ -11,7 +11,7 @@ const crypto = require('crypto')
 const BLAKE2s = require('blake2s-js')
 const MerkleTools = require('merkle-tools')
 
-describe.only('Aggregator Methods', () => {
+describe('Aggregator Methods', () => {
   describe('startAggInterval', () => {
     it('should initiate interval as expected', async () => {
       let interval = aggregator.startAggInterval()
