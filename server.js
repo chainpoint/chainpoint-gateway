@@ -36,6 +36,9 @@ async function startAsync() {
     // establish a connection with the database
     await openStorageConnectionAsync()
 
+    // initialize the LND object for enabling Lightning commands
+    cores.initializeLightningObject()
+
     // connect to the Cores listed in .env and check/open lightning connections
     await cores.connectAsync()
 

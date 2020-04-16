@@ -21,11 +21,11 @@ describe('Verify Controller', () => {
     verify.setCores({
       getCachedTransactionAsync: async txId => {
         switch (txId) {
-          case '9f656ff0aa53b2cf7c85b8dbe3127ef9e141fdd25c70d2dc01768b3cf798261d': {
-            return { tx: { data: '4690932f928fb7f7ce6e6c49ee95851742231709360be28b7ce2af7b92cfa95b' } }
+          case '8c683710cba1c03abbb8aea43d20872e67def601abcc629775e3f3d03742f7b6': {
+            return { tx: { data: 'c8026462e34d40ef2de5cad4f7b2a4f890efe8eef6cf70ac62492b3a7b1705fa' } }
           }
-          case '549ea0ff2382858b9b29e3f3615afe2a537a4dbf76c1e58f73fe0e2b0220365e': {
-            return { tx: { data: 'c617f5faca34474bea7020d75c39cb8427a32145f9646586ecb9184002131ad9' } }
+          case '018b83991cd76e3ad470793cd5c7ab9122ddbbda3ad290bbc6bd7bfd37c9de3a': {
+            return { tx: { data: '7ba30094f928110067d50cb95b4707e7579c582b1d865c9e7868d282fddb95f9' } }
           }
           default: {
             return { tx: { data: '' } }
@@ -170,7 +170,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with bad network proof', done => {
-      let tcalProof = JSON.parse(fs.readFileSync('./tests/sample-data/tcal-proof.chp.json'))
+      let tcalProof = JSON.parse(fs.readFileSync('./tests/sample-data/tcal-proof-v4.chp.json'))
       request(insecureServer)
         .post('/verify')
         .set('Content-type', 'application/json')
@@ -190,40 +190,14 @@ describe('Verify Controller', () => {
             .to.have.property('status')
             .and.to.be.a('string')
             .and.to.equal(
-              `This is a 'mainnet' Node supporting 'cal' and 'btc' anchor types. Cannot verify 'tcal' anchors.`
+              `This is a 'mainnet' Gateway supporting 'cal' and 'btc' anchor types. Cannot verify 'tcal' anchors.`
             )
           done()
         })
     })
 
-    it('should return successful result with invalid cal proof (json) and legacy anchor', done => {
-      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof-l.chp.json'))
-      calProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
-      request(insecureServer)
-        .post('/verify')
-        .set('Content-type', 'application/json')
-        .send({ proofs: [calProof] })
-        .expect('Content-type', /json/)
-        .expect(200)
-        .end((err, res) => {
-          expect(err).to.equal(null)
-          expect(res.body)
-            .to.be.a('array')
-            .and.to.have.length(1)
-          expect(res.body[0])
-            .to.have.property('proof_index')
-            .and.to.be.a('number')
-            .and.to.equal(0)
-          expect(res.body[0])
-            .to.have.property('status')
-            .and.to.be.a('string')
-            .and.to.equal(`Cannot verify legacy anchors.`)
-          done()
-        })
-    })
-
     it('should return successful result with invalid cal proof (json)', done => {
-      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof.chp.json'))
+      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof-v4.chp.json'))
       calProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
       request(insecureServer)
         .post('/verify')
@@ -249,17 +223,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(calProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(calProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(calProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(calProof.hash_submitted_core_at)
+            .and.to.equal(calProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -288,7 +254,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with invalid btc proof (json)', done => {
-      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof.chp.json'))
+      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof-v4.chp.json'))
       btcProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
       request(insecureServer)
         .post('/verify')
@@ -314,17 +280,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(btcProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_core_at)
+            .and.to.equal(btcProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -368,7 +326,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with valid cal proof (json)', done => {
-      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof.chp.json'))
+      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof-v4.chp.json'))
       request(insecureServer)
         .post('/verify')
         .set('Content-type', 'application/json')
@@ -393,17 +351,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(calProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(calProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(calProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(calProof.hash_submitted_core_at)
+            .and.to.equal(calProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -432,7 +382,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with valid btc proof (json)', done => {
-      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof.chp.json'))
+      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof-v4.chp.json'))
       request(insecureServer)
         .post('/verify')
         .set('Content-type', 'application/json')
@@ -457,17 +407,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(btcProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_core_at)
+            .and.to.equal(btcProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -511,8 +453,9 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with mixed (cal ok, btc bad) btc proof (json)', done => {
-      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof.chp.json'))
-      btcProof.branches[0].branches[0].ops[0].l = 'bad0cff025777bec277cd3a0599eaf5efbeb1ea7adf5ec5a39126a77fa57f837'
+      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof-v4.chp.json'))
+      btcProof.branches[0].branches[0].branches[0].ops[0].l =
+        'bad0cff025777bec277cd3a0599eaf5efbeb1ea7adf5ec5a39126a77fa57f837'
       request(insecureServer)
         .post('/verify')
         .set('Content-type', 'application/json')
@@ -537,17 +480,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(btcProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_core_at)
+            .and.to.equal(btcProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -591,7 +526,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with invalid cal proof (b64)', done => {
-      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof.chp.json'))
+      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof-v4.chp.json'))
       calProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
       let calProofB64 = cpb.objectToBase64Sync(calProof)
       request(insecureServer)
@@ -618,17 +553,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(calProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(calProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(calProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(calProof.hash_submitted_core_at)
+            .and.to.equal(calProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -657,7 +584,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with invalid btc proof (b64)', done => {
-      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof.chp.json'))
+      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof-v4.chp.json'))
       btcProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
       let btcProofB64 = cpb.objectToBase64Sync(btcProof)
       request(insecureServer)
@@ -684,17 +611,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(btcProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_core_at)
+            .and.to.equal(btcProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -738,7 +657,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with valid cal proof (b64)', done => {
-      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof.chp.json'))
+      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof-v4.chp.json'))
       let calProofB64 = cpb.objectToBase64Sync(calProof)
       request(insecureServer)
         .post('/verify')
@@ -764,17 +683,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(calProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(calProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(calProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(calProof.hash_submitted_core_at)
+            .and.to.equal(calProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -803,7 +714,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with valid btc proof (b64)', done => {
-      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof.chp.json'))
+      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof-v4.chp.json'))
       let btcProofB64 = cpb.objectToBase64Sync(btcProof)
       request(insecureServer)
         .post('/verify')
@@ -829,17 +740,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(btcProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_core_at)
+            .and.to.equal(btcProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -883,8 +786,9 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with mixed (cal ok, btc bad) btc proof (b64)', done => {
-      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof.chp.json'))
-      btcProof.branches[0].branches[0].ops[0].l = 'bad0cff025777bec277cd3a0599eaf5efbeb1ea7adf5ec5a39126a77fa57f837'
+      let btcProof = JSON.parse(fs.readFileSync('./tests/sample-data/btc-proof-v4.chp.json'))
+      btcProof.branches[0].branches[0].branches[0].ops[0].l =
+        'bad0cff025777bec277cd3a0599eaf5efbeb1ea7adf5ec5a39126a77fa57f837'
       let btcProofB64 = cpb.objectToBase64Sync(btcProof)
       request(insecureServer)
         .post('/verify')
@@ -910,17 +814,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(btcProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(btcProof.hash_submitted_core_at)
+            .and.to.equal(btcProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -970,7 +866,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with bad network proof', done => {
-      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof.chp.json'))
+      let calProof = JSON.parse(fs.readFileSync('./tests/sample-data/cal-proof-v4.chp.json'))
       request(insecureServer)
         .post('/verify')
         .set('Content-type', 'application/json')
@@ -990,40 +886,14 @@ describe('Verify Controller', () => {
             .to.have.property('status')
             .and.to.be.a('string')
             .and.to.equal(
-              `This is a 'testnet' Node supporting 'tcal' and 'tbtc' anchor types. Cannot verify 'cal' anchors.`
+              `This is a 'testnet' Gateway supporting 'tcal' and 'tbtc' anchor types. Cannot verify 'cal' anchors.`
             )
           done()
         })
     })
 
-    it('should return successful result with invalid tbtc proof (json) and legacy anchor', done => {
-      let tbtcProof = JSON.parse(fs.readFileSync('./tests/sample-data/tbtc-proof-l.chp.json'))
-      tbtcProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
-      request(insecureServer)
-        .post('/verify')
-        .set('Content-type', 'application/json')
-        .send({ proofs: [tbtcProof] })
-        .expect('Content-type', /json/)
-        .expect(200)
-        .end((err, res) => {
-          expect(err).to.equal(null)
-          expect(res.body)
-            .to.be.a('array')
-            .and.to.have.length(1)
-          expect(res.body[0])
-            .to.have.property('proof_index')
-            .and.to.be.a('number')
-            .and.to.equal(0)
-          expect(res.body[0])
-            .to.have.property('status')
-            .and.to.be.a('string')
-            .and.to.equal(`Cannot verify legacy anchors.`)
-          done()
-        })
-    })
-
     it('should return successful result with invalid tbtc proof (json)', done => {
-      let tbtcProof = JSON.parse(fs.readFileSync('./tests/sample-data/tbtc-proof.chp.json'))
+      let tbtcProof = JSON.parse(fs.readFileSync('./tests/sample-data/tbtc-proof-v4.chp.json'))
       tbtcProof.hash = 'badf27222fe366d0b8988b7312c6ba60ee422418d92b62cdcb71fe2991ee7391'
       request(insecureServer)
         .post('/verify')
@@ -1049,17 +919,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(tbtcProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(tbtcProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(tbtcProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(tbtcProof.hash_submitted_core_at)
+            .and.to.equal(tbtcProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
@@ -1103,7 +965,7 @@ describe('Verify Controller', () => {
     })
 
     it('should return successful result with valid tbtc proof (json)', done => {
-      let tbtcProof = JSON.parse(fs.readFileSync('./tests/sample-data/tbtc-proof.chp.json'))
+      let tbtcProof = JSON.parse(fs.readFileSync('./tests/sample-data/tbtc-proof-v4.chp.json'))
       request(insecureServer)
         .post('/verify')
         .set('Content-type', 'application/json')
@@ -1128,17 +990,9 @@ describe('Verify Controller', () => {
             .and.to.be.a('string')
             .and.to.equal(tbtcProof.proof_id)
           expect(res.body[0])
-            .to.have.property('hash_submitted_node_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
-            .and.to.equal(tbtcProof.hash_submitted_node_at)
-          expect(res.body[0])
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal(tbtcProof.hash_id_core)
-          expect(res.body[0])
-            .to.have.property('hash_submitted_core_at')
-            .and.to.be.a('string')
-            .and.to.equal(tbtcProof.hash_submitted_core_at)
+            .and.to.equal(tbtcProof.hash_received)
           expect(res.body[0])
             .to.have.property('anchors')
             .and.to.be.a('array')
