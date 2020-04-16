@@ -72,7 +72,7 @@ describe('Utils Methods', () => {
 
   describe('Proof parsing function - mainnet', () => {
     it('parseAnchorsComplete should return correct result for cal proof', done => {
-      let proofJSON = fs.readFileSync('./tests/sample-data/cal-proof-v4.chp.json')
+      let proofJSON = fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
       let res = app.parseAnchorsComplete(proofObj, 'mainnet')
       expect(res.length).to.equal(1)
@@ -80,7 +80,7 @@ describe('Utils Methods', () => {
       done()
     })
     it('parseAnchorsComplete should return correct result for btc proof', done => {
-      let proofJSON = fs.readFileSync('./tests/sample-data/btc-proof-v4.chp.json')
+      let proofJSON = fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
       let res = app.parseAnchorsComplete(proofObj, 'mainnet')
       expect(res.length).to.equal(2)
@@ -91,7 +91,7 @@ describe('Utils Methods', () => {
   })
   describe('Proof parsing function - testnet', () => {
     it('parseAnchorsComplete should return correct result for tcal proof', done => {
-      let proofJSON = fs.readFileSync('./tests/sample-data/tcal-proof-v4.chp.json')
+      let proofJSON = fs.readFileSync('./tests/sample-data/core-tcal-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
       let res = app.parseAnchorsComplete(proofObj, 'testnet')
       expect(res.length).to.equal(1)
@@ -99,7 +99,7 @@ describe('Utils Methods', () => {
       done()
     })
     it('parseAnchorsComplete should return correct result for tbtc proof', done => {
-      let proofJSON = fs.readFileSync('./tests/sample-data/tbtc-proof-v4.chp.json')
+      let proofJSON = fs.readFileSync('./tests/sample-data/core-tbtc-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
       let res = app.parseAnchorsComplete(proofObj, 'testnet')
       expect(res.length).to.equal(2)
