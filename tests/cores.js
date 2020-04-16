@@ -142,21 +142,20 @@ describe.only('Cores Methods', function() {
 
   describe('connectAsync', () => {
     before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NETWORK: 'testnet' })
+      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.1.1.2'], NETWORK: 'testnet' })
       cores.setRP(async () => {
-        throw 'Bad IP'
+        throw new Error('Intentional error')
       })
+      cores.clearEPC()
     })
     it('should not connect and throw error with IP list and Bad IP', async () => {
-      let coreConnectionCount = 2
-      cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
       try {
         await cores.connectAsync()
       } catch (err) {
         errResult = err.message
       }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
+      expect(errResult).to.equal(`Unable to connect to 2 Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
       expect(connectedIPs.length).to.equal(0)
     })
@@ -166,19 +165,18 @@ describe.only('Cores Methods', function() {
     before(() => {
       cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NETWORK: 'testnet' })
       cores.setRP(async () => {
-        return { body: { network: 'testnet', sync_info: { catching_up: true } } }
+        return { body: { network: 'testnet', sync_info: { catching_up: true }, uris: ['uri'] } }
       })
+      cores.clearEPC()
     })
     it('should not connect and throw error with IP list and non-synced Core', async () => {
-      let coreConnectionCount = 2
-      cores.setCoreConnectionCount(coreConnectionCount)
       let errResult = null
       try {
         await cores.connectAsync()
       } catch (err) {
         errResult = err.message
       }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
+      expect(errResult).to.equal(`Unable to connect to 1 Core(s) as required`)
       let connectedIPs = cores.getCoreConnectedIPs()
       expect(connectedIPs.length).to.equal(0)
     })
@@ -188,30 +186,9 @@ describe.only('Cores Methods', function() {
     before(() => {
       cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NETWORK: 'testnet' })
       cores.setRP(async () => {
-        return { body: { network: 'testnet', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', sync_info: { catching_up: false }, uris: ['uri'] } }
       })
-    })
-    it('should not connect and throw error with IP list and synced Core, insufficient count', async () => {
-      let coreConnectionCount = 2
-      cores.setCoreConnectionCount(coreConnectionCount)
-      let errResult = null
-      try {
-        await cores.connectAsync()
-      } catch (err) {
-        errResult = err.message
-      }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
-      let connectedIPs = cores.getCoreConnectedIPs()
-      expect(connectedIPs.length).to.equal(1)
-    })
-  })
-
-  describe('connectAsync', () => {
-    before(() => {
-      cores.setENV({ CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1'], NETWORK: 'testnet' })
-      cores.setRP(async () => {
-        return { body: { network: 'testnet', sync_info: { catching_up: false } } }
-      })
+      cores.clearEPC()
     })
     it('should connect with IP list and synced Core, sufficient count 1', async () => {
       let coreConnectionCount = 1
@@ -234,41 +211,14 @@ describe.only('Cores Methods', function() {
         CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'],
         NETWORK: 'testnet'
       })
-      let counter = 1
       cores.setRP(async () => {
         return {
-          body: { network: 'testnet', sync_info: { catching_up: counter++ % 2 ? false : true } }
+          body: { network: 'testnet', sync_info: { catching_up: false }, uris: ['uri'] }
         }
       })
+      cores.clearEPC()
     })
-    it('should connect with IP list and mixed-synced Core, sufficient count 2', async () => {
-      let coreConnectionCount = 2
-      cores.setCoreConnectionCount(coreConnectionCount)
-      let errResult = null
-      try {
-        await cores.connectAsync()
-      } catch (err) {
-        errResult = err
-      }
-      expect(errResult).to.equal(null)
-      let connectedIPs = cores.getCoreConnectedIPs()
-      expect(connectedIPs.length).to.equal(2)
-    })
-  })
-
-  describe('connectAsync', () => {
-    before(() => {
-      cores.setENV({
-        CHAINPOINT_CORE_CONNECT_IP_LIST: ['65.1.1.1', '65.2.2.2', '65.3.3.3'],
-        NETWORK: 'testnet'
-      })
-      cores.setRP(async () => {
-        return { body: { network: 'testnet', sync_info: { catching_up: false } } }
-      })
-    })
-    it('should connect with IP list and synced Core, sufficient count 3', async () => {
-      let coreConnectionCount = 3
-      cores.setCoreConnectionCount(coreConnectionCount)
+    it('should connect with IP list, sufficient count 3', async () => {
       let errResult = null
       try {
         await cores.connectAsync()
@@ -290,8 +240,9 @@ describe.only('Cores Methods', function() {
       })
       cores.setRP(async o => {
         options = o
-        return { body: { network: 'testnet', sync_info: { catching_up: false } } }
+        return { body: { network: 'testnet', sync_info: { catching_up: false }, uris: ['uri'] } }
       })
+      cores.clearEPC()
     })
     it('should use proper headers on Core requests', async () => {
       let coreConnectionCount = 1
@@ -299,117 +250,6 @@ describe.only('Cores Methods', function() {
       await cores.connectAsync()
       expect(options).to.be.a('object')
       expect(options).to.have.property('headers')
-    })
-  })
-
-  describe('connectAsync', () => {
-    before(() => {
-      cores.setRP(async () => {
-        throw 'Bad IP'
-      })
-    })
-    it('should not connect and throw error with Core discovery and bad discovery', async () => {
-      let coreConnectionCount = 1
-      cores.setCoreConnectionCount(coreConnectionCount)
-      let errResult = null
-      try {
-        await cores.connectAsync()
-      } catch (err) {
-        errResult = err.message
-      }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
-      let connectedIPs = cores.getCoreConnectedIPs()
-      expect(connectedIPs.length).to.equal(0)
-    })
-  })
-
-  describe('connectAsync', () => {
-    before(() => {
-      cores.setRP(async opts => {
-        if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
-        throw 'Bad IP'
-      })
-    })
-    it('should not connect and throw error with Core discovery and bad IP returned', async () => {
-      let coreConnectionCount = 1
-      cores.setCoreConnectionCount(coreConnectionCount)
-      let errResult = null
-      try {
-        await cores.connectAsync()
-      } catch (err) {
-        errResult = err.message
-      }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
-      let connectedIPs = cores.getCoreConnectedIPs()
-      expect(connectedIPs.length).to.equal(0)
-    })
-  })
-
-  describe('connectAsync', () => {
-    before(() => {
-      cores.setRP(async opts => {
-        if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
-        return { body: { sync_info: { catching_up: true } } }
-      })
-    })
-    it('should not connect and throw error with Core discovery and unsynced returned', async () => {
-      let coreConnectionCount = 1
-      cores.setCoreConnectionCount(coreConnectionCount)
-      let errResult = null
-      try {
-        await cores.connectAsync()
-      } catch (err) {
-        errResult = err.message
-      }
-      expect(errResult).to.equal(`Unable to connect to ${coreConnectionCount} Core(s) as required`)
-      let connectedIPs = cores.getCoreConnectedIPs()
-      expect(connectedIPs.length).to.equal(0)
-    })
-  })
-
-  describe('connectAsync', () => {
-    before(() => {
-      cores.setENV({ NETWORK: 'mainnet' })
-      cores.setRP(async opts => {
-        if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
-        return { body: { network: 'testnet', sync_info: { catching_up: false } } }
-      })
-    })
-    it('should not connect with Core discovery and synced IP, network mismatch', async () => {
-      let coreConnectionCount = 1
-      cores.setCoreConnectionCount(coreConnectionCount)
-      let errResult = null
-      try {
-        await cores.connectAsync()
-      } catch (err) {
-        errResult = err
-      }
-      expect(errResult.message).to.equal('Unable to connect to 1 Core(s) as required')
-      let connectedIPs = cores.getCoreConnectedIPs()
-      expect(connectedIPs.length).to.equal(0)
-    })
-  })
-
-  describe('connectAsync', () => {
-    before(() => {
-      cores.setENV({ NETWORK: 'testnet' })
-      cores.setRP(async opts => {
-        if (opts.uri.endsWith('peers')) return { body: [{ remote_ip: '65.1.1.1' }] }
-        return { body: { network: 'testnet', sync_info: { catching_up: false } } }
-      })
-    })
-    it('should connect with Core discovery and synced IP', async () => {
-      let coreConnectionCount = 1
-      cores.setCoreConnectionCount(coreConnectionCount)
-      let errResult = null
-      try {
-        await cores.connectAsync()
-      } catch (err) {
-        errResult = err
-      }
-      expect(errResult).to.equal(null)
-      let connectedIPs = cores.getCoreConnectedIPs()
-      expect(connectedIPs.length).to.equal(1)
     })
   })
 
@@ -449,7 +289,7 @@ describe.only('Cores Methods', function() {
       cores.setENV(env)
       cores.setLN({
         callMethodAsync: async (s, m) => {
-          if (m === 'sendPayment') return { on: (n, func) => func('ok'), end: () => null, write: () => {} }
+          if (m === 'sendPayment') return { on: () => null, end: () => null, write: () => {} }
           return {}
         }
       })
