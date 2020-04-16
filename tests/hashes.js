@@ -9,7 +9,7 @@ const request = require('supertest')
 const app = require('../lib/api-server.js')
 const hashes = require('../lib/endpoints/hashes.js')
 
-describe('Hashes Controller', () => {
+describe.only('Hashes Controller', () => {
   let insecureServer = null
   beforeEach(async () => {
     insecureServer = await app.startInsecureRestifyServerAsync()
@@ -187,7 +187,7 @@ describe('Hashes Controller', () => {
           expect(err).to.equal(null)
           expect(res.body).to.have.property('meta')
           expect(res.body.meta)
-            .to.have.property('submitted_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
           expect(res.body.meta).to.have.property('processing_hints')
           expect(res.body.meta.processing_hints)
