@@ -286,8 +286,8 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tcal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tbtc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tcal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tbtc-proof-v4.chp.json'))
     let cacheContents = {
       [submitId1]: { coreProof: proofObj1, expiresAt: in15Minutes },
       [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
