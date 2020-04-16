@@ -215,8 +215,8 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     let cacheContents = {
       [submitId1]: { coreProof: proofObj1, expiresAt: in15Minutes },
       [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
@@ -356,8 +356,8 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
@@ -444,8 +444,8 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId3,
       cores: [{ ip: ip, proofId: proofId3 }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     let cacheContents = {
       [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
     }
@@ -542,7 +542,7 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     let cacheContents = {
       [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
     }
@@ -616,7 +616,7 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
@@ -693,8 +693,8 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip1, proofId: proofId2a }, { ip: ip2, proofId: proofId2b }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
@@ -779,7 +779,7 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip1, proofId: proofId2a }, { ip: ip2, proofId: proofId2b }]
     }
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
@@ -855,8 +855,8 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip2a, proofId: proofId2a }, { ip: ip2b, proofId: proofId2b }, { ip: ip2c, proofId: proofId2c }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
