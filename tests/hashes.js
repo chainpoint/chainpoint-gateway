@@ -9,7 +9,7 @@ const request = require('supertest')
 const app = require('../lib/api-server.js')
 const hashes = require('../lib/endpoints/hashes.js')
 
-describe.only('Hashes Controller', () => {
+describe('Hashes Controller', () => {
   let insecureServer = null
   beforeEach(async () => {
     insecureServer = await app.startInsecureRestifyServerAsync()
