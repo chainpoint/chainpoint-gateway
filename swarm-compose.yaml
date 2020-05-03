@@ -55,7 +55,7 @@ services:
 
   # Lightning node
   lnd:
-    image: tierion/lnd:${NETWORK:-testnet}
+    image: tierion/lnd:${NETWORK:-testnet}-0.9.2
     user: ${USERID}:${GROUPID}
     entrypoint: "./start-lnd.sh"
     ports:
