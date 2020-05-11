@@ -143,7 +143,7 @@ async function createDockerSecretsAsync(initAnswers, walletInfo) {
     await utils.sleepAsync(2000) // wait for swarm to initialize
     await exec.quiet([
       `printf ${walletInfo.walletSecret} | docker secret create HOT_WALLET_PASS -`,
-      `printf ${walletInfo.cipherSeedMnemonic.join(' ')} | docker secret create HOT_WALLET_SEED -`,
+      `printf '${walletInfo.cipherSeedMnemonic.join(' ')}' | docker secret create HOT_WALLET_SEED -`,
       `printf ${walletInfo.newAddress} | docker secret create HOT_WALLET_ADDRESS -`
     ])
   } catch (error) {
