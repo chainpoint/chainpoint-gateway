@@ -49,6 +49,7 @@ services:
       NODE_ENV: ${NODE_ENV}
       CHANNEL_AMOUNT: ${CHANNEL_AMOUNT}
       FUND_AMOUNT: ${FUND_AMOUNT}
+      NO_LSAT_CORE_WHITELIST: ${NO_LSAT_CORE_WHITELIST}
     tty: true
     logging:
       driver: 'json-file'
@@ -58,7 +59,7 @@ services:
 
   # Lightning node
   lnd:
-    image: tierion/lnd:${NETWORK:-testnet}-0.9.2
+    image: tierion/lnd:${NETWORK:-testnet}
     user: ${USERID}:${GROUPID}
     entrypoint: "./start-lnd.sh"
     ports:
