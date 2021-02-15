@@ -35,12 +35,15 @@ async function startAsync() {
 
     // establish a connection with the database
     await openStorageConnectionAsync()
-
+    logger.info(`App : Startup : Storage Connection Opened`)
+    
     // connect to the Cores listed in .env and check/open lightning connections
     await cores.connectAsync()
+    logger.info(`App : Startup : Cores Connected`)
 
     // start API server
     await apiServer.startAsync(cores.getLn())
+    logger.info(`App : Startup : API Started`)
 
     // start the interval processes for refreshing the IP blocklist
     apiServer.startIPBlacklistRefreshInterval()
