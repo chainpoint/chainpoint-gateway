@@ -24,7 +24,10 @@ services:
     depends_on:
       - lnd
     ports:
-      - "80:8080"
+      - target: 8080
+        published: 80
+        protocol: tcp
+        mode: host
     networks:
       - chainpoint-gateway
     secrets:
@@ -55,7 +58,7 @@ services:
 
   # Lightning node
   lnd:
-    image: tierion/lnd:${NETWORK:-testnet}
+    image: tierion/lnd:${NETWORK:-testnet}-0.9.2
     user: ${USERID}:${GROUPID}
     entrypoint: "./start-lnd.sh"
     ports:
