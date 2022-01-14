@@ -71,18 +71,18 @@ describe('Utils Methods', () => {
   })
 
   describe('Proof parsing function - mainnet', () => {
-    it('parseAnchorsComplete should return correct result for cal proof', done => {
-      let proofJSON = fs.readFileSync('./tests/sample-data/cal-proof.chp.json')
+    it('parseCoreProofAnchorsComplete should return correct result for cal proof', done => {
+      let proofJSON = fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj, 'mainnet')
+      let res = app.parseCoreProofAnchorsComplete(proofObj, 'mainnet')
       expect(res.length).to.equal(1)
       expect(res[0]).to.equal('cal')
       done()
     })
-    it('parseAnchorsComplete should return correct result for btc proof', done => {
-      let proofJSON = fs.readFileSync('./tests/sample-data/btc-proof.chp.json')
+    it('parseCoreProofAnchorsComplete should return correct result for btc proof', done => {
+      let proofJSON = fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj, 'mainnet')
+      let res = app.parseCoreProofAnchorsComplete(proofObj, 'mainnet')
       expect(res.length).to.equal(2)
       expect(res[0]).to.equal('cal')
       expect(res[1]).to.equal('btc')
@@ -90,18 +90,18 @@ describe('Utils Methods', () => {
     })
   })
   describe('Proof parsing function - testnet', () => {
-    it('parseAnchorsComplete should return correct result for tcal proof', done => {
-      let proofJSON = fs.readFileSync('./tests/sample-data/tcal-proof.chp.json')
+    it('parseCoreProofAnchorsComplete should return correct result for tcal proof', done => {
+      let proofJSON = fs.readFileSync('./tests/sample-data/core-tcal-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj, 'testnet')
+      let res = app.parseCoreProofAnchorsComplete(proofObj, 'testnet')
       expect(res.length).to.equal(1)
       expect(res[0]).to.equal('tcal')
       done()
     })
-    it('parseAnchorsComplete should return correct result for tbtc proof', done => {
-      let proofJSON = fs.readFileSync('./tests/sample-data/tbtc-proof.chp.json')
+    it('parseCoreProofAnchorsComplete should return correct result for tbtc proof', done => {
+      let proofJSON = fs.readFileSync('./tests/sample-data/core-tbtc-proof-v4.chp.json')
       let proofObj = JSON.parse(proofJSON)
-      let res = app.parseAnchorsComplete(proofObj, 'testnet')
+      let res = app.parseCoreProofAnchorsComplete(proofObj, 'testnet')
       expect(res.length).to.equal(2)
       expect(res[0]).to.equal('tcal')
       expect(res[1]).to.equal('tbtc')
@@ -138,39 +138,6 @@ describe('Utils Methods', () => {
       let rnd = app.randomIntFromInterval(10, 10)
       expect(rnd).to.be.gte(10)
       expect(rnd).to.be.lte(10)
-      done()
-    })
-  })
-
-  describe('UI password check function', () => {
-    it('should return false when value is false', done => {
-      let val = false
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(false)
-      done()
-    })
-    it("should return false when value is 'false'", done => {
-      let val = 'false'
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(false)
-      done()
-    })
-    it("should return false when value is 'FALSE'", done => {
-      let val = 'FALSE'
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(false)
-      done()
-    })
-    it("should return false when value is 'False'", done => {
-      let val = 'False'
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(false)
-      done()
-    })
-    it('should return password if not any variation of false', done => {
-      let val = 'not false'
-      let res = app.nodeUIPasswordBooleanCheck(val)
-      expect(res).to.equal(val)
       done()
     })
   })

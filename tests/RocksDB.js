@@ -12,7 +12,7 @@ const crypto = require('crypto')
 
 const TEST_ROCKS_DIR = './test_db'
 
-let insertedProofStateHashIdNodes = null
+let insertedProofStateProofIds = null
 
 describe('RocksDB Methods', () => {
   let db = null
@@ -30,8 +30,8 @@ describe('RocksDB Methods', () => {
     it('should return the same data that was inserted', async () => {
       let sampleData = generateSampleProofStateData(100)
       await rocksDB.saveProofStatesBatchAsync(sampleData.state)
-      let queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(sampleData.proofIdNodes)
-      insertedProofStateHashIdNodes = sampleData.proofIdNodes
+      let queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(sampleData.proofIds)
+      insertedProofStateProofIds = sampleData.proofIds
       queriedState = convertStateBackToBinaryForm(queriedState)
       expect(queriedState).to.deep.equal(sampleData.state)
     })
@@ -126,7 +126,7 @@ describe('RocksDB Methods', () => {
 
     it('should prune proof state data as expected', async () => {
       // retrieve inserted proof state, confirm it still exists
-      let queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(insertedProofStateHashIdNodes)
+      let queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(insertedProofStateProofIds)
       expect(queriedState).to.be.a('array')
       expect(queriedState.length).to.be.greaterThan(0)
       for (let x = 0; x < queriedState.length; x++) {
@@ -138,7 +138,7 @@ describe('RocksDB Methods', () => {
       await rocksDB.pruneOldProofStateDataAsync()
 
       // retrieve inserted proof state, confirm it has all beed pruned
-      queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(insertedProofStateHashIdNodes)
+      queriedState = await rocksDB.getProofStatesBatchByProofIdsAsync(insertedProofStateProofIds)
       expect(queriedState).to.be.a('array')
       expect(queriedState.length).to.be.greaterThan(0)
       for (let x = 0; x < queriedState.length; x++) {
@@ -169,13 +169,13 @@ describe('RocksDB Methods', () => {
 function generateSampleProofStateData(batchSize) {
   let results = {}
   results.state = []
-  results.proofIdNodes = []
+  results.proofIds = []
 
   for (let x = 0; x < batchSize; x++) {
-    let newHashIdNode = uuidv1()
+    let newProofId = uuidv1()
     let submitId = uuidv1()
     results.state.push({
-      proofId: newHashIdNode,
+      proofId: newProofId,
       hash: crypto.randomBytes(32).toString('hex'),
       proofState: [Buffer.from(Math.round(Math.random()) ? '00' : '01', 'hex'), crypto.randomBytes(32)],
       submission: {
@@ -187,7 +187,7 @@ function generateSampleProofStateData(batchSize) {
         ]
       }
     })
-    results.proofIdNodes.push(newHashIdNode)
+    results.proofIds.push(newProofId)
   }
 
   return results

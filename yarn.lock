@@ -593,28 +593,28 @@ chai@^4.2.0:
     pathval "^1.1.0"
     type-detect "^4.0.5"
 
-chainpoint-binary@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/chainpoint-binary/-/chainpoint-binary-5.0.0.tgz#7cd9a6b7ca318836cdf00c1f16d674b2d736a3a7"
-  integrity sha512-LrwqbREUKRqllEEIcZ23QpsfREqXjSAVys9CIIf4rX7f7Hz2/HRjxEEQZZ+hEcW4JufuzvZIXSuRE8tXXFz32w==
+chainpoint-binary@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/chainpoint-binary/-/chainpoint-binary-5.0.1.tgz#88deae6898793f11bff174442ae4b61c677b1b53"
+  integrity sha512-BDl9uTh4rL10oRkjP9y+X7Bt26yN4adBtBBoGgpbelpK6Q+UDcmvvVApR96nIOA1E41Tq47TjKpwDbY5QjlnFA==
   dependencies:
-    chainpoint-proof-json-schema "^2.0.1"
+    chainpoint-proof-json-schema "^2.0.3"
     msgpack-lite "^0.1.26"
     pako "^1.0.10"
 
-chainpoint-parse@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-4.0.0.tgz#66b6d23da0a326e9ac02da3338e570717604e9e1"
-  integrity sha512-HNfNys7mHoHnedLJfoktkisTqgIXTOrtTOersRbZ59xmSmp2Fk8bJrRRh8aMr79IxmNHjJXC1HBcGfJiXNo0gA==
+chainpoint-parse@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-4.0.1.tgz#24084c80a3ee9721085234eccc008d1402ed9a94"
+  integrity sha512-BFh54kF6Nk+wYUv6qghx6dZ+o4cnHHGmr8pgY1kAvPDmR9uxCnepK1fjgOSONUfDFeWI632gtfTRAl3faKi4YA==
   dependencies:
-    chainpoint-binary "^5.0.0"
-    chainpoint-proof-json-schema "^2.0.1"
+    chainpoint-binary "^5.0.1"
+    chainpoint-proof-json-schema "^2.0.3"
     js-sha3 "^0.8.0"
 
-chainpoint-proof-json-schema@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/chainpoint-proof-json-schema/-/chainpoint-proof-json-schema-2.0.1.tgz#64d83bcf2bf23d5c5194b65e2cc4d955b6ecae0f"
-  integrity sha512-mf4YGkq9XGQYuEBmyhYuX7HaF2au/zmYDfxbMV5FM3vcV8jUuUJAOQ3JGSNVvRAKE1M8kv7v+JkxUxqctdwnnQ==
+chainpoint-proof-json-schema@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/chainpoint-proof-json-schema/-/chainpoint-proof-json-schema-2.0.3.tgz#e9528334cb7dabcc5c03493b85270883c5f60a49"
+  integrity sha512-siL/28Z6MbfjLG4q8bJ/c2BPujWT2kl1GZECxEhOMM0R66MweBOsDsXEgWfoPYOI/xxcTiK9+bBPOfJ0TvTrmw==
   dependencies:
     is-my-json-valid "^2.20.0"
 
@@ -1285,6 +1285,7 @@ etag@~1.8.1:
 event-lite@^0.1.1:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/event-lite/-/event-lite-0.1.2.tgz#838a3e0fdddef8cc90f128006c8e55a4e4e4c11b"
+  integrity sha512-HnSYx1BsJ87/p6swwzv+2v6B4X+uxUteoDfRxsAb1S1BePzQqOLevVmkdA15GHJVd9A9Ok6wygUR18Hu0YeV9g==
 
 evp_bytestokey@^1.0.3:
   version "1.0.3"
@@ -1545,12 +1546,14 @@ gauge@~2.7.3:
 generate-function@^2.0.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/generate-function/-/generate-function-2.3.1.tgz#f069617690c10c868e73b8465746764f97c3479f"
+  integrity sha512-eeB5GfMNeevm/GRYq20ShmsaGcmI81kIX2K9XQx5miC8KdHaC6Jm0qQ8ZNeGOi7wYB8OsdxKs+Y2oVuTFuVwKQ==
   dependencies:
     is-property "^1.0.2"
 
 generate-object-property@^1.1.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/generate-object-property/-/generate-object-property-1.2.0.tgz#9c0e1c40308ce804f4783618b937fa88f99d50d0"
+  integrity sha1-nA4cQDCM6AT0eDYYuTf6iPmdUNA=
   dependencies:
     is-property "^1.0.0"
 
@@ -1820,8 +1823,9 @@ iconv-lite@^0.4.24, iconv-lite@^0.4.4:
     safer-buffer ">= 2.1.2 < 3"
 
 ieee754@^1.1.8:
-  version "1.1.12"
-  resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.12.tgz#50bf24e5b9c8bb98af4964c941cdb0918da7b60b"
+  version "1.1.13"
+  resolved "https://registry.yarnpkg.com/ieee754/-/ieee754-1.1.13.tgz#ec168558e95aa181fd87d37f55c32bbcb6708b84"
+  integrity sha512-4vf7I2LYV/HaWerSo3XmlMkp5eZ83i+/CDluXi/IGTs/O1sejBNhTtnxzmRZfvOUqj7lZjqHkeTvpgSFDlWZTg==
 
 ignore-walk@^3.0.1:
   version "3.0.3"
@@ -1897,6 +1901,7 @@ inquirer@^6.1.0:
 int64-buffer@^0.1.9:
   version "0.1.10"
   resolved "https://registry.yarnpkg.com/int64-buffer/-/int64-buffer-0.1.10.tgz#277b228a87d95ad777d07c13832022406a473423"
+  integrity sha1-J3siiofZWtd30HwTgyAiQGpHNCM=
 
 invert-kv@^1.0.0:
   version "1.0.0"
@@ -2021,10 +2026,12 @@ is-glob@^4.0.0:
 is-my-ip-valid@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/is-my-ip-valid/-/is-my-ip-valid-1.0.0.tgz#7b351b8e8edd4d3995d4d066680e664d94696824"
+  integrity sha512-gmh/eWXROncUzRnIa1Ubrt5b8ep/MGSnfAUI3aRp+sqTCs1tv1Isl8d8F6JmkN3dXKc3ehZMrtiPN9eL03NuaQ==
 
 is-my-json-valid@^2.20.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/is-my-json-valid/-/is-my-json-valid-2.20.0.tgz#1345a6fca3e8daefc10d0fa77067f54cedafd59a"
+  integrity sha512-XTHBZSIIxNsIsZXg7XB5l8z/OBFosl1Wao4tXLpeC7eKU4Vm/kdop2azkPqULwnfGQjmeDIyey9g7afMMtdWAA==
   dependencies:
     generate-function "^2.0.0"
     generate-object-property "^1.1.0"
@@ -2077,6 +2084,7 @@ is-promise@^2.1.0:
 is-property@^1.0.0, is-property@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/is-property/-/is-property-1.0.2.tgz#57fe1c4e48474edd65b09911f26b1cd4095dda84"
+  integrity sha1-V/4cTkhHTt1lsJkR8msc1Ald2oQ=
 
 is-regex@^1.0.4:
   version "1.0.4"
@@ -2147,6 +2155,7 @@ js-sha3@^0.5.7:
 js-sha3@^0.8.0:
   version "0.8.0"
   resolved "https://registry.yarnpkg.com/js-sha3/-/js-sha3-0.8.0.tgz#b9b7a5da73afad7dedd0f8c463954cbde6818840"
+  integrity sha512-gF1cRrHhIzNfToc802P800N8PpXS+evLLXfsVpowqmAFR9uwbi89WvXg2QspOmXL8QL86J4T1EpFu+yUkwJY3Q==
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
@@ -2186,6 +2195,7 @@ json-stringify-safe@~5.0.1:
 jsonpointer@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/jsonpointer/-/jsonpointer-4.0.1.tgz#4fd92cb34e0e9db3c89c8622ecf51f9b978c6cb9"
+  integrity sha1-T9kss04OnbPInIYi7PUfm5eMbLk=
 
 jsprim@^1.2.2:
   version "1.4.1"
@@ -2636,6 +2646,7 @@ ms@^2.1.1:
 msgpack-lite@^0.1.26:
   version "0.1.26"
   resolved "https://registry.yarnpkg.com/msgpack-lite/-/msgpack-lite-0.1.26.tgz#dd3c50b26f059f25e7edee3644418358e2a9ad89"
+  integrity sha1-3TxQsm8FnyXn7e42REGDWOKprYk=
   dependencies:
     event-lite "^0.1.1"
     ieee754 "^1.1.8"
@@ -2930,8 +2941,9 @@ p-try@^2.0.0:
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-2.0.0.tgz#85080bb87c64688fa47996fe8f7dfbe8211760b1"
 
 pako@^1.0.10:
-  version "1.0.10"
-  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.10.tgz#4328badb5086a426aa90f541977d4955da5c9732"
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/pako/-/pako-1.0.11.tgz#6c9599d340d54dfd3946380252a35705a6b992bf"
+  integrity sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==
 
 parent-module@^1.0.0:
   version "1.0.0"

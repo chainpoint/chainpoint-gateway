@@ -1,14 +1,24 @@
 openapi: 3.0.0
 info:
-  title: 'Chainpoint Node'
-  description: 'Documentation for the Chainpoint Node API'
-  version: '2.0.0'
+  title: 'Chainpoint Gateway'
+  description: 'Documentation for the Chainpoint Gateway API'
+  version: '1.0.0'
   license:
     name: 'Apache 2.0'
     url: 'https://tldrlegal.com/license/apache-license-2.0-(apache-2.0)'
 servers:
-  - url: 'http://35.231.41.69'
-    description: 'Development server (produces testnet proofs)'
+  - url: 'http://3.17.155.208'
+    description: 'Mainnet Gateway A'
+  - url: 'http://18.191.50.129'
+    description: 'Mainnet Gateway B'
+  - url: 'http://18.224.185.143'
+    description: 'Mainnet Gateway C'
+  - url: 'http://3.136.178.15'
+    description: 'Testnet Gateway A (produces testnet proofs)'
+  - url: 'http://3.135.209.139'
+    description: 'Testnet Gateway B (produces testnet proofs)'
+  - url: 'http://18.222.108.78'
+    description: 'Testnet Gateway C (produces testnet proofs)'
 paths:
   '/hashes':
     post:
@@ -182,11 +192,11 @@ paths:
       - 'Calendar'
   '/config':
     get:
-      summary: 'Retrieves some basic information for the Node'
-      operationId: 'getNodeConfig'
+      summary: 'Retrieves some basic information for the Gateway'
+      operationId: 'getGatewayConfig'
       responses:
         '200':
-          description: 'Basic information about the Node and it''s environment'
+          description: 'Basic information about the Gateway and it''s environment'
           content:
             'application/json':
               schema:
@@ -247,7 +257,7 @@ components:
         proof:
           type: 'object'
           example:
-            '@context': 'https://w3id.org/chainpoint/v3'
+            '@context': 'https://w3id.org/chainpoint/v4'
             type: 'Chainpoint'
             hash: '11cd8a380e8d5fd3ac47c1f880390341d40b11485e8ae946d8fa3d466f23fe89'
             proof_id: '577c6c90-78d5-11e9-9c57-010a193d9f8c'
@@ -255,10 +265,6 @@ components:
             branches:
               - label: 'cal_anchor_branch'
                 ops:
-                  - l: 'node_id:577c6c90-78d5-11e9-9c57-010a193d9f8c'
-                  - op: 'sha-256'
-                  - l: 'core_id:5a22fb80-78d5-11e9-8186-01d1f712eccc'
-                  - op: 'sha-256'
                   - l: 'nistv2:1558119240000:eb591780782f746fda5e7ac8011064fda657ae451bd1ae6b71e2f5d7e24e9d49bdc25db6d901ccf8736bbf135c451d1edc9c6065b577d69f3fd9be6a1a8d0763'
                   - op: 'sha-256'
                   - l: '1766c5a6c10cf8ae5cce76c6d89cb9bc8696a2acf8e7ed4dbe05a71802cae38a'
@@ -357,7 +363,7 @@ tags:
   - name: 'Calendar'
     description: 'Chainpoint calendar transaction data'
   - name: 'Config'
-    description: 'Configuration information about the Node'
+    description: 'Configuration information about the Gateway'
 externalDocs:
   description: 'Find out more about Chainpoint'
   url: 'https://chainpoint.org'

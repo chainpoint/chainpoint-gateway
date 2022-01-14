@@ -137,7 +137,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with unknown hash_ids', () => {
+  describe('getCachedCoreProofsAsync with unknown proof_ids', () => {
     let proofId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
     let submitId1 = '77a34bd0-f4e7-11e7-a52b-016a36a9d789'
@@ -154,7 +154,7 @@ describe('Cached Proofs Methods', () => {
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
-        getProofsAsync: () => [{ hash_id: proofId1, proof: null }, { hash_id: proofId2, proof: null }]
+        getProofsAsync: () => [{ proof_id: proofId1, proof: null }, { proof_id: proofId2, proof: null }]
       })
     })
     it('should return expected value', async () => {
@@ -200,7 +200,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, cached hash_ids  - mainnet', () => {
+  describe('getCachedCoreProofsAsync with valid, cached proof_id  - mainnet', () => {
     let in15Minutes = Date.now() + 15 * 60 * 1000
     let proofId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -215,8 +215,8 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     let cacheContents = {
       [submitId1]: { coreProof: proofObj1, expiresAt: in15Minutes },
       [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
@@ -271,7 +271,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, cached hash_ids  - testnet', () => {
+  describe('getCachedCoreProofsAsync with valid, cached proof_id  - testnet', () => {
     let in15Minutes = Date.now() + 15 * 60 * 1000
     let proofId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -286,8 +286,8 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tcal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tbtc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tcal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-tbtc-proof-v4.chp.json'))
     let cacheContents = {
       [submitId1]: { coreProof: proofObj1, expiresAt: in15Minutes },
       [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
@@ -342,7 +342,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, non-cached hash_ids', () => {
+  describe('getCachedCoreProofsAsync with valid, non-cached proof_id', () => {
     let proofId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
     let submitId1 = '77a34bd0-f4e7-11e7-a52b-016a36a9d789'
@@ -356,12 +356,12 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
-        getProofsAsync: () => [{ hash_id: proofId1, proof: proofObj1 }, { hash_id: proofId2, proof: proofObj2 }]
+        getProofsAsync: () => [{ proof_id: proofId1, proof: proofObj1 }, { proof_id: proofId2, proof: proofObj2 }]
       })
       cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
@@ -423,7 +423,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, cached and non-cached hash_ids, cache a null result', () => {
+  describe('getCachedCoreProofsAsync with valid, cached and non-cached proof_ids, cache a null result', () => {
     let in15Minutes = Date.now() + 15 * 60 * 100
     let proofId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -444,15 +444,15 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId3,
       cores: [{ ip: ip, proofId: proofId3 }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     let cacheContents = {
       [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
     }
     before(() => {
       cachedProofs.setCoreProofCache(cacheContents)
       cachedProofs.setCores({
-        getProofsAsync: () => [{ hash_id: proofId1, proof: proofObj1 }, { hash_id: proofId3, proof: null }]
+        getProofsAsync: () => [{ proof_id: proofId1, proof: proofObj1 }, { proof_id: proofId3, proof: null }]
       })
       cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
@@ -527,7 +527,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with mixed, cached and unknown hash_ids, cache a null result', () => {
+  describe('getCachedCoreProofsAsync with mixed, cached and unknown proof_ids, cache a null result', () => {
     let in15Minutes = Date.now() + 15 * 60 * 1000
     let proofId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -542,14 +542,14 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     let cacheContents = {
       [submitId2]: { coreProof: proofObj2, expiresAt: in15Minutes }
     }
     before(() => {
       cachedProofs.setCoreProofCache(cacheContents)
       cachedProofs.setCores({
-        getProofsAsync: () => [{ hash_id: proofId1, proof: null }]
+        getProofsAsync: () => [{ proof_id: proofId1, proof: null }]
       })
       cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
@@ -602,7 +602,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with mixed, non-cached and unknown hash_ids', () => {
+  describe('getCachedCoreProofsAsync with mixed, non-cached and unknown proof_ids', () => {
     let proofId1 = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2 = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
     let submitId1 = '77a34bd0-f4e7-11e7-a52b-016a36a9d789'
@@ -616,11 +616,11 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip, proofId: proofId2 }]
     }
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
-        getProofsAsync: () => [{ hash_id: proofId1, proof: null }, { hash_id: proofId2, proof: proofObj2 }]
+        getProofsAsync: () => [{ proof_id: proofId1, proof: null }, { proof_id: proofId2, proof: proofObj2 }]
       })
       cachedProofs.setENV({ NETWORK: 'mainnet' })
     })
@@ -676,7 +676,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, non-cached hash_ids, first IP bad', () => {
+  describe('getCachedCoreProofsAsync with valid, non-cached proof_ids, first IP bad', () => {
     let proofId1a = '55a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId1b = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2a = '55bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -693,14 +693,14 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip1, proofId: proofId2a }, { ip: ip2, proofId: proofId2b }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
         getProofsAsync: ip => {
           if (ip === ip1) throw new Error('Bad IP')
-          return [{ hash_id: proofId1b, proof: proofObj1 }, { hash_id: proofId2b, proof: proofObj2 }]
+          return [{ proof_id: proofId1b, proof: proofObj1 }, { proof_id: proofId2b, proof: proofObj2 }]
         }
       })
       cachedProofs.setENV({ NETWORK: 'mainnet' })
@@ -763,7 +763,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, non-cached hash_ids, IP bad, different sub counts', () => {
+  describe('getCachedCoreProofsAsync with valid, non-cached proof_ids, IP bad, different sub counts', () => {
     let proofId1a = '55a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2a = '55bd6380-f4e7-11e7-895d-0176dc2220aa'
     let proofId2b = '66bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -779,13 +779,13 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip1, proofId: proofId2a }, { ip: ip2, proofId: proofId2b }]
     }
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
         getProofsAsync: ip => {
           if (ip === ip1) throw new Error('Bad IP')
-          return [{ hash_id: proofId2b, proof: proofObj2 }]
+          return [{ proof_id: proofId2b, proof: proofObj2 }]
         }
       })
       cachedProofs.setENV({ NETWORK: 'mainnet' })
@@ -834,7 +834,7 @@ describe('Cached Proofs Methods', () => {
     })
   })
 
-  describe('getCachedCoreProofsAsync with valid, non-cached hash_ids, two IPs bad, different sub counts and IPs', () => {
+  describe('getCachedCoreProofsAsync with valid, non-cached proof_ids, two IPs bad, different sub counts and IPs', () => {
     let proofId1a = '55a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId1b = '66a34bd0-f4e7-11e7-a52b-016a36a9d789'
     let proofId2a = '55bd6380-f4e7-11e7-895d-0176dc2220aa'
@@ -855,15 +855,15 @@ describe('Cached Proofs Methods', () => {
       submitId: submitId2,
       cores: [{ ip: ip2a, proofId: proofId2a }, { ip: ip2b, proofId: proofId2b }, { ip: ip2c, proofId: proofId2c }]
     }
-    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof.chp.json'))
-    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json'))
+    let proofObj1 = JSON.parse(fs.readFileSync('./tests/sample-data/core-cal-proof-v4.chp.json'))
+    let proofObj2 = JSON.parse(fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json'))
     before(() => {
       cachedProofs.setCoreProofCache({})
       cachedProofs.setCores({
         getProofsAsync: ip => {
           if (ip === ip1a || ip == ip2a || ip == ip2b) throw new Error('Bad IP')
-          if (ip == ip1b) return [{ hash_id: proofId1b, proof: proofObj1 }]
-          if (ip == ip2c) return [{ hash_id: proofId2c, proof: proofObj2 }]
+          if (ip == ip1b) return [{ proof_id: proofId1b, proof: proofObj1 }]
+          if (ip == ip2c) return [{ proof_id: proofId2c, proof: proofObj2 }]
         }
       })
       cachedProofs.setENV({ NETWORK: 'mainnet' })

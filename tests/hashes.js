@@ -187,7 +187,7 @@ describe('Hashes Controller', () => {
           expect(err).to.equal(null)
           expect(res.body).to.have.property('meta')
           expect(res.body.meta)
-            .to.have.property('submitted_at')
+            .to.have.property('hash_received')
             .and.to.be.a('string')
           expect(res.body.meta).to.have.property('processing_hints')
           expect(res.body.meta.processing_hints)

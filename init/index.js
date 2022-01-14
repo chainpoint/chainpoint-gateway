@@ -57,7 +57,7 @@ const initQuestionConfig = [
   {
     type: 'input',
     name: 'LND_PUBLIC_IP',
-    message: "Enter your Node's Public IP Address:",
+    message: "Enter your Gateway's Public IP Address:",
     validate: input => {
       if (input) {
         return validator.isIP(input, 4)

@@ -46,7 +46,7 @@ describe('Proofs Controller', () => {
         if (submissionData.length === 0) return []
         switch (submissionData[0].submitId) {
           case 'e4c59c50-37cd-11e9-b270-d778f1c6df42': {
-            let proofJSON = fs.readFileSync('./tests/sample-data/core-btc-proof.chp.json')
+            let proofJSON = fs.readFileSync('./tests/sample-data/core-btc-proof-v4.chp.json')
             return [
               {
                 submitId: submissionData[0].submitId,
@@ -67,7 +67,7 @@ describe('Proofs Controller', () => {
   })
 
   describe('GET /proofs', () => {
-    it('should return the proper error with bad hash_id in uri', done => {
+    it('should return the proper error with bad proof_id in uri', done => {
       request(insecureServer)
         .get('/proofs/badproofid')
         .expect('Content-type', /json/)
@@ -81,12 +81,12 @@ describe('Proofs Controller', () => {
           expect(res.body)
             .to.have.property('message')
             .and.to.be.a('string')
-            .and.to.equal('invalid request, bad hash_id')
+            .and.to.equal('invalid request, bad proof_id')
           done()
         })
     })
 
-    it('should return the proper error with no hash ids', done => {
+    it('should return the proper error with no proof ids', done => {
       request(insecureServer)
         .get('/proofs')
         .expect('Content-type', /json/)
@@ -100,12 +100,12 @@ describe('Proofs Controller', () => {
           expect(res.body)
             .to.have.property('message')
             .and.to.be.a('string')
-            .and.to.equal('invalid request, at least one hash id required')
+            .and.to.equal('invalid request, at least one proof id required')
           done()
         })
     })
 
-    it('should return the proper error with too many hash_ids', done => {
+    it('should return the proper error with too many proof_ids', done => {
       request(insecureServer)
         .get('/proofs')
         .set('proofids', 'a3127662-2e21-11e9-b210-d663bd873d93,a3127662-2e21-11e9-b210-d663bd873d99')
@@ -120,12 +120,12 @@ describe('Proofs Controller', () => {
           expect(res.body)
             .to.have.property('message')
             .and.to.be.a('string')
-            .and.to.equal('invalid request, too many hash ids (1 max)')
+            .and.to.equal('invalid request, too many proof ids (1 max)')
           done()
         })
     })
 
-    it('should return the proper error with invalid hash_id in header', done => {
+    it('should return the proper error with invalid proof_id in header', done => {
       request(insecureServer)
         .get('/proofs')
         .set('proofids', 'invalid')
@@ -140,12 +140,12 @@ describe('Proofs Controller', () => {
           expect(res.body)
             .to.have.property('message')
             .and.to.be.a('string')
-            .and.to.equal('invalid request, bad hash_id')
+            .and.to.equal('invalid request, bad proof_id')
           done()
         })
     })
 
-    it('should return the proper empty result with unknown hash_id', done => {
+    it('should return the proper empty result with unknown proof_id', done => {
       let proofId = 'a3127662-2e21-11e9-b210-d663bd873d93'
       request(insecureServer)
         .get('/proofs')
@@ -261,10 +261,6 @@ describe('Proofs Controller', () => {
             .to.have.property('proof_id')
             .and.to.be.a('string')
             .and.to.equal(proofId)
-          expect(res.body[0].proof)
-            .to.have.property('hash_id_core')
-            .and.to.be.a('string')
-            .and.to.equal('000139a0-2e5c-11e9-bec9-01115ea738e6')
           expect(res.body[0])
             .to.have.property('anchors_complete')
             .and.to.be.a('array')
