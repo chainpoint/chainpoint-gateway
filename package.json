@@ -64,6 +64,7 @@
     "envalid": "^4.2.0",
     "executive": "^1.6.3",
     "generate-password": "^1.4.2",
+    "id128": "^1.6.6",
     "ip": "^1.1.5",
     "jmespath": "^0.15.0",
     "js-binary": "^1.2.0",
