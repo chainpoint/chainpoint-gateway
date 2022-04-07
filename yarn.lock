@@ -668,28 +668,28 @@ chai@^4.2.0:
     pathval "^1.1.1"
     type-detect "^4.0.5"
 
-chainpoint-binary@^5.1.0:
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/chainpoint-binary/-/chainpoint-binary-5.1.0.tgz#9a48ca051bcc8d5bcab0b7da1954a4f0b9e43d26"
-  integrity sha512-dQoUzTu/ibtfWUn+MC08NSQwL/5LDBwMHN1kI/kjxvwwCv1eHmS0cQxnf4o4XmXV2iYBI1J8OvXM8EiXVZ5foA==
+chainpoint-binary@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/chainpoint-binary/-/chainpoint-binary-5.1.1.tgz#8dabbda52c37048c3529d6eb39dcdf56ea079c22"
+  integrity sha512-chSwD387V+icepgBhuyRTfnHLWgJDs5YXRny4B36FHjyKwhmqrs1FGacV+k9lNjIPCFjORlUvbTflX0yMIu0fQ==
   dependencies:
-    chainpoint-proof-json-schema "^2.1.0"
+    chainpoint-proof-json-schema "^2.1.1"
     msgpack-lite "^0.1.26"
     pako "^1.0.10"
 
-chainpoint-parse@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-5.0.0.tgz#441886b925bf66df659e60fc932f3fceb4967d3f"
-  integrity sha512-M+zvHYBBzS9dd8KAV8sntGUPp3zfDRqDEqQSEY+XOTw3GuLGz8llhsJ5gWsaehpcKIe8y4CmlPvVUBzyvcKx9Q==
+chainpoint-parse@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/chainpoint-parse/-/chainpoint-parse-5.0.1.tgz#46bbec3d4253fa448a9f64c3ab0ccbafe3d14148"
+  integrity sha512-5roC8XqAUMQLJIghbWZm7J5CDA1vc1CxwGD0AnD9akF8XEtT97wxUJBrsxTw7FINhWnpWL9P/mfkrlnpUlmbzQ==
   dependencies:
-    chainpoint-binary "^5.1.0"
-    chainpoint-proof-json-schema "^2.1.0"
+    chainpoint-binary "^5.1.1"
+    chainpoint-proof-json-schema "^2.1.1"
     js-sha3 "^0.8.0"
 
-chainpoint-proof-json-schema@^2.1.0:
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/chainpoint-proof-json-schema/-/chainpoint-proof-json-schema-2.1.0.tgz#ab14f9d8bddf1c31501484b27fdcf38f08d7a7f0"
-  integrity sha512-oGL1+w1JKja/AGZZOiD+tzJD7x1aklBajADvl6F2nucS1e79ocNLrxaMD+umHu8eehVppiqT36TN0Gx7MZTOdQ==
+chainpoint-proof-json-schema@^2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/chainpoint-proof-json-schema/-/chainpoint-proof-json-schema-2.1.1.tgz#5569f41fce83aa74bbdadfa7e1d6ee6679306c96"
+  integrity sha512-UaB5q/LLDxLr4Yivp4dTj62njnbVFCt1H+2581bIoeP/V0KCoDCOTTlJl6Ghg8N57Akwg9jJ/JIncBTRhjA0YQ==
   dependencies:
     is-my-json-valid "^2.20.0"
 
