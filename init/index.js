@@ -34,7 +34,7 @@ const LND_SOCKET = '127.0.0.1:10009'
 const MIN_CHANNEL_SATOSHI = 100000
 const CHANNEL_OPEN_OVERHEAD_SAFE = 20000
 
-const CORE_SEED_IPS_MAINNET = []
+const CORE_SEED_IPS_MAINNET = ['18.220.31.138']
 const CORE_SEED_IPS_TESTNET = ['3.133.119.65', '52.14.49.31', '3.135.54.225']
 
 const initQuestionConfig = [
@@ -308,9 +308,7 @@ async function askFundAmountAsync(progress) {
       {
         type: 'confirm',
         name: 'AGREE',
-        message: `${
-          fundAnswer1.AMOUNT
-        } per channel will require ${totalFundsNeeded} Satoshi total funding. Is this OK?`,
+        message: `${fundAnswer1.AMOUNT} per channel will require ${totalFundsNeeded} Satoshi total funding. Is this OK?`,
         default: true
       }
     ]
@@ -349,9 +347,7 @@ async function askFundAmountAsync(progress) {
 async function waitForSyncAndFundingAsync(progress) {
   console.log(
     chalk.yellow(
-      `This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least ${
-        progress.finalFundAmount
-      } Satoshi. The init process should resume automatically. \n`
+      `This initialization process will now wait until your Lightning node is fully synced and your wallet is funded with at least ${progress.finalFundAmount} Satoshi. The init process should resume automatically. \n`
     )
   )
 
